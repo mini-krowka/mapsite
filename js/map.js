@@ -94,7 +94,7 @@ window.yandexLayer = L.tileLayer(yandexUrl, {
 
 
 // Инициализация карты
-const map = L.map('map').setView([48.257381, 37.134785], 11);
+const map = L.map('map').setView([48.257381, 37.134785], 10);
 // L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     // attribution: '© OpenStreetMap'
 // }).addTo(map);
@@ -181,8 +181,8 @@ const baseLayers = {
     "ESRI World Imagery": esri,
     // "CartoDB Voyager": carto,
     // "RU Army": ru,
-    "Google Maps": goo
-    // "Yandex Maps": yandexLayer
+    "Google Maps": goo,
+    "Yandex Maps": yandexLayer
 };
 
 // Создаем кастомный контрол слоев
@@ -529,8 +529,5 @@ document.addEventListener('DOMContentLoaded', function() {
     initMeasureControl(); // Инициализация линейки
     hideRulerPanel();
 });
-
-
-
 
 

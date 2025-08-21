@@ -215,7 +215,7 @@ body {
     margin: 0;
 }
 
-@media (max-width: 825px) {
+@media (max-width: 901px) {
     .header-container {
         flex-direction: column;
         /* gap: 10px; */
@@ -313,7 +313,7 @@ body {
 
 
 /* Стили для широких экранов - показываем оригинальные элементы */
-@media (min-width: 826px) {    
+@media (min-width: 902px) {
     .mobile-title {
         display: none !important;
     }
@@ -509,7 +509,7 @@ body {
 }
 
 /* Моб. и планшет: центрируем кнопку строго по высоте инпута в меню */
-@media (max-width: 1599px) {
+@media (max-width: 1837px) {
  #coords-input + .clear-input-btn { display: none !important; }
   .nav-dropdown .input-with-clear {
     position: relative;
@@ -535,8 +535,8 @@ body {
   }
 }
 
-/* Очень узкие — те же правила (дублируем, если у тебя есть отдельные медиа ниже 825px) */
-@media (max-width: 825px) {
+/* Очень узкие — те же правила (дублируем, если у тебя есть отдельные медиа ниже 901px) */
+@media (max-width: 901px) {
  #coords-input + .clear-input-btn { display: none !important; }
   .nav-dropdown .input-with-clear {
     position: relative;

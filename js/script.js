@@ -750,7 +750,7 @@ async function reloadKmlForCRS(center, zoom) {
         map.setView(center, zoom);
     } else {
         // Используем центр по умолчанию, если текущий невалиден
-        map.setView([48.257381, 37.134785], 11);
+        map.setView([48.257381, 37.134785], 10);
     }
     
     map.invalidateSize();
@@ -1351,7 +1351,7 @@ function initDartMenu() {
     
     // Обработчик изменения размера окна
     function handleResize() {
-        if (window.innerWidth < 1600) { // 1800
+        if (window.innerWidth < 1838) {
             hideableItems.forEach(item => item.style.display = 'none');
             navMenuToggle.style.display = 'flex';
         } else {
@@ -1578,7 +1578,7 @@ document.addEventListener('DOMContentLoaded', function() {
             this.closest('.view-menu-container').classList.remove('active');
             
             // Открываем ссылку в новом окне
-            window.open('https://ru.wikipedia.org/wiki/Telegram', '_blank');
+            window.open('https://goo.gl/maps/4eum5C9giNDebgXf7', '_blank');
         });
     });
 });
