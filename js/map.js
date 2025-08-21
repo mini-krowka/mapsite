@@ -181,8 +181,8 @@ const baseLayers = {
     "ESRI World Imagery": esri,
     // "CartoDB Voyager": carto,
     // "RU Army": ru,
-    "Google Maps": goo,
-    "Yandex Maps": yandexLayer
+    "Google Maps": goo
+    // "Yandex Maps": yandexLayer
 };
 
 // Создаем кастомный контрол слоев
@@ -529,6 +529,7 @@ document.addEventListener('DOMContentLoaded', function() {
     initMeasureControl(); // Инициализация линейки
     hideRulerPanel();
 });
+
 
 
 
