@@ -1,0 +1,1851 @@
+let currentLayer = null;
+let permanentLayer = null;
+let currentIndex = kmlFiles.length - 1;
+let preserveZoom = false;
+
+let lastSelectedCity = null;
+citiesDropdown = document.getElementById('cities-dropdown');
+coordsInput = document.getElementById('coords-input');
+currentCenterCoordsElement = document.getElementById('current-center-coords');
+copyCoordsBtn = document.getElementById('copy-coords-btn');
+
+let selectedDate = null; // Глобальная переменная для хранения текущей даты
+
+// Глобальный флаг для логгирования стилей временных файлов
+const LOG_TEMPORARY_STYLES = true; // Можно менять на false для отключения
+
+// Получаем массив доступных дат из kmlFiles
+const availableDates = kmlFiles.map(file => file.name);
+
+// Функция для преобразования даты из формата DD.MM.YY в объект Date
+function parseCustomDate(dateStr) {
+    const [day, month, year] = dateStr.split('.').map(Number);
+    return new Date(2000 + year, month - 1, day);
+}
+
+// Инициализация календаря с ограничением доступных дат
+let datePicker;
+function initDatePicker() {
+    // Используем сохраненную дату или последнюю доступную
+    const defaultDate = selectedDate || kmlFiles[kmlFiles.length - 1].name;
+    
+    datePicker = flatpickr("#date-picker", {
+        locale: currentLang === 'ru' ? 'ru' : 'default',
+        dateFormat: "d.m.y",
+        allowInput: true,
+        defaultDate: defaultDate, // Используем сохраненную дату
+        enable: [
+            function(date) {
+                const dateStr = `${date.getDate().toString().padStart(2, '0')}.${(date.getMonth()+1).toString().padStart(2, '0')}.${date.getFullYear().toString().slice(-2)}`;
+                return availableDates.includes(dateStr);
+            }
+        ],
+        onChange: function(selectedDates, dateStr) {
+            const index = kmlFiles.findIndex(file => file.name === dateStr);
+            if (index !== -1) {
+                navigateTo(index);
+            }
+        },
+        onDayCreate: function(dObj, dStr, fp, dayElem) {
+            const today = new Date();
+            const isToday = dayElem.dateObj.getDate() === today.getDate() && 
+                           dayElem.dateObj.getMonth() === today.getMonth() && 
+                           dayElem.dateObj.getFullYear() === today.getFullYear();
+            
+            if (isToday) {
+                dayElem.classList.add('today');
+            }
+            
+            const dateStr = `${dayElem.dateObj.getDate().toString().padStart(2, '0')}.${(dayElem.dateObj.getMonth()+1).toString().padStart(2, '0')}.${dayElem.dateObj.getFullYear().toString().slice(-2)}`;
+            
+            if (availableDates.includes(dateStr)) {
+                dayElem.classList.add('available');
+                
+                if (dateStr === kmlFiles[currentIndex].name) {
+                    dayElem.classList.add('selected');
+                }
+            }
+        }
+    });
+}
+
+// Функция для проверки валидности координат
+function isValidCoordinate(value, isLatitude) {
+    const num = parseFloat(value);
+    if (isNaN(num)) return false;
+    if (isLatitude) return num >= -90 && num <= 90;
+    return num >= -180 && num <= 180;
+}
+
+// Функция обновления отображения текущего центра
+function updateCurrentCenterDisplay() {
+    // Проверка на доступность карты
+    if (!map || !map.getCenter || !currentCenterCoordsElement) return;
+    
+    const center = map.getCenter();
+    if (center.lat === 0 && center.lng === 0) return; // Игнорируем нулевые координаты
+    
+	// обновление лейбла
+    currentCenterCoordsElement.textContent =
+        `${center.lat.toFixed(6)}, ${center.lng.toFixed(6)}`;
+		
+    // Обновляем клон лейбла для дартс-меню
+    const cloneCoords = document.getElementById('current-center-coords-clone');
+    if (cloneCoords) {
+        cloneCoords.textContent = `${center.lat.toFixed(6)}, ${center.lng.toFixed(6)}`;
+    }
+}
+
+// функция заполнения списка городов
+function populateCitiesDropdown() {
+    // Проверяем, что элемент существует
+    if (!citiesDropdown) {
+        console.error("Элемент cities-dropdown не найден");
+        return;
+    }
+    
+    // Очищаем список, кроме первого элемента
+    while (citiesDropdown.options.length > 1) {
+        citiesDropdown.remove(1);
+    }
+    
+    // Проверяем наличие данных о городах
+    if (!cities || !cities.length) {
+        console.error("Данные о городах отсутствуют");
+        return;
+    }
+    
+    // Добавляем города на текущем языке
+    cities.forEach(city => {
+        const option = document.createElement('option');
+        option.value = city.name.ru; // Сохраняем русское название как значение
+        option.textContent = city.name[currentLang] || city.name.ru;
+        citiesDropdown.appendChild(option);
+    });
+}
+
+function parseCoordinateString(str) {
+    if (!str) return null;
+
+    // Нормализуем строку: убираем мусор, приводим к верхнему регистру
+    let cleaned = str
+        .trim()
+        .toUpperCase()
+        .replace(/[‘'′]/g, "'")
+        .replace(/[“”″]/g, '"')
+        .replace(/[°º˚]/g, '°')
+        .replace(/\s+/g, ' ')
+        .replace(/С(\.|\s)?Ш(\.)?/g, 'N')
+        .replace(/Ю(\.|\s)?Ш(\.)?/g, 'S')
+        .replace(/З(\.|\s)?Д(\.)?/g, 'W')
+        .replace(/В(\.|\s)?Д(\.)?/g, 'E')
+        .replace(/[^0-9A-Z°'" .,;\-]/g, '')
+        .trim();
+
+    let match;
+
+    // Поддержка дробей с запятой: 47,574318,35,412388
+    // Заменим все запятые на точки, но только если есть ровно 2
+    const numCommas = (str.match(/,/g) || []).length;
+    if (numCommas === 2 && str.indexOf('.') === -1) {
+        cleaned = str.replace(/,/g, '.').replace(/\s+/g, ' ');
+    }
+
+    // Попробуем распарсить как два десятичных числа с любым разделителем
+    const decimalRegex = /^(-?\d{1,2}(?:[.,]\d+))\s*[,;\s]\s*(-?\d{1,3}(?:[.,]\d+))$/;
+    if ((match = cleaned.match(decimalRegex))) {
+        const lat = parseFloat(match[1].replace(',', '.'));
+        const lon = parseFloat(match[2].replace(',', '.'));
+        return [lat, lon];
+    }
+
+    // Десятичные координаты с полушариями (47.574318° N 35.412388° E)
+    const hemisphericalDecimalRegex = /^(\d{1,2}(?:[.,]\d+)?)°?\s*([NS])\s+(\d{1,3}(?:[.,]\d+)?)°?\s*([EW])$/;
+    if ((match = cleaned.match(hemisphericalDecimalRegex))) {
+        const lat = parseFloat(match[1].replace(',', '.')) * (match[2] === 'S' ? -1 : 1);
+        const lon = parseFloat(match[3].replace(',', '.')) * (match[4] === 'W' ? -1 : 1);
+        return [lat, lon];
+    }
+
+    // DMS координаты (47°56'53"N 36°33'13"E)
+    const dmsRegex = /([NS])?\s*(\d{1,2})°\s*(\d{1,2})'?\s*(\d{1,2}(?:[.,]\d+)?)?"?\s*([NS])?\s*([EW])?\s*(\d{1,3})°\s*(\d{1,2})'?\s*(\d{1,2}(?:[.,]\d+)?)?"?\s*([EW])?/;
+    if ((match = cleaned.match(dmsRegex))) {
+        const latDir = match[1] || match[5] || 'N';
+        const lonDir = match[6] || match[10] || 'E';
+
+        const latDeg = parseFloat(match[2]);
+        const latMin = parseFloat(match[3]);
+        const latSec = parseFloat(match[4].replace(',', '.'));
+
+        const lonDeg = parseFloat(match[7]);
+        const lonMin = parseFloat(match[8]);
+        const lonSec = parseFloat(match[9].replace(',', '.'));
+
+        const lat = (latDeg + latMin / 60 + latSec / 3600) * (latDir === 'S' ? -1 : 1);
+        const lon = (lonDeg + lonMin / 60 + lonSec / 3600) * (lonDir === 'W' ? -1 : 1);
+
+        return [lat, lon];
+    }
+
+    // Русские десятичные координаты (N 47,574318 E 35,412388)
+    const russianDecimalRegex = /^(\d{1,2}(?:[.,]\d+)?)°?\s*N\s+(\d{1,3}(?:[.,]\d+)?)°?\s*E$/;
+    if ((match = cleaned.match(russianDecimalRegex))) {
+        const lat = parseFloat(match[1].replace(',', '.'));
+        const lon = parseFloat(match[2].replace(',', '.'));
+        return [lat, lon];
+    }
+
+    return null;
+}
+
+
+
+// Функция центрирования карты по координатам
+let highlightMarker = null;
+let highlightTimeout = null;
+let highlightAnimationInterval = null;
+
+function centerMap(lat, lng) {    
+    const centerMapZoom = 14;
+    map.setView([lat, lng], centerMapZoom);
+    document.getElementById('coords-input').value = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+
+    // Очищаем предыдущие элементы
+    if (highlightMarker) {
+        map.removeLayer(highlightMarker);
+        highlightMarker = null;
+    }
+    if (highlightTimeout) {
+        clearTimeout(highlightTimeout);
+        highlightTimeout = null;
+    }
+
+    // Создаем кастомную иконку с фиксированным размером в пикселях
+    const customIcon = L.icon({
+        iconUrl: 'img/mapMarker.png', // путь к вашей картинке
+        iconSize: [100, 100],           // размер иконки в пикселях [ширина, высота]
+        iconAnchor: [50, 50],        // точка привязки должна быть в центре нижней части изображения
+        popupAnchor: [0, 0],       // где появляется popup относительно anchor
+        className: 'fixed-marker'     // добавляем класс для дополнительного CSS контроля
+    });
+
+    // Создаем маркер с кастомной иконкой
+    highlightMarker = L.marker([lat, lng], {icon: customIcon}).addTo(map);
+
+    // Убрали таймер автоматического удаления
+    // Удаление теперь будет происходить только по кнопке очистки
+    
+    // Явно обновляем лейблы текущих координат
+    document.getElementById('current-center-coords').textContent = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+    
+    const cloneCoords = document.getElementById('current-center-coords-clone');
+    if (cloneCoords) {
+        cloneCoords.textContent = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+    }
+        
+    // Обновляем поля ввода координат
+    const coordValue = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+    
+    // Основное поле ввода
+    const coordsInput = document.getElementById('coords-input');
+    if (coordsInput) coordsInput.value = coordValue;
+    
+    // Клон поля ввода для дартс-меню
+    const coordsClone = document.getElementById('coords-input-clone');
+    if (coordsClone) coordsClone.value = coordValue;
+}
+
+// Функция для очистки маркера и полей ввода
+function clearMarkerAndInput() {
+    if (highlightMarker) {
+        map.removeLayer(highlightMarker);
+        highlightMarker = null;
+    }
+    if (highlightTimeout) {
+        clearTimeout(highlightTimeout);
+        highlightTimeout = null;
+    }
+    
+    // Очищаем оба поля ввода координат
+    const coordsInput = document.getElementById('coords-input');
+    const coordsClone = document.getElementById('coords-input-clone');
+    
+    if (coordsInput) coordsInput.value = '';
+    if (coordsClone) coordsClone.value = '';
+    
+    // Обновляем видимость кнопок очистки
+    toggleClearButton(coordsInput);
+    toggleClearButton(coordsClone);
+}
+
+
+// Вспомогательные функции для парсинга (должны быть доступны для постоянных и временных слоев)
+function parseLineStyle(style) {
+    const lineStyle = style.querySelector('LineStyle');
+    if (!lineStyle) return null;
+    
+    const colorElement = lineStyle.querySelector('color');
+    const rawColor = colorElement ? colorElement.textContent : null;
+    const width = parseFloat(lineStyle.querySelector('width')?.textContent || '0');
+    
+    return {
+        rawColor: rawColor,
+        color: rawColor ? parseColor(rawColor) : '#3388ff',
+        weight: width,
+        opacity: rawColor ? parseOpacity(rawColor) : 1
+    };
+}
+
+function parsePolyStyle(style) {
+    const polyStyle = style.querySelector('PolyStyle');
+    if (!polyStyle) return null;
+
+    const colorElement = polyStyle.querySelector('color');
+    const rawColor = colorElement ? colorElement.textContent : null;
+
+    return {
+        rawColor: rawColor,
+        fillColor: rawColor ? parseColor(rawColor) : '#3388ff',
+        fillOpacity: rawColor ? parseOpacity(rawColor) : 0.5
+    };
+}
+
+function parseCoordinates(element, crs) {
+  // Строка из поля — одна пара [lat, lng]
+  if (typeof element === 'string') {
+    const val = element.trim();
+    if (!val) return [];
+    if (typeof parseCoordinateString === 'function') {
+      const tuple = parseCoordinateString(val);
+      return Array.isArray(tuple) && tuple.length >= 2 ? [tuple[0], tuple[1]] : [];
+    }
+    const m = val.match(/(-?\d+(?:[\.,]\d+)?)[\s,]+(-?\d+(?:[\.,]\d+)?)/);
+    if (!m) return [];
+    const lat = parseFloat(m[1].replace(',', '.'));
+    const lng = parseFloat(m[2].replace(',', '.'));
+    return [lat, lng];
+  }
+
+  // KML-элемент — массив пар [[lat, lng], ...]
+  const coordinates = element?.querySelector('coordinates')?.textContent;
+  if (!coordinates) return [];
+  return coordinates
+    .trim()
+    .split(/\s+/)
+    .map(coord => {
+      const parts = coord.split(',');
+      if (parts.length < 2) return null;
+      const lng = parseFloat(parts[0]);
+      const lat = parseFloat(parts[1]);
+      if (Number.isNaN(lat) || Number.isNaN(lng)) return null;
+      return [lat, lng];
+    })
+    .filter(Boolean);
+}
+
+function parseColor(kmlColor) {
+    if (!kmlColor) return '#3388ff';
+    const a = kmlColor.substr(0, 2);
+    const b = kmlColor.substr(2, 2);
+    const g = kmlColor.substr(4, 2);
+    const r = kmlColor.substr(6, 2);
+    return `#${r}${g}${b}`;
+}
+
+function parseOpacity(kmlColor) {
+    if (!kmlColor) return 1;
+    const alpha = parseInt(kmlColor.substr(0, 2), 16) / 255;
+    return Number(alpha.toFixed(2));
+}
+
+
+window.permanentLayerGroups = []; // Храним группы слоёв
+
+// Функция загрузки постоянных KML-слоев
+async function loadPermanentKmlLayers() {
+    try {
+        console.log("Начало загрузки постоянных слоев");
+        
+        if (!window.permanentLayers || !Array.isArray(window.permanentLayers)) {
+            console.error("window.permanentLayers не определен или не является массивом");
+            return;
+        }
+        
+        console.log("Найдено постоянных слоев:", window.permanentLayers.length);
+
+        // Удаляем старые постоянные слои
+        if (window.permanentLayerGroups && window.permanentLayerGroups.length) {
+            window.permanentLayerGroups.forEach(layer => map.removeLayer(layer));
+            window.permanentLayerGroups = [];
+        }
+
+        for (const layerData of window.permanentLayers) {
+            if (!layerData.path) {
+                console.error("Отсутствует путь для постоянного слоя:", layerData);
+                continue;
+            }
+            
+            console.log("Загрузка постоянного слоя:", layerData.path);
+            
+            try {
+                const response = await fetch(layerData.path);
+                if (!response.ok) {
+                    console.error(`Ошибка загрузки KML (${layerData.path}): ${response.status}`);
+                    continue;
+                }
+                
+                const kmlText = await response.text();
+                const parser = new DOMParser();
+                const kmlDoc = parser.parseFromString(kmlText, "text/xml");
+                
+                const layerGroup = L.layerGroup();
+                const styles = {};
+                const styleMaps = {};
+                
+                console.groupCollapsed(`Permanent layer loaded: ${layerData.path}`);
+                let elementCount = 0;
+                let bounds = L.latLngBounds(); // Инициализация границ для этого слоя
+
+                // Парсинг стилей
+                kmlDoc.querySelectorAll('Style').forEach(style => {
+                    const id = style.getAttribute('id');
+                    styles[id] = {
+                        line: parseLineStyle(style),
+                        poly: parsePolyStyle(style)
+                    };
+                });
+
+                // Парсинг StyleMap
+                kmlDoc.querySelectorAll('StyleMap').forEach(styleMap => {
+                    const id = styleMap.getAttribute('id');
+                    const pairs = {};
+                    styleMap.querySelectorAll('Pair').forEach(pair => {
+                        const key = pair.querySelector('key').textContent;
+                        const styleUrl = pair.querySelector('styleUrl').textContent.replace('#', '');
+                        pairs[key] = styleUrl;
+                    });
+                    styleMaps[id] = pairs;
+                });
+
+                // Обработка Placemarks
+                kmlDoc.querySelectorAll('Placemark').forEach(placemark => {
+                    const styleUrl = placemark.querySelector('styleUrl')?.textContent.replace('#', '');
+                    let style = { line: {}, poly: {} };
+                    
+                    if (styleUrl) {
+                        if (styleMaps[styleUrl]) {
+                            const normalStyleId = styleMaps[styleUrl].normal;
+                            if (styles[normalStyleId]) {
+                                style.line = styles[normalStyleId].line || {};
+                                style.poly = styles[normalStyleId].poly || {};
+                            }
+                        } else if (styles[styleUrl]) {
+                            style.line = styles[styleUrl].line || {};
+                            style.poly = styles[styleUrl].poly || {};
+                        }
+                    }
+
+                    console.groupCollapsed(`Placemark styles: ${placemark.querySelector('name')?.textContent || 'unnamed'}`);
+                    console.log('Style URL:', styleUrl);
+                    console.log('Line Style:', style.line ? {
+                        rawColor: style.line.rawColor, 
+                        parsedColor: style.line.color,
+                        weight: style.line.weight,
+                        opacity: style.line.opacity
+                    } : null);
+                    console.log('Poly Style:', style.poly ? {
+                        rawColor: style.poly.rawColor, 
+                        parsedFillColor: style.poly.fillColor,
+                        fillOpacity: style.poly.fillOpacity
+                    } : null);
+
+                    // Обработка LineString
+                    const lineString = placemark.querySelector('LineString');
+                    if (lineString) {
+                        const coords = parseCoordinates(lineString, map.options.crs);
+                        if (coords.length >= 2) {
+                            const polyline = L.polyline(coords, {
+                                color: style.line.color || '#3388ff',
+                                weight: style.line.weight || 3,
+                                opacity: style.line.opacity || 1,
+								interactive: false
+                            }).addTo(layerGroup);
+                            
+                            // Обновляем границы СРАЗУ ПОСЛЕ СОЗДАНИЯ
+                            if (polyline.getBounds && polyline.getBounds().isValid()) {
+                                bounds.extend(polyline.getBounds());
+                            }
+                        }
+                        
+                        // Логирование информации о линии
+                        console.log(`LineString #${++elementCount}:`);
+                        console.log(`- Raw color: ${style.line?.rawColor || 'not set'}`);
+                        console.log(`- Parsed color: ${style.line?.color || 'default'}`);
+                        console.log(`- Weight: ${style.line?.weight || 'default'}`);
+                        console.log(`- Opacity: ${style.line?.opacity || 'default'}`);
+                    }
+
+                    // Обработка Polygon
+                    const polygon = placemark.querySelector('Polygon');
+                    if (polygon) {
+                        const coords = parseCoordinates(polygon.querySelector('LinearRing'), map.options.crs);
+                        if (coords.length >= 3) {
+                            const poly = L.polygon(coords, {
+                                color: style.line.color || '#3388ff',
+                                weight: style.line.weight || 0,
+                                fillColor: style.poly.fillColor || '#3388ff',
+                                fillOpacity: style.poly.fillOpacity || 0.5,
+								interactive: false // Отключаем интерактивность полигонов
+                            }).addTo(layerGroup);
+                            
+                            // Обновляем границы СРАЗУ ПОСЛЕ СОЗДАНИЯ
+                            if (poly.getBounds && poly.getBounds().isValid()) {
+                                bounds.extend(poly.getBounds());
+                            }
+                        }
+                        
+                        // Логирование информации о полигоне
+                        console.log(`Polygon #${++elementCount}:`);
+                        console.log(`- Raw fill color: ${style.poly?.rawColor || 'not set'}`); 
+                        console.log(`- Parsed fill color: ${style.poly?.fillColor || 'default'}`);
+                        console.log(`- Fill opacity: ${style.poly?.fillOpacity || 'default'}`);
+                        console.log(`- Raw border color: ${style.line?.rawColor || 'not set'}`);
+                        console.log(`- Parsed border color: ${style.line?.color || 'default'}`);
+                        console.log(`- Border weight: ${style.line?.weight || 'default'}`);
+                        console.log(`- Border opacity: ${style.line?.opacity || 'default'}`);
+                    }
+                    
+                    // Закрываем группу для этого Placemark
+                    console.groupEnd();
+                });
+                
+                console.log(`Total elements: ${elementCount}`);
+                console.groupEnd();
+
+                layerGroup.addTo(map);
+                window.permanentLayerGroups = window.permanentLayerGroups || [];
+                window.permanentLayerGroups.push(layerGroup);
+                
+                // Применяем границы только если они валидны
+//                if (bounds.isValid()) {
+//                    map.fitBounds(bounds);
+//                }
+            } catch (error) {
+                console.error(`Ошибка обработки слоя ${layerData.path}:`, error);
+            }
+        }
+    } catch (error) {
+        console.error("Ошибка загрузки постоянных KML:", error);
+    }
+}
+
+// Функция загрузки основного KML (с сохранением оригинальных стилей)
+async function loadKmlFile(file, targetCRS) {
+    if (currentLayer) {
+        map.removeLayer(currentLayer);
+    }
+
+    const currentCenter = map.getCenter();
+    const currentZoom = map.getZoom();
+
+    try {
+        const response = await fetch(file.path);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const kmlText = await response.text();
+        const parser = new DOMParser();
+        const kmlDoc = parser.parseFromString(kmlText, "text/xml");
+
+        const layerGroup = L.layerGroup().addTo(map);
+        currentLayer = layerGroup;
+
+        // Парсим все стили (включая StyleMap)
+        const styles = {};
+        const styleMaps = {};
+
+        // Обрабатываем обычные стили
+        kmlDoc.querySelectorAll('Style').forEach(style => {
+            const id = style.getAttribute('id');
+            styles[id] = {
+                line: parseLineStyle(style),
+                poly: parsePolyStyle(style)
+            };
+        });
+
+        // Обрабатываем StyleMap
+        kmlDoc.querySelectorAll('StyleMap').forEach(styleMap => {
+            const id = styleMap.getAttribute('id');
+            const pairs = {};
+            styleMap.querySelectorAll('Pair').forEach(pair => {
+                const key = pair.querySelector('key').textContent;
+                const styleUrl = pair.querySelector('styleUrl').textContent.replace('#', '');
+                pairs[key] = styleUrl;
+            });
+            styleMaps[id] = pairs;
+        });
+
+        let bounds = L.latLngBounds(); // Инициализация пустыми границами
+        
+        // Добавляем логирование для временных файлов
+        let elementCount = 0;
+        if (LOG_TEMPORARY_STYLES) {
+            console.groupCollapsed(`Temporary layer loaded: ${file.path}`);
+        }
+
+        kmlDoc.querySelectorAll('Placemark').forEach(placemark => {
+            // Получаем стиль для Placemark
+            const styleUrl = placemark.querySelector('styleUrl')?.textContent.replace('#', '');
+            let style = { line: {}, poly: {} };
+            
+            if (styleUrl) {
+                // Проверяем StyleMap
+                if (styleMaps[styleUrl]) {
+                    const normalStyleId = styleMaps[styleUrl].normal;
+                    style = Object.assign(
+                        {}, 
+                        styles[normalStyleId]?.line || {},
+                        styles[normalStyleId]?.poly || {}
+                    );
+                } 
+                // Проверяем обычный стиль
+                else if (styles[styleUrl]) {
+                    style = Object.assign(
+                        {}, 
+                        styles[styleUrl].line || {},
+                        styles[styleUrl].poly || {}
+                    );
+                }
+            }
+
+            // Логирование для временных файлов
+            if (LOG_TEMPORARY_STYLES) {
+                console.groupCollapsed(`Placemark styles: ${placemark.querySelector('name')?.textContent || 'unnamed'}`);
+                console.log('Style URL:', styleUrl);
+                console.log('Line Style:', style.line ? {
+                    rawColor: style.line.rawColor, 
+                    parsedColor: style.line.color,
+                    weight: style.line.weight,
+                    opacity: style.line.opacity
+                } : null);
+                console.log('Poly Style:', style.poly ? {
+                    rawColor: style.poly.rawColor, 
+                    parsedFillColor: style.poly.fillColor,
+                    fillOpacity: style.poly.fillOpacity
+                } : null);
+            }
+
+            // Обработка LineString
+            const lineString = placemark.querySelector('LineString');
+            if (lineString) {
+                const coords = parseCoordinates(lineString, map.options.crs);
+                if (coords.length < 2) {
+                    if (LOG_TEMPORARY_STYLES) console.groupEnd(); // Закрываем группу Placemark
+                    return;
+                }
+
+                const polyline = L.polyline(coords, {
+                    color: style.color || '#3388ff',
+                    weight: style.weight || 3,
+                    opacity: style.opacity || 1,
+                    interactive: false
+                }).addTo(layerGroup);
+
+                // Логирование информации о линии
+                if (LOG_TEMPORARY_STYLES) {
+                    console.log(`LineString #${++elementCount}:`);
+                    console.log(`- Raw color: ${style.line?.rawColor || 'not set'}`);
+                    console.log(`- Parsed color: ${style.line?.color || 'default'}`);
+                    console.log(`- Weight: ${style.line?.weight || 'default'}`);
+                    console.log(`- Opacity: ${style.line?.opacity || 'default'}`);
+                }
+
+                if (polyline.getBounds().isValid()) {
+                    bounds.extend(polyline.getBounds());
+                }
+            }
+
+            // Обработка Polygon
+            const polygon = placemark.querySelector('Polygon');
+            if (polygon) {
+                const coords = parseCoordinates(polygon.querySelector('LinearRing'), map.options.crs);
+                if (coords.length < 3) {
+                    if (LOG_TEMPORARY_STYLES) console.groupEnd(); // Закрываем группу Placemark
+                    return;
+                }
+
+                const poly = L.polygon(coords, {
+                    color: style.color || '#3388ff',
+                    weight: style.weight || 3,
+                    fillColor: style.fillColor || '#3388ff',
+                    fillOpacity: style.fillOpacity || 0.5,
+					interactive: false // Отключаем интерактивность полигонов
+                }).addTo(layerGroup);
+
+                // Логирование информации о полигоне
+                if (LOG_TEMPORARY_STYLES) {
+                    console.log(`Polygon #${++elementCount}:`);
+                    console.log(`- Raw fill color: ${style.poly?.rawColor || 'not set'}`); 
+                    console.log(`- Parsed fill color: ${style.poly?.fillColor || 'default'}`);
+                    console.log(`- Fill opacity: ${style.poly?.fillOpacity || 'default'}`);
+                    console.log(`- Raw border color: ${style.line?.rawColor || 'not set'}`);
+                    console.log(`- Parsed border color: ${style.line?.color || 'default'}`);
+                    console.log(`- Border weight: ${style.line?.weight || 'default'}`);
+                    console.log(`- Border opacity: ${style.line?.opacity || 'default'}`);
+                }
+
+                if (poly.getBounds().isValid()) {
+                    bounds.extend(poly.getBounds());
+                }
+            }
+            
+            if (LOG_TEMPORARY_STYLES) console.groupEnd(); // Закрываем группу Placemark
+        });
+
+        if (LOG_TEMPORARY_STYLES) {
+            console.log(`Total elements: ${elementCount}`);
+            console.groupEnd(); // Закрываем группу временного слоя
+        }
+
+        if (bounds.isValid()) {
+            const sw = bounds.getSouthWest();
+            const ne = bounds.getNorthEast();
+            const isNotPoint = sw.lat !== ne.lat || sw.lng !== ne.lng;
+            
+//            if (!preserveZoom && isNotPoint) {
+//                map.fitBounds(bounds);
+//            } else {
+                map.setView(currentCenter, currentZoom);
+//            }
+        } else {
+            map.setView(currentCenter, currentZoom);
+        }
+        preserveZoom = true;
+    } catch (error) {
+        console.error("Ошибка загрузки KML:", error);
+        alert(`Ошибка загрузки файла: ${file.path}\n${error.message}`);
+    }
+
+    function updateBounds(layer) {
+        if (layer.getBounds) {
+            bounds = bounds ? bounds.extend(layer.getBounds()) : layer.getBounds();
+        }
+    }
+}
+
+async function reloadKmlForCRS(center, zoom) {
+    await loadPermanentKmlLayers();
+    if (currentLayer){        
+        const file = kmlFiles[currentIndex];
+        try {
+            map.removeLayer(currentLayer);
+            await loadKmlFile(file);
+        } catch (error) {
+            console.error("Ошибка перезагрузки KML:", error);
+        }
+    }
+        
+    // Восстанавливаем позицию с проверкой валидности
+    if (center && zoom && center.lat !== 0 && center.lng !== 0) {
+        map.setView(center, zoom);
+    } else {
+        // Используем центр по умолчанию, если текущий невалиден
+        map.setView([48.257381, 37.134785], 11);
+    }
+    
+    map.invalidateSize();
+}
+
+// Навигация к определенному индексу
+async function navigateTo(index) {
+    if (index < 0 || index >= kmlFiles.length) return;
+    
+    try {        
+        currentIndex = index;
+        const file = kmlFiles[currentIndex];
+        selectedDate = file.name; // Сохраняем выбранную дату
+        
+        if (datePicker) {
+            // Обновляем дату без триггера события onChange
+            datePicker.setDate(selectedDate, false);
+        }
+        
+		// Определяем текущую CRS
+		const currentCRS = map.options.crs;
+        await loadKmlFile(file);
+        
+    } catch (error) {
+        console.error("Ошибка навигации:", error);
+    } finally {
+        // Гарантированно обновляем кнопки даже при ошибках
+        updateButtons();
+    }
+}
+
+// Обновление состояния кнопок
+function updateButtons() {
+    console.log(`Updating buttons for index: ${currentIndex} of ${kmlFiles.length - 1}`);
+    const firstBtn = document.getElementById('first-btn');
+    const prevBtn = document.getElementById('prev-btn');
+    const nextBtn = document.getElementById('next-btn');
+    const lastBtn = document.getElementById('last-btn');
+    
+    if (!firstBtn || !prevBtn || !nextBtn || !lastBtn) return;
+    
+    const isFirst = currentIndex === 0;
+    const isLast = currentIndex === kmlFiles.length - 1;
+    
+    firstBtn.disabled = isFirst;
+    prevBtn.disabled = isFirst;
+    nextBtn.disabled = isLast;
+    lastBtn.disabled = isLast;
+    
+    firstBtn.classList.toggle('disabled', isFirst);
+    prevBtn.classList.toggle('disabled', isFirst);
+    nextBtn.classList.toggle('disabled', isLast);
+    lastBtn.classList.toggle('disabled', isLast);
+    
+    console.log(`First: ${firstBtn.disabled}, Prev: ${prevBtn.disabled}, Next: ${nextBtn.disabled}, Last: ${lastBtn.disabled}`);
+}
+
+// Обработчики кнопок навигации
+document.getElementById('first-btn').addEventListener('click', async () => {
+    await navigateTo(0).catch(console.error);
+});
+
+document.getElementById('prev-btn').addEventListener('click', async () => {
+    await navigateTo(currentIndex - 1).catch(console.error);
+});
+
+document.getElementById('next-btn').addEventListener('click', async () => {
+    await navigateTo(currentIndex + 1).catch(console.error);
+});
+
+document.getElementById('last-btn').addEventListener('click', async () => {
+    await navigateTo(kmlFiles.length - 1).catch(console.error);
+});
+
+
+
+
+
+
+// Заполнение выпадающего списка городов
+// Обработчик выбора города
+document.getElementById('cities-dropdown').addEventListener('change', async function() {
+    const selectedCityName = this.value;
+    if (!selectedCityName) return;
+    
+    const city = cities.find(c => c.name.ru === selectedCityName);
+    if (city) {
+        // Обновляем все поля ввода
+        const coordsInput = document.getElementById('coords-input');
+        const coordsClone = document.getElementById('coords-input-clone');
+        
+        if (coordsInput) coordsInput.value = `${city.lat}, ${city.lng}`;
+        if (coordsClone) coordsClone.value = `${city.lat}, ${city.lng}`;
+        
+        centerMap(city.lat, city.lng);
+        this.value = "";
+    }
+});
+
+// Обработчик выбора города
+
+citiesDropdown.addEventListener('change', function() {
+    const selectedCityName = this.value;
+    if (!selectedCityName) return;
+    
+    const city = cities.find(c => c.name === selectedCityName);
+    if (city) {
+        // Заполняем поле координат
+        coordsInput.value = `${city.lat}, ${city.lng}`;
+        centerMap(city.lat, city.lng);
+        
+        // Сбрасываем выбор
+        this.value = "";
+    }
+});
+
+// обработчик перемещения карты
+map.on('moveend', function() {
+    updateCurrentCenterDisplay();
+});
+
+// Функция для установки обработчика копирования
+function setupCopyCoordsButton() {
+    function copyHandler(event) {
+        // Определяем, из какого контекста вызвано копирование
+        const isClone = event.target.id === 'copy-coords-btn-clone';
+        
+        let coordsElement;
+        if (isClone) {
+            coordsElement = document.getElementById('current-center-coords-clone');
+        } else {
+            coordsElement = document.getElementById('current-center-coords');
+        }
+        
+        if (!coordsElement) return;
+        
+        const coords = coordsElement.textContent;
+        if (!coords || coords.includes('не определен') || coords.includes('undefined')) {
+            return;
+        }
+        
+        const button = event.target;
+        const t = translations[currentLang];
+        
+        try {
+            // Создаем временный элемент для копирования
+            const textArea = document.createElement('textarea');
+            textArea.value = coords;
+            textArea.style.position = 'fixed';
+            textArea.style.opacity = 0;
+            document.body.appendChild(textArea);
+            textArea.select();
+            
+            const successful = document.execCommand('copy');
+            document.body.removeChild(textArea);
+            
+            // Визуальная обратная связь
+            button.textContent = t ? t.copiedText : '✓';
+            button.classList.add('copied');
+            
+            setTimeout(() => {
+                if (button.dataset.originalText) {
+                    button.textContent = button.dataset.originalText;
+                }
+                button.classList.remove('copied');
+            }, 2000);
+            
+            if (!successful) {
+                throw new Error('Copy command failed');
+            }
+        } catch (err) {
+            console.error('Ошибка копирования:', err);
+            button.textContent = t ? t.copyError : 'Ошибка!';
+            setTimeout(() => {
+                if (button.dataset.originalText) {
+                    button.textContent = button.dataset.originalText;
+                }
+                button.classList.remove('copied');
+            }, 2000);
+        }
+    }
+
+    // Для основной кнопки
+    const mainCopyBtn = document.getElementById('copy-coords-btn');
+    if (mainCopyBtn) {
+        // Сохраняем исходный текст
+        mainCopyBtn.dataset.originalText = mainCopyBtn.textContent;
+        mainCopyBtn.removeEventListener('click', copyHandler);
+        mainCopyBtn.addEventListener('click', copyHandler);
+    }
+    
+    // Для кнопки в дартс-меню
+    const cloneCopyBtn = document.getElementById('copy-coords-btn-clone');
+    if (cloneCopyBtn) {
+        // Сохраняем исходный текст
+        cloneCopyBtn.dataset.originalText = cloneCopyBtn.textContent;
+        cloneCopyBtn.removeEventListener('click', copyHandler);
+        cloneCopyBtn.addEventListener('click', copyHandler);
+    }
+}
+
+
+async function init() {
+  try {
+    // Шаг 1: Загружаем постоянные слои
+    await loadPermanentKmlLayers();
+    
+    // Шаг 2: Инициализируем основные компоненты UI
+    initDatePicker();    
+    selectedDate = kmlFiles[kmlFiles.length - 1].name; // Инициализируем selectedDate последней доступной датой
+    populateCitiesDropdown();
+    document.querySelector('.date-navigator-wrapper').style.display = 'block';
+        
+    // Шаг 3: Ждем когда все элементы интерфейса будут доступны
+    await waitForUIElements();
+    
+    // Шаг 4: Загружаем данные карты
+    preserveZoom = false;
+    currentIndex = kmlFiles.length - 1;
+    await navigateTo(currentIndex);
+    
+    // Шаг 5: Финализируем инициализацию карты
+    setTimeout(() => {
+      if (map) map.invalidateSize();
+      updateCurrentCenterDisplay();
+      // replaceAttributionFlag();
+    }, 50);
+	
+	map.options.crs = L.CRS.EPSG3857;
+    
+    const flagInterval = setInterval(() => {
+    if (document.querySelector('.leaflet-control-attribution')) {
+        replaceAttributionFlag();
+        clearInterval(flagInterval);
+        }
+    }, 500);
+	
+	//
+	// Настройка кнопки после инициализации элементов
+    setTimeout(() => {
+        setupCopyCoordsButton();
+    }, 500);
+    
+    // Инициализация дартс-меню
+    initDartMenu(); 
+	
+	// Для выпадающего списка слоёв (подложек)
+	// таймаут при инициализации карты, чтобы убедиться, что все элементы созданы
+	setTimeout(() => {
+		if (map) map.invalidateSize();
+		updateCurrentCenterDisplay();
+		
+		// Явно инициализируем обработчик после создания элементов
+		const toggleBtn = document.querySelector('.leaflet-control-layers-toggle');
+		if (toggleBtn) {
+			toggleBtn.addEventListener('click', function(e) {
+				e.preventDefault();
+				e.stopPropagation();
+				
+				const isVisible = layerControlContainer.style.display === 'block';
+				layerControlContainer.style.display = isVisible ? 'none' : 'block';
+				layerControlContainer.classList.toggle('leaflet-control-layers-expanded', !isVisible);
+			});
+		}
+	}, 300);
+	
+	window.initialLayerSet = false;
+	map.on('load', function() {
+		window.osm.addTo(map); // Активируйте OSM слой
+		window.initialLayerSet = true;
+	});
+        
+  } catch (error) {
+    console.error('Ошибка инициализации:', error);
+  }
+}
+
+// Новая функция для ожидания готовности UI элементов
+function waitForUIElements() {
+  return new Promise(resolve => {
+    const checkElements = () => {
+      // Проверяем наличие всех необходимых элементов
+      const elementsReady = 
+        document.getElementById('first-btn') &&
+        document.getElementById('prev-btn') &&
+        document.getElementById('next-btn') &&
+        document.getElementById('last-btn') &&
+        document.querySelector('.date-navigator-wrapper');
+        
+      if (elementsReady) {
+        resolve();
+      } else {
+        setTimeout(checkElements, 50);
+      }
+    };
+    
+    checkElements();
+  });
+}
+
+
+document.addEventListener('DOMContentLoaded', init);
+
+function switchMapStatViewByBtn(mapBtn, stats1Btn, stats2Btn)
+{
+    const mapContainer = document.getElementById('map-container');
+    const stats1Container = document.getElementById('stats1-container');
+    const stats2Container = document.getElementById('stats2-container');
+    
+    function switchView(activeBtn, activeContainer) {
+        // Сбрасываем активное состояние у всех кнопок и контейнеров
+        [mapBtn, stats1Btn, stats2Btn].forEach(btn => btn.classList.remove('active'));
+        [mapContainer, stats1Container, stats2Container].forEach(container => {
+            container.classList.remove('active');
+            container.style.display = 'none';
+        });
+        
+        // Устанавливаем активное состояние
+        activeBtn.classList.add('active');
+        activeContainer.classList.add('active');
+        activeContainer.style.display = 'block';
+        
+        // Для контейнера карты используем flex-раскладку
+        if (activeContainer === mapContainer) {
+            activeContainer.style.display = 'flex';
+        }
+        
+        // Показываем/скрываем date-navigator в зависимости от активной вкладки
+        const dateNavigatorWrapper = document.querySelector('.date-navigator-wrapper');
+        if (activeContainer === mapContainer) {
+            dateNavigatorWrapper.style.display = 'block';
+        } else {
+            dateNavigatorWrapper.style.display = 'none';
+        }
+        
+        // Перерисовываем карту при возвращении на вкладку
+        if (activeContainer === mapContainer && map) {
+            setTimeout(() => {
+                map.invalidateSize();
+            }, 100);
+        }
+    }
+    // Обработчики кнопок
+    mapBtn.addEventListener('click', () => switchView(mapBtn, mapContainer));
+    stats1Btn.addEventListener('click', () => switchView(stats1Btn, stats1Container));
+    stats2Btn.addEventListener('click', () => switchView(stats2Btn, stats2Container));
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const mapBtn = document.getElementById('map-btn');
+    const stats1Btn = document.getElementById('stats1-btn');
+    const stats2Btn = document.getElementById('stats2-btn');
+    
+    switchMapStatViewByBtn(mapBtn, stats1Btn, stats2Btn);
+    
+});
+document.addEventListener('DOMContentLoaded', function() {
+    const mapBtn = document.getElementById('map-btn-desktop');
+    const stats1Btn = document.getElementById('stats1-btn-desktop');
+    const stats2Btn = document.getElementById('stats2-btn-desktop');
+    
+    switchMapStatViewByBtn(mapBtn, stats1Btn, stats2Btn);
+    
+});
+
+// Обработчик изменения языка
+document.addEventListener('languageChanged', function(event) {
+    currentLang = event.detail;
+    if (datePicker) {
+        datePicker.destroy();
+    }
+        initDatePicker();
+	
+    populateCitiesDropdown(); // Обновляем основной список
+    initDartMenu(); // Перестраиваем дартс-меню
+});
+
+// Закрываем меню при клике на карту
+document.getElementById('map').addEventListener('click', function() {
+    if (window.innerWidth <= 768) {
+        document.querySelector('.nav-wrapper').classList.remove('active');
+    }
+});
+
+// Добавляем обработчик изменения размера окна
+window.addEventListener('resize', function() {
+  if (map) {
+    setTimeout(() => {
+      map.invalidateSize();
+    }, 100);
+  }
+});
+
+// При инициализации карты добавляем обработчик для перерисовки
+map.whenReady(function() {
+  setTimeout(() => {
+    map.invalidateSize();
+  }, 100);
+});
+
+// обработчик для обновления координат при полной загрузке карты
+map.whenReady(function() {
+    // Обновляем координаты центра после полной загрузки карты
+    updateCurrentCenterDisplay();
+    
+    // Добавляем периодическую проверку на случай, 
+    // если карта полностью инициализируется с небольшой задержкой
+    const checkInterval = setInterval(() => {
+        if (map.getCenter().lat !== 0) {
+            updateCurrentCenterDisplay();
+            clearInterval(checkInterval);
+        }
+    }, 100);
+});
+
+
+// Обработчик для поля ввода координат
+function showCoordsError(input, message) {
+    // убираем старый
+    let old = input.parentNode.querySelector('.coords-error-bubble');
+    if (old) old.remove();
+
+    const bubble = document.createElement('div');
+    bubble.className = 'coords-error-bubble';
+    bubble.textContent = message;
+    input.parentNode.appendChild(bubble);
+
+    setTimeout(() => bubble.remove(), 2500);
+}
+
+function hideCoordsError(input) {
+    let old = input.parentNode.querySelector('.coords-error-bubble');
+    if (old) old.remove();
+}
+
+function normalizeToTuple(coords) {
+  if (!coords) return null;
+  if (Array.isArray(coords) && coords.length >= 2) {
+    return [coords[0], coords[1]];
+  }
+  if (typeof coords === 'object') {
+    if ('lat' in coords && ('lng' in coords || 'lon' in coords)) {
+      return [coords.lat, coords.lng ?? coords.lon];
+    }
+    if ('y' in coords && 'x' in coords) {
+      // иногда приходят как x/y
+      return [coords.y, coords.x];
+    }
+  }
+  return null;
+}
+
+function centerMapFromInput(input, showAlert = false) {
+  const raw = parseCoordinates(input.value.trim());
+  const coords = normalizeToTuple(raw);
+
+  if (coords) {
+    const [lat, lng] = coords;
+    centerMap(lat, lng);
+    if (typeof hideCoordsError === 'function') hideCoordsError(input);
+  } else if (showAlert) {
+    if (typeof showCoordsError === 'function') {
+      showCoordsError(input, translations[currentLang].invalidCoords);
+    } else {
+      alert(translations[currentLang].invalidCoords);
+    }
+  }
+}
+
+function setupInputWithClear(inputEl, clearBtn) {
+    function toggleClearButton() {
+        if (inputEl.value.trim() !== "") {
+            clearBtn.style.display = "inline-flex";
+        } else {
+            clearBtn.style.display = "none";
+        }
+    }
+
+    // следим за вводом, вставкой и изменениями
+    inputEl.addEventListener("input", toggleClearButton);
+    inputEl.addEventListener("change", toggleClearButton);
+
+    clearBtn.addEventListener("click", () => {
+        inputEl.value = "";
+        toggleClearButton();
+        hideErrorBubble(inputEl);
+    });
+
+    // начальная инициализация
+    toggleClearButton();
+ }
+
+// Обработчик для ввода
+document.querySelectorAll('#coords-input, #coords-input-clone').forEach(input => {
+    // Автоматическое центрирование при вставке (без ошибок)
+    input.addEventListener('input', function() {
+        centerMapFromInput(this, false);
+    });
+    
+    // Обработка Enter с показом ошибок
+    input.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            centerMapFromInput(this, true);
+        }
+    });
+});
+
+// обработчик для нажатия Enter в поле ввода
+// coordsInput.addEventListener('keypress', function(e) {
+	// if (e.key === 'Enter') {
+		// this.dispatchEvent(new Event('change'));
+    // }
+// });
+
+document.querySelectorAll('.view-menu-container').forEach(container => {
+    const viewMenuBtn = container.querySelector('.view-menu-btn');
+    
+    viewMenuBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        container.classList.toggle('active');
+    });
+
+    document.addEventListener('click', function(e) {
+        if (!container.contains(e.target)) {
+            container.classList.remove('active');
+        }
+    });
+
+    container.querySelectorAll('.view-dropdown .view-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            container.classList.remove('active');
+            if (map && this.id.includes('map-btn')) {
+                setTimeout(() => map.invalidateSize(), 100);
+            }
+        });
+    });
+});
+
+
+//////////////////////////////////////////////////////////////////////
+
+const navDropdown = document.getElementById('nav-dropdown');
+const navMenuToggle = document.getElementById('nav-menu-toggle');
+const hideableItems = document.querySelectorAll('.hideable-nav-item');
+clonedItems = [];
+// Дартс (Лупа)
+function initDartMenu() {
+    console.log("[initDartMenu] Инициализация дартс-меню...");
+    
+    if (!navMenuToggle || !navDropdown) return;
+
+    navMenuToggle.style.display = 'flex';
+    console.log(`[initDartMenu] Найдено ${hideableItems.length} элементов с классом 'hideable-nav-item'`);
+    
+    // Очищаем предыдущие клоны
+    navDropdown.innerHTML = '';
+    clonedItems = [];
+    
+    // Клонируем только необходимые элементы
+    const elementsToClone = [
+        'centerOn-label',
+        'coords-input',
+        'cities-dropdown',
+        'currentCenter-label',
+        'current-center-coords',
+        'copy-coords-btn'
+    ];
+    
+    // Создаем контейнер для элементов меню
+    const container = document.createElement('div');
+    container.className = 'dropdown-items-container';
+    
+    elementsToClone.forEach(id => {
+        const original = document.getElementById(id);
+        if (!original) return;
+        
+        const clone = original.cloneNode(true);
+        clone.id = `${id}-clone`;
+        clone.classList.add('dropdown-item');
+        
+        // Удаляем классы, которые могут конфликтовать
+        clone.classList.remove('hideable-nav-item');
+        
+        // Очищаем инлайновые стили
+        clone.style.cssText = '';
+        
+        container.appendChild(clone);
+        clonedItems.push(clone);
+    });
+    
+    navDropdown.appendChild(container);
+    console.log(`[initDartMenu] В nav-dropdown добавлено ${clonedItems.length} элементов`);
+
+	setupCopyCoordsButton(); // Повторная инициализация обработчиков копирования
+
+    // Добавляем обработчики для клонированных элементов
+    setupDropdownListeners();
+    
+    // Обработчик изменения размера окна
+    function handleResize() {
+        if (window.innerWidth < 1600) { // 1800
+            hideableItems.forEach(item => item.style.display = 'none');
+            navMenuToggle.style.display = 'flex';
+        } else {
+            hideableItems.forEach(item => item.style.display = 'flex');
+            navMenuToggle.style.display = 'none';
+            navDropdown.classList.remove('active');
+        }
+    }
+    
+    window.addEventListener('resize', handleResize);
+    handleResize();
+	
+    // Синхронизируем состояние при инициализации
+    syncDropdownState();
+}
+
+    // Синхронизация состояния
+function syncDropdownState() {
+    // Координаты
+    const originalCoords = document.getElementById('current-center-coords');
+    const cloneCoords = document.getElementById('current-center-coords-clone');
+    if (originalCoords && cloneCoords) {
+        cloneCoords.textContent = originalCoords.textContent;
+    }
+
+    // Поле ввода координат
+    const originalInput = document.getElementById('coords-input');
+    const cloneInput = document.getElementById('coords-input-clone');
+    if (originalInput && cloneInput) {
+        cloneInput.value = originalInput.value;
+    }
+
+    // Выпадающий список городов
+    const originalDropdown = document.getElementById('cities-dropdown');
+    const cloneDropdown = document.getElementById('cities-dropdown-clone');
+    if (originalDropdown && cloneDropdown) {
+        cloneDropdown.value = originalDropdown.value;
+    }
+}
+    
+
+// Обработчики для клонов в выпадающем меню
+navDropdown.querySelectorAll('input, select').forEach(clone => {
+	clone.addEventListener('change', function() {
+		// Находим соответствующий оригинальный элемент по индексу
+		const index = Array.from(navDropdown.children).indexOf(this.parentElement);
+		if (index === -1) return;
+		
+		const original = hideableItems[index];
+		if (!original) return;
+		
+		// Обновляем оригинальный элемент
+		if (this.tagName === 'INPUT') {
+			const origInput = original.querySelector('input');
+			if (origInput) {
+				origInput.value = this.value;
+				
+				// Для координат - центрируем карту
+				if (origInput.id === 'coords-input') {
+					const coords = this.value.split(',').map(coord => parseFloat(coord.trim()));
+					if (coords.length === 2 && !isNaN(coords[0]) && !isNaN(coords[1])) {
+						centerMap(coords[0], coords[1]);
+					}
+				}
+			}
+		}
+		else if (this.tagName === 'SELECT') {
+			const origSelect = original.querySelector('select');
+			if (origSelect) {
+				origSelect.value = this.value;
+				
+				// Для выпадающего списка городов
+				const city = cities.find(c => c.name[currentLang] === this.value);
+				if (city) {
+					centerMap(city.lat, city.lng);
+				}
+			}
+		}
+	});
+});
+
+// Обработчик для кнопки копирования в меню
+navDropdown.querySelectorAll('.copy-coords-btn').forEach(btn => {
+	btn.addEventListener('click', function() {
+		const coordsElement = this.closest('.current-center')?.querySelector('.current-coords-display');
+		if (coordsElement) {
+			const coords = coordsElement.textContent;
+			copyToClipboard(coords, this);
+		}
+	});
+});
+
+// Закрытие меню при клике вне его
+document.addEventListener('click', function(e) {
+	if (!navDropdown.contains(e.target) && e.target !== navMenuToggle) {
+		navDropdown.classList.remove('active');
+	}
+});
+
+
+// Обработчик для кнопки меню
+navMenuToggle.addEventListener('click', function(e) {
+	e.stopPropagation();
+	console.log("[navMenuToggle] Кнопка меню нажата");
+    // Синхронизируем состояние перед открытием
+    syncDropdownState();
+    // Открываем/закрываем меню
+    navDropdown.classList.toggle('active');
+});
+
+
+function copyToClipboard(text, button) {
+    if (!text || text.includes('не определен') || text.includes('undefined')) {
+        return;
+    }
+    
+    try {
+        // Fallback метод копирования
+        const textArea = document.createElement('textarea');
+        textArea.value = text;
+        textArea.style.position = 'fixed';
+        textArea.style.opacity = 0;
+        document.body.appendChild(textArea);
+        textArea.select();
+        
+        const successful = document.execCommand('copy');
+        document.body.removeChild(textArea);
+        
+        // Показываем обратную связь
+        const t = translations[currentLang];
+        button.textContent = t ? t.copiedText : '✓';
+        button.classList.add('copied');
+        
+        setTimeout(() => {
+            if (button.dataset.originalText) {
+                button.textContent = button.dataset.originalText;
+            }
+            button.classList.remove('copied');
+        }, 2000);
+        
+        if (!successful) {
+            console.warn('Копирование не удалось, показываем координаты');
+            alert(`${translations[currentLang]?.copyFallback || "Скопируйте координаты"}: ${text}`);
+        }
+    } catch (err) {
+        console.error('Ошибка копирования:', err);
+        button.textContent = translations[currentLang]?.copyError || "Ошибка";
+        setTimeout(() => {
+            if (button.dataset.originalText) {
+                button.textContent = button.dataset.originalText;
+            }
+            button.classList.remove('copied');
+        }, 2000);
+    }
+}
+
+function setupDropdownListeners() {
+    // Обработчик для поля ввода координат в меню
+    const coordsClone = document.getElementById('coords-input-clone');
+    if (coordsClone) {
+        // Автоматическое центрирование при вставке
+        coordsClone.addEventListener('input', function() {
+            centerMapFromInput(this, false);
+        });
+        
+        // Обработка Enter с показом ошибок и закрытием меню
+        coordsClone.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                if (centerMapFromInput(this, true)) {
+                    navDropdown.classList.remove('active');
+                }
+            }
+        });
+    }
+
+    // Обработчик для выпадающего списка городов в меню
+    const citiesClone = document.getElementById('cities-dropdown-clone');
+    if (citiesClone) {
+        citiesClone.addEventListener('change', function() {
+            const selectedCityName = this.value;
+            if (!selectedCityName) return;
+            
+            const city = cities.find(c => 
+                c.name.ru === selectedCityName || 
+                c.name.en === selectedCityName
+            );
+            
+            if (city) {
+                // Обновляем поле ввода координат
+                const coordsInput = document.getElementById('coords-input');
+                const coordsClone = document.getElementById('coords-input-clone');
+                
+                if (coordsInput) coordsInput.value = `${city.lat}, ${city.lng}`;
+                if (coordsClone) coordsClone.value = `${city.lat}, ${city.lng}`;
+                
+                centerMap(city.lat, city.lng);
+                // Закрываем меню после выбора города
+                navDropdown.classList.remove('active');
+                this.value = "";
+            }
+        });
+    }
+
+    // Обработчик для кнопки копирования в меню
+    const copyBtnClone = document.getElementById('copy-coords-btn-clone');
+    if (copyBtnClone) {
+        copyBtnClone.addEventListener('click', function() {
+            const coordsElement = document.getElementById('current-center-coords-clone');
+            if (coordsElement) {
+                const coords = coordsElement.textContent;
+                copyToClipboard(coords, this);
+            }
+        });
+    }
+}
+
+
+// Обработчик кнопки tlg-btn
+
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.tlg-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            // Закрываем меню
+            this.closest('.view-menu-container').classList.remove('active');
+            
+            // Открываем ссылку в новом окне
+            window.open('https://ru.wikipedia.org/wiki/Telegram', '_blank');
+        });
+    });
+});
+
+// Функция загрузки контента для модального окна
+function loadInfoContent(filename) {
+    fetch(filename)
+        .then(response => response.text())
+        .then(html => {
+            document.getElementById('info-content').innerHTML = html;
+        })
+        .catch(error => {
+            console.error('Ошибка загрузки контента:', error);
+            const errorText = currentLang === 'ru' ? 
+                '<p>Не удалось загрузить информацию</p>' : 
+                '<p>Failed to load information</p>';
+            document.getElementById('info-content').innerHTML = errorText;
+        });
+}
+
+// Обработчик кнопки Инфо info-btn и Поддержать donate-btn
+
+document.addEventListener('DOMContentLoaded', function() {
+  const modal = document.getElementById('info-modal');
+  const closeBtn = modal.querySelector('.close-modal');
+  
+  // Обработчик для кнопки закрытия
+  closeBtn.addEventListener('click', function() {
+    modal.style.display = 'none';
+  });
+
+  // Обработчики для кнопки "Инфо"
+  document.querySelectorAll('.info-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      this.closest('.view-menu-container')?.classList.remove('active');
+      modal.style.display = 'block';
+      const infoFile = currentLang === 'ru' ? 'content/info_ru.html' : 'content/info_en.html';
+      loadInfoContent(infoFile); // Загружаем контент при открытии
+    });
+  });
+
+  // Обработчики для кнопки "Поддержать"
+  document.querySelectorAll('.donate-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      this.closest('.view-menu-container')?.classList.remove('active');
+      modal.style.display = 'block';
+      const infoFile = currentLang === 'ru' ? 'content/donate_smo_ru.html' : 'content/donate_smo_en.html';
+      loadInfoContent(infoFile); // Загружаем контент при открытии
+    });
+  });
+
+  // Закрытие при клике вне окна
+  document.addEventListener('click', function(event) {
+    if (event.target === modal) {
+      modal.style.display = 'none';
+    }
+  });
+
+  // Закрытие по клавише Esc
+  document.addEventListener('keydown', function(event) {
+    if (event.key === 'Escape' && modal.style.display === 'block') {
+      modal.style.display = 'none';
+    }
+  });
+});
+
+
+
+
+
+// === Inline error bubble for coords input ===
+(function(){
+  function ensureCoordsErrorStyle() {
+    if (document.getElementById('coords-error-style')) return;
+    const style = document.createElement('style');
+    style.id = 'coords-error-style';
+    style.textContent = `
+      .coords-error-bubble{
+        position:absolute;
+        left:0;
+        top:calc(100% + 4px);
+        padding:4px 8px;
+        background:#ffeaea;
+        color:#b00020;
+        border:1px solid #f3b2b2;
+        border-radius:4px;
+        font-size:12px;
+        line-height:1.2;
+        white-space:nowrap;
+        pointer-events:none;
+        box-shadow:0 1px 2px rgba(0,0,0,.05);
+        z-index:10;
+      }
+    `;
+    document.head.appendChild(style);
+  }
+  window._coordsError = {
+    show(input, message){
+      ensureCoordsErrorStyle();
+      if (!input) return;
+      let wrapper = input.closest('.input-with-clear');
+      if (!wrapper) {
+        const w = document.createElement('div');
+        w.className = 'input-with-clear';
+        input.parentNode.insertBefore(w, input);
+        w.appendChild(input);
+        wrapper = w;
+      }
+      let bubble = wrapper.querySelector('.coords-error-bubble');
+      if (!bubble) {
+        bubble = document.createElement('div');
+        bubble.className = 'coords-error-bubble';
+        wrapper.appendChild(bubble);
+      }
+      bubble.textContent = message;
+      bubble.style.display = 'block';
+      if (bubble._timer) clearTimeout(bubble._timer);
+      bubble._timer = setTimeout(()=>{ bubble.style.display='none'; }, 2500);
+      const hide = ()=>{ bubble.style.display='none'; };
+      input.addEventListener('input', hide, { once:true });
+      input.addEventListener('focus', hide, { once:true });
+    },
+    hide(input){
+      if (!input) return;
+      const wrapper = input.closest('.input-with-clear');
+      const bubble = wrapper && wrapper.querySelector('.coords-error-bubble');
+      if (bubble) {
+        bubble.style.display = 'none';
+        if (bubble._timer) clearTimeout(bubble._timer);
+      }
+    }
+  };
+})();
+
+// === Ensure clear button is visible whenever coords input is non-empty (minimal, non-intrusive) ===
+(function () {
+  const IDS = ['coords-input', 'coords-input-clone'];
+  const SEL = '#coords-input, #coords-input-clone';
+
+  function ensureWrappedAndButton(input) {
+    if (!input) return;
+    // Обёртка с позиционированием (нужна и для баббла, и для кнопки)
+    if (!input.parentElement.classList.contains('input-with-clear')) {
+      const wrap = document.createElement('span');
+      wrap.className = 'input-with-clear';
+      input.parentNode.insertBefore(wrap, input);
+      wrap.appendChild(input);
+    }
+    // Кнопка очистки, если ещё нет
+    let btn = input.parentElement.querySelector('.clear-input-btn');
+    if (!btn) {
+      btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'clear-input-btn';
+      btn.setAttribute('aria-label', 'Очистить');
+      btn.title = 'Очистить';
+      btn.textContent = '✕';
+      input.parentElement.appendChild(btn);
+
+      btn.addEventListener('click', () => {
+        // Очищаем маркер и поля ввода
+        clearMarkerAndInput();
+        
+        // Синхронизируем второе поле, если оно есть
+        IDS.forEach(id => {
+          const other = document.getElementById(id);
+          if (other && other !== input) {
+            other.value = '';
+            toggle(other);
+          }
+        });
+        
+        // Возвращаем фокус на поле ввода
+        input.focus();
+      });
+    }
+  }
+
+  function toggle(input) {
+    if (!input) return;
+    ensureWrappedAndButton(input);
+    const btn = input.parentElement.querySelector('.clear-input-btn');
+    if (!btn) return;
+    btn.style.display = (input.value && input.value.trim()) ? 'inline-flex' : 'none';
+  }
+
+  function refreshAll() {
+    IDS.forEach(id => toggle(document.getElementById(id)));
+  }
+
+  // Инициализация
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', refreshAll, { once: true });
+  } else {
+    refreshAll();
+  }
+
+  // Обновляем видимость на любые текстовые изменения в полях
+  ['input', 'change', 'keyup', 'paste'].forEach(evt => {
+    document.addEventListener(evt, (e) => {
+      const t = e.target;
+      if (!t || !t.matches || !t.matches(SEL)) return;
+      // задержка для paste, чтобы успело вставиться значение
+      if (evt === 'paste') {
+        requestAnimationFrame(() => toggle(t));
+      } else {
+        toggle(t);
+      }
+      // синхронизируем второй инпут, если он есть
+      IDS.forEach(id => {
+        const other = document.getElementById(id);
+        if (other && other !== t) {
+          other.value = t.value;
+          toggle(other);
+        }
+      });
+    }, false);
+  });
+
+  // При смене ширины/ориентации может появиться/исчезнуть клон → пересчёт
+  window.addEventListener('resize', refreshAll);
+  window.addEventListener('orientationchange', refreshAll);
+
+  // Если есть «баббл»-функции, оборачиваем их, чтобы после показа/скрытия пересчитывать кнопку
+  if (typeof window.showCoordsError === 'function') {
+    const _show = window.showCoordsError;
+    window.showCoordsError = function (input, msg) {
+      const r = _show.call(this, input, msg);
+      refreshAll();
+      return r;
+    };
+  }
+  if (typeof window.hideCoordsError === 'function') {
+    const _hide = window.hideCoordsError;
+    window.hideCoordsError = function (input) {
+      const r = _hide.call(this, input);
+      refreshAll();
+      return r;
+    };
+  }
+
+  // На случай динамического создания/перемещения мобильного поля — наблюдатель
+  const mo = new MutationObserver(refreshAll);
+  mo.observe(document.documentElement, { childList: true, subtree: true });
+})();
+
+// === Patch: don't auto-format coords on Backspace (prevents trailing zeros) ===
+(function () {
+  const SEL = '#coords-input, #coords-input-clone';
+
+  // На этапе capture перехватываем input, вызванный Backspace,
+  // и останавливаем дальнейшие обработчики, которые перезаписывают value (маски/formatters).
+  document.addEventListener('input', function (e) {
+    const el = e.target;
+    if (!el || !el.matches || !el.matches(SEL)) return;
+
+    // Важное: именно для удаления влево не даем форматировать/дописывать нули
+    if (e.inputType === 'deleteContentBackward') {
+      // Обновим видимость крестика вручную (он должен быть, если поле непустое)
+      const btn = el.parentElement && el.parentElement.querySelector('.clear-input-btn');
+      if (btn) btn.style.display = el.value.trim() ? 'inline-flex' : 'none';
+
+      // Не даем другим листенерам «подтереть» текст и дописать нули
+      e.stopImmediatePropagation();
+      return;
+    }
+  }, true); // capture: перехватываем раньше остальных
+})();
+
+

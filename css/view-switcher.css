@@ -1,0 +1,54 @@
+/* .view-switcher { */
+    /* display: flex; */
+    /* gap: 5px; */
+    /* margin: 0; */
+    /* align-items: center; /* Центрируем кнопки внутри */ */
+/* } */
+
+.view-menu-btn {
+    font-size: 1.8rem;
+    padding: 0 8px;
+}
+
+.view-dropdown {
+    border: 1px solid #ddd;
+    margin-top: 5px;
+}
+
+.view-btn {
+  /* Убираем стандартные стили кнопки */
+  background: none;
+  border: none;
+  padding: 0 12px;
+  cursor: pointer;
+  font-size: 1rem;
+  color: #000;
+  text-decoration: none;
+  border-radius: 4px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+}
+
+.view-btn:hover {
+  background: rgba(0,0,0,0.05);
+}
+
+.view-btn.active {
+  font-weight: bold;
+  background: rgba(0,0,0,0.1);
+}
+
+.content-section {
+    display: none;
+}
+
+.content-section.active {
+    display: block;
+}
+
+#map-container.active {
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - 120px);
+}

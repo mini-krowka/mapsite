@@ -1,10 +1,167 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
+<head>
+    <title>dataviewer - визуализация данных</title>
+    <meta name="description" content="Интерактивная карта и статистика">
+<!--    <meta property="og:image" content="img/logo.png">-->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Wallpoet&display=swap" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="page-title">dataviewer</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <link rel="stylesheet" href="https://ppete2.github.io/Leaflet.PolylineMeasure/Leaflet.PolylineMeasure.css" />
+    <link rel="icon" href="img/logo.png" type="image/png">
+    <!-- Разделенные CSS-файлы -->
+    <link rel="stylesheet" href="css/layout.css">
+    <link rel="stylesheet" href="css/map.css">
+    <link rel="stylesheet" href="css/calendar.css">
+    <link rel="stylesheet" href="css/language.css">
+    <link rel="stylesheet" href="css/view-switcher.css">
+    <link rel="stylesheet" href="css/info.css">
+</head>
 <body>
+    <div class="top-bar">
+		<div class="header-container">
+        <!-- Мобильная строка (остается только для мобильных) -->
+        <div class="mobile-top-row">
+			<!-- Переключатель видов в гамбургере -->
+            <div class="view-menu-container mobile">
+                <button class="view-menu-btn">☰</button>
+                <div class="view-dropdown">
+                    <button id="map-btn" class="view-btn active">Карта</button>
+                    <button id="stats1-btn" class="view-btn">Статистика1</button>
+                    <button id="stats2-btn" class="view-btn">Статистика2</button>
+                    
+                    <button id="tlg-btn" class="view-btn tlg-btn">Ссылка</button>
+                    <button id="donate-btn" class="view-btn donate-btn">Поддержать</button>
+                    <button id="info-btn" class="view-btn info-btn">Инфо</button>
+                </div>
+            </div>
+            
+			<!-- Заголовок -->
+			<div class="title-section mobile">
+                <span class="mobile-title">MD</span>
+			</div>
 
-<h1>Example Heading</h1>
+            <!-- Переключатель языка -->
+			<div class="language-switcher mobile">
+				<button id="lang-ru" class="lang-btn" title="Переключить на Русский"><img src="img/flags/ru.svg" alt="RU" class="flag-icon"></button>
+				<button id="lang-en" class="lang-btn" title="Switch to English"><img src="img/flags/en.svg" alt="EN" class="flag-icon"></button>
+			</div>
+            
+        </div> <!-- mobile-top-row -->
+			
+        <!-- Десктопные элементы -->
+        <div class="view-menu-container desktop-visible">
+            <button class="view-menu-btn">☰</button>
+            <div class="view-dropdown">
+                <button id="map-btn-desktop" class="view-btn active">Карта</button>
+                <button id="stats1-btn-desktop" class="view-btn">Статистика1</button>
+                <button id="stats2-btn-desktop" class="view-btn">Статистика2</button>
+                
+                <button id="tlg-btn-desktop" class="view-btn tlg-btn">Ссылка</button>
+                <button id="donate-btn-desktop" class="view-btn donate-btn">Поддержать</button>
+                <button id="info-btn-desktop" class="view-btn info-btn">Инфо</button>
+            </div>
+        </div>
+        
+        <div class="title-section desktop-visible">
+            <h1 id="page-title">My dataviewer</h1>
+        </div>
+        
+			<!-- Навигация по дате -->
+            <div class="nav-wrapper">
+                <div class="date-navigator-wrapper">
+                    <div class="date-navigator">
+                        <!-- Кнопки навигации по дате -->
+                        <button id="first-btn" class="nav-btn" title="Первый">❮❮</button>
+                        <button id="prev-btn" class="nav-btn" title="Предыдущий">❮</button>
+                        <div class="date-selector">
+                            <input type="text" id="date-picker" placeholder="DD.MM.YY">
+                        </div>
+                        <button id="next-btn" class="nav-btn" title="Следующий">❯</button>
+                        <button id="last-btn" class="nav-btn" title="Последний">❯❯</button>
 
-<p>Example paragraph.</p>
+                        <!-- Элементы для скрытия (с классом hideable-nav-item) -->
+                        <label id="centerOn-label" class="hideable-nav-item" data-translate="centerLabel">Центрировать на:</label>
+                        <input type="text" id="coords-input" placeholder="Координаты" class="hideable-nav-item coord-input">
 
+                        <div class="city-coord-group hideable-nav-item">
+                            <select id="cities-dropdown">
+                                <option value="" selected disabled id="select-city-default">Выберите город</option>
+                            </select>
+                            <div class="current-center">
+                                <label id="currentCenter-label" data-translate="currentCenter">Текущий центр:</label>
+                                <span id="current-center-coords" class="current-coords-display"></span>
+                                <button id="copy-coords-btn" class="copy-coords-btn" title="Копировать координаты" aria-label="Копировать координаты">⎘</button>
+                            </div>
+                        </div>
+
+                        <!-- Кнопка для открытия меню -->
+						<div style="position: relative; display: inline-block;" class="dart-menu-container">
+							<button id="nav-menu-toggle" class="nav-menu-toggle"> 🎯</button>
+                            <!-- Контейнер для скрытых элементов -->
+                            <!-- <div id="nav-dropdown" class="nav-dropdown"></div> -->
+						</div>
+
+                        <!-- Контейнер для скрытых элементов -->
+                        <div id="nav-dropdown" class="nav-dropdown"></div>
+                    </div> <!-- date-navigator -->
+                </div>
+			</div>
+			
+        <div class="language-switcher desktop-visible">
+            <button id="lang-ru-desktop" class="lang-btn" title="Переключить на Русский"><img src="img/flags/ru.svg" alt="RU" class="flag-icon"></button>
+            <button id="lang-en-desktop" class="lang-btn" title="Switch to English"><img src="img/flags/en.svg" alt="EN" class="flag-icon"></button>
+        </div>
+            
+			
+		</div> <!-- header-container -->
+	</div>
+    
+    <div id="map-container" class="content-section active">
+        <div id="map"></div>
+    </div>
+    
+    <div id="stats1-container" class="content-section">
+        <!-- ... графики статистики1 ... -->
+        <iframe width="100%" height="100%" seamless frameborder="0" scrolling="no" src="https://docs.google.com/spreadsheets/d/e/2PACX-1vRkt2S9rNVpj1C9C_6ZiTmdHu0vbZdoIQeBl3kBz0k4e0o6n16BbeF19APb8lFjEBJxvHb9uwRkLssS/pubchart?oid=2103496955&format=interactive"></iframe>
+        <iframe width="100%" height="100%" seamless frameborder="0" scrolling="no" src="https://docs.google.com/spreadsheets/d/e/2PACX-1vRkt2S9rNVpj1C9C_6ZiTmdHu0vbZdoIQeBl3kBz0k4e0o6n16BbeF19APb8lFjEBJxvHb9uwRkLssS/pubchart?oid=1357114866&amp;format=interactive"></iframe>
+    </div>
+    
+    <div id="stats2-container" class="content-section">
+        <!-- ... графики статистики2 ... -->
+        <iframe width="100%" height="100%" frameborder="0" src="https://datalens.yandex/t8or7ozcm6jeh?_no_controls=1"></iframe>
+    </div>
+    
+    <!-- ... остальной код ... -->
+    <div id="info-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <div id="info-content"></div>
+        </div>
+    </div>
+    
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet-omnivore@0.3.4/leaflet-omnivore.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <!-- Для русского -->
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.9/dist/l10n/ru.min.js"></script>
+    <!-- Для английского -->
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.9/dist/l10n/default.min.js"></script>
+    <!-- Для линейки -->
+    <script src="https://ppete2.github.io/Leaflet.PolylineMeasure/Leaflet.PolylineMeasure.js"></script>
+        
+    <script src="js/data.js"></script>
+    <script src="js/language.js"></script>
+    <script src="js/map.js"></script> <!-- Слои карты -->
+    <script src="js/script.js"></script>
+    <script>
+        // Делаем доступные даты глобально доступными
+        window.availableDates = kmlFiles.map(file => file.name);
+    </script>
 </body>
 </html>
