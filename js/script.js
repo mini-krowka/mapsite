@@ -617,10 +617,14 @@ async function loadKmlFile(file, targetCRS) {
                     );
                 }
             }
+            
+            // Получаем название для Placemark
+            const name = placemark.querySelector('name')?.textContent;
 
             // Логирование для временных файлов
             if (LOG_TEMPORARY_STYLES) {
                 console.groupCollapsed(`Placemark styles: ${placemark.querySelector('name')?.textContent || 'unnamed'}`);
+                console.log('Name:', name);
                 console.log('Style URL:', styleUrl);
                 console.log('Line Style:', style.line ? {
                     rawColor: style.line.rawColor, 
@@ -650,6 +654,28 @@ async function loadKmlFile(file, targetCRS) {
                     opacity: style.opacity || 1,
                     interactive: false
                 }).addTo(layerGroup);
+                
+if (name && name.trim() !== '') {
+    let labelCoords;
+    if (lineString) {
+        labelCoords = coords[0]; // Первая точка линии
+    } else if (polygon) {
+        labelCoords = getPolygonCenter(coords); // Центр полигона
+    }
+
+    if (labelCoords) {
+        const labelIcon = L.divIcon({
+            className: 'kml-label',
+            html: name,
+            iconSize: [100, 20],
+            iconAnchor: [50, 0]
+        });
+        const labelMarker = L.marker(labelCoords, {
+            icon: labelIcon,
+            interactive: false
+        }).addTo(layerGroup);
+    }
+}
 
                 // Логирование информации о линии
                 if (LOG_TEMPORARY_STYLES) {
@@ -681,6 +707,29 @@ async function loadKmlFile(file, targetCRS) {
                     fillOpacity: style.fillOpacity || 0.5,
 					interactive: false // Отключаем интерактивность полигонов
                 }).addTo(layerGroup);
+
+if (name && name.trim() !== '') {
+    let labelCoords;
+    if (lineString) {
+        labelCoords = coords[0]; // Первая точка линии
+    } else if (polygon) {
+        labelCoords = getPolygonCenter(coords); // Центр полигона
+    }
+
+    if (labelCoords) {
+        const labelIcon = L.divIcon({
+            className: 'kml-label',
+            html: name,
+            iconSize: [100, 20],
+            iconAnchor: [50, 0]
+        });
+        const labelMarker = L.marker(labelCoords, {
+            icon: labelIcon,
+            interactive: false
+        }).addTo(layerGroup);
+    }
+}
+
 
                 // Логирование информации о полигоне
                 if (LOG_TEMPORARY_STYLES) {
@@ -1848,4 +1897,14 @@ document.addEventListener('DOMContentLoaded', function() {
   }, true); // capture: перехватываем раньше остальных
 })();
 
-
+// функция для вычисления центра полигона
+function getPolygonCenter(coords) {
+    let minLat = Infinity, maxLat = -Infinity, minLng = Infinity, maxLng = -Infinity;
+    coords.forEach(coord => {
+        minLat = Math.min(minLat, coord[0]);
+        maxLat = Math.max(maxLat, coord[0]);
+        minLng = Math.min(minLng, coord[1]);
+        maxLng = Math.max(maxLng, coord[1]);
+    });
+    return [(minLat + maxLat) / 2, (minLng + maxLng) / 2];
+}
