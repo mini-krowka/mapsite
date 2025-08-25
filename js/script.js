@@ -1891,7 +1891,7 @@ function addLabelToLayer(name, geometryType, coords, layerGroup) {
         className: 'kml-label',
         html: name,
         iconSize: [100, 20],
-        iconAnchor: [5, 0]
+        iconAnchor: [5, 20]
     });
     
     const labelMarker = L.marker(labelCoords, {
@@ -1902,4 +1902,5 @@ function addLabelToLayer(name, geometryType, coords, layerGroup) {
     return labelMarker;
 
 }
+
 
