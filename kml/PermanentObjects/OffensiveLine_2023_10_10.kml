@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='UTF-8' ?>
 <kml>
   <Document>
-    <name>UTM Measure</name>
+    <name>Имя 1</name>
     <open>1</open>
     <description>Exported data from UTM Measure APP</description>
     <Style id="121">
@@ -336,7 +336,7 @@
         </Polygon>
       </Placemark>
       <Placemark>
-        <name>Buffer Polygon_0_0</name>
+        <name> </name>
         <visibility>1</visibility>
         <description>1</description>
         <styleUrl>#122</styleUrl>
