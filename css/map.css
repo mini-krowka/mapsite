@@ -500,7 +500,8 @@
         -1px 1px 0 white, 
         1px 1px 0 white;
     font-size: 12px;
-    font-weight: bold;
+    font-weight: regular;
     white-space: nowrap;
     pointer-events: none;
+
 }
