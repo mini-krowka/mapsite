@@ -475,7 +475,7 @@ async function loadPermanentKmlLayers() {
                                 color: style.line.color || '#3388ff',
                                 weight: style.line.weight || 3,
                                 opacity: style.line.opacity || 1,
-								interactive: false
+								interactive: labelDisplayMode === 'interactive' // Делаем интерактивным только в интерактивном режиме
                             }).addTo(layerGroup);
                             
                             addLabelToLayer(name, 'LineString', coords, layerGroup, polyline);
@@ -504,7 +504,7 @@ async function loadPermanentKmlLayers() {
                                 weight: style.line.weight || 0,
                                 fillColor: style.poly.fillColor || '#3388ff',
                                 fillOpacity: style.poly.fillOpacity || 0.5,
-								interactive: false // Отключаем интерактивность полигонов
+								interactive: labelDisplayMode === 'interactive' // Делаем интерактивным только в интерактивном режиме
                             }).addTo(layerGroup);
                             
                             addLabelToLayer(name, 'Polygon', coords, layerGroup, polygon);
@@ -541,6 +541,8 @@ async function loadPermanentKmlLayers() {
 //                if (bounds.isValid()) {
 //                    map.fitBounds(bounds);
 //                }
+
+                logKmlStructure(kmlDoc, layerData.path);
             } catch (error) {
                 console.error(`Ошибка обработки слоя ${layerData.path}:`, error);
             }
@@ -663,7 +665,7 @@ async function loadKmlFile(file, targetCRS) {
                     color: style.color || '#3388ff',
                     weight: style.weight || 3,
                     opacity: style.opacity || 1,
-                    interactive: false
+                    interactive: labelDisplayMode === 'interactive' // Делаем интерактивным только в интерактивном режиме
                 }).addTo(layerGroup);
                 
                 addLabelToLayer(name, 'LineString', coords, layerGroup, polyline);
@@ -696,7 +698,7 @@ async function loadKmlFile(file, targetCRS) {
                     weight: style.weight || 3,
                     fillColor: style.fillColor || '#3388ff',
                     fillOpacity: style.fillOpacity || 0.5,
-					interactive: false // Отключаем интерактивность полигонов
+					interactive: labelDisplayMode === 'interactive' // Делаем интерактивным только в интерактивном режиме
                 }).addTo(layerGroup);
 
                 addLabelToLayer(name, 'Polygon', coords, layerGroup, poly);
@@ -1888,17 +1890,19 @@ function getPolygonCenter(coords) {
 function addLabelToLayer(name, geometryType, coords, layerGroup, targetLayer = null) {
     if (!name || name.trim() === '') return;
     
-    let labelCoords;
-    if (geometryType === 'LineString') {
-        labelCoords = coords[0];
-    } else if (geometryType === 'Polygon') {
-        labelCoords = getPolygonCenter(coords);
-    }
-
-    if (!labelCoords) return;
-
+    console.log(`Adding label for: ${name}, type: ${geometryType}, mode: ${labelDisplayMode}`);
+    
     if (labelDisplayMode === 'static') {
         // Статический режим - всегда видимые подписи
+        let labelCoords;
+        if (geometryType === 'LineString') {
+            labelCoords = coords[0];
+        } else if (geometryType === 'Polygon') {
+            labelCoords = getPolygonCenter(coords);
+        }
+
+        if (!labelCoords) return;
+
         const labelIcon = L.divIcon({
             className: 'kml-label',
             html: name,
@@ -1914,36 +1918,40 @@ function addLabelToLayer(name, geometryType, coords, layerGroup, targetLayer = n
         return labelMarker;
     } else {
         // Интерактивный режим - подписи при наведении
-        // Если передан targetLayer, добавляем обработчики к нему
-        if (targetLayer) {
-            addInteractiveLabel(targetLayer, name, labelCoords, layerGroup);
-        }
-        // Если targetLayer не передан, пытаемся найти его позже
-        else {
+        // Если targetLayer не передан, пытаемся найти его
+        if (!targetLayer) {
             setTimeout(() => {
                 const layers = layerGroup.getLayers();
                 const foundLayer = layers.find(layer => {
-                    if (geometryType === 'LineString') {
-                        return layer instanceof L.Polyline;
-                    } else {
-                        return layer instanceof L.Polygon;
+                    // Более надежный способ поиска соответствующего слоя
+                    if (geometryType === 'LineString' && layer instanceof L.Polyline) {
+                        return true;
+                    } else if (geometryType === 'Polygon' && layer instanceof L.Polygon) {
+                        return true;
                     }
+                    return false;
                 });
                 
                 if (foundLayer) {
-                    addInteractiveLabel(foundLayer, name, labelCoords, layerGroup);
+                    console.log(`Found layer for interactive label: ${name}`);
+                    addInteractiveLabel(foundLayer, name, layerGroup);
+                } else {
+                    console.warn(`Could not find layer for interactive label: ${name}`);
                 }
-            }, 100);
+            }, 300);
+        } else {
+            addInteractiveLabel(targetLayer, name, layerGroup);
         }
     }
 }
 
 // функция для добавления интерактивных подписей
-function addInteractiveLabel(targetLayer, name, labelCoords, layerGroup) {
-    let tempLabel = null;
+function addInteractiveLabel(targetLayer, name, layerGroup) {
+    console.log(`Adding interactive label handlers for: ${name}`);
+    
     let labelElement = null;
     
-    // Создаем элемент для подписи, который будет следовать за курсором
+    // Создаем элемент для подписи
     const createLabelElement = () => {
         if (labelElement) return;
         
@@ -1969,8 +1977,15 @@ function addInteractiveLabel(targetLayer, name, labelCoords, layerGroup) {
         labelElement.style.display = 'block';
     };
     
+    // Убедимся, что слой интерактивен
+    if (!targetLayer.options.interactive) {
+        targetLayer.options.interactive = true;
+        targetLayer.options.bubblingMouseEvents = true;
+    }
+    
     // Обработчик наведения
     targetLayer.on('mouseover', function(e) {
+        console.log(`Mouse over: ${name}`);
         createLabelElement();
         updateLabelPosition(e);
         
@@ -1983,6 +1998,7 @@ function addInteractiveLabel(targetLayer, name, labelCoords, layerGroup) {
     
     // Обработчик ухода курсора
     targetLayer.on('mouseout', function() {
+        console.log(`Mouse out: ${name}`);
         // Скрываем подпись
         if (labelElement) {
             labelElement.style.display = 'none';
@@ -1995,11 +2011,14 @@ function addInteractiveLabel(targetLayer, name, labelCoords, layerGroup) {
         labelMap.delete(targetLayer);
     });
     
-    // Делаем объект интерактивным (если еще не сделан)
-    if (!targetLayer.options.interactive) {
-        targetLayer.options.interactive = true;
-        targetLayer.options.bubblingMouseEvents = true;
-    }
+    // Обработчик удаления слоя
+    targetLayer.on('remove', function() {
+        if (labelElement) {
+            labelElement.remove();
+        }
+        map.off('mousemove', updateLabelPosition);
+        labelMap.delete(targetLayer);
+    });
 }
 
 // функция очистки всех подписей при смене режима или перезагрузке
@@ -2058,3 +2077,31 @@ async function reloadAllKmlLayers() {
     }
 }
 
+// Функция для логирования структуры KML
+function logKmlStructure(kmlDoc, filePath) {
+    console.group(`KML Structure: ${filePath}`);
+    
+    // Логируем количество Placemarks
+    const placemarks = kmlDoc.querySelectorAll('Placemark');
+    console.log(`Total Placemarks: ${placemarks.length}`);
+    
+    // Логируем информацию о каждом Placemark
+    placemarks.forEach((placemark, index) => {
+        const name = placemark.querySelector('name')?.textContent || 'Unnamed';
+        const lineString = placemark.querySelector('LineString');
+        const polygon = placemark.querySelector('Polygon');
+        
+        console.group(`Placemark ${index + 1}: ${name}`);
+        console.log(`Has LineString: ${!!lineString}`);
+        console.log(`Has Polygon: ${!!polygon}`);
+        
+        if (polygon) {
+            const linearRing = polygon.querySelector('LinearRing');
+            console.log(`Has LinearRing: ${!!linearRing}`);
+        }
+        
+        console.groupEnd();
+    });
+    
+    console.groupEnd();
+}
