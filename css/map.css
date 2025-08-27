@@ -503,6 +503,35 @@
     font-weight: bold;
     white-space: nowrap;
     pointer-events: none;
+}
 
+.leaflet-control-label-toggle {
+    background: white;
+    border-radius: 4px;
+    box-shadow: 0 1px 5px rgba(0,0,0,0.4);
+}
+
+.leaflet-control-label-toggle-btn {
+    width: 30px;
+    height: 30px;
+    display: block;
+    text-align: center;
+    line-height: 30px;
+    text-decoration: none;
+    color: #333;
+    font-size: 18px;
+}
+
+.leaflet-control-label-toggle-btn[data-mode="interactive"] {
+    background-color: #e6f2ff;
+}
+
+/* Стили для интерактивных подписей */
+.kml-label.interactive {
+    z-index: 1000;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 4px;
+    padding: 2px 5px;
+    box-shadow: 0 0 5px rgba(0,0,0,0.3);
 }
 

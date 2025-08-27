@@ -531,3 +531,25 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 
+
+
+// Добавляем кнопку переключения режима подписей
+const labelToggleControl = L.control({position: 'topright'});
+labelToggleControl.onAdd = function(map) {
+    this._div = L.DomUtil.create('div', 'leaflet-bar leaflet-control leaflet-control-label-toggle');
+    const link = L.DomUtil.create('a', 'leaflet-control-label-toggle-btn', this._div);
+    link.href = '#';
+    link.title = 'Переключить режим подписей';
+    link.innerHTML = '🏷️'; // Иконка подписи
+    link.dataset.mode = window.labelDisplayMode || 'static';
+    
+    L.DomEvent.on(link, 'click', function(e) {
+        L.DomEvent.stopPropagation(e);
+        L.DomEvent.preventDefault(e);
+        toggleLabelDisplayMode();
+        link.dataset.mode = window.labelDisplayMode;
+    });
+    
+    return this._div;
+};
+labelToggleControl.addTo(map);

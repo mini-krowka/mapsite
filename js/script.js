@@ -3,6 +3,8 @@ let permanentLayer = null;
 let currentIndex = kmlFiles.length - 1;
 let preserveZoom = false;
 
+let labelDisplayMode = 'static'; // 'static' или 'interactive
+
 let lastSelectedCity = null;
 citiesDropdown = document.getElementById('cities-dropdown');
 coordsInput = document.getElementById('coords-input');
@@ -996,6 +998,12 @@ async function init() {
 	
 	map.options.crs = L.CRS.EPSG3857;
     
+    // Читаем сохраненный режим подписей
+    const savedMode = localStorage.getItem('labelDisplayMode');
+    if (savedMode) {
+        labelDisplayMode = savedMode;
+    }
+    
     const flagInterval = setInterval(() => {
     if (document.querySelector('.leaflet-control-attribution')) {
         replaceAttributionFlag();
@@ -1880,28 +1888,92 @@ function addLabelToLayer(name, geometryType, coords, layerGroup) {
     
     let labelCoords;
     if (geometryType === 'LineString') {
-        labelCoords = coords[0]; // Первая точка линии
+        labelCoords = coords[0];
     } else if (geometryType === 'Polygon') {
-        labelCoords = getPolygonCenter(coords); // Центр полигона
+        labelCoords = getPolygonCenter(coords);
     }
 
     if (!labelCoords) return;
 
-    const labelIcon = L.divIcon({
-        className: 'kml-label',
-        html: name,
-        iconSize: [100, 20],
-        iconAnchor: [50, 0]
-    });
-    
-    const labelMarker = L.marker(labelCoords, {
-        icon: labelIcon,
-        interactive: false
-    }).addTo(layerGroup);
-    
-    return labelMarker;
-
+    if (labelDisplayMode === 'static') {
+        // Статический режим - всегда видимые подписи
+        const labelIcon = L.divIcon({
+            className: 'kml-label',
+            html: name,
+            iconSize: [100, 20],
+            iconAnchor: [50, 0]
+        });
+        
+        const labelMarker = L.marker(labelCoords, {
+            icon: labelIcon,
+            interactive: false
+        }).addTo(layerGroup);
+        
+        return labelMarker;
+    } else {
+        // Интерактивный режим - подписи при наведении
+        let tempLabel = null;
+        
+        // Находим соответствующий слой (полигон или линию)
+        const layers = layerGroup.getLayers();
+        const targetLayer = layers.find(layer => {
+            if (geometryType === 'LineString') {
+                return layer instanceof L.Polyline && 
+                       layer.getLatLngs()[0].equals(coords[0]);
+            } else {
+                return layer instanceof L.Polygon && 
+                       layer.getLatLngs()[0][0].equals(coords[0]);
+            }
+        });
+        
+        if (targetLayer) {
+            targetLayer.on('mouseover', function() {
+                const labelIcon = L.divIcon({
+                    className: 'kml-label interactive',
+                    html: name,
+                    iconSize: [100, 20],
+                    iconAnchor: [50, 0]
+                });
+                
+                tempLabel = L.marker(labelCoords, {
+                    icon: labelIcon,
+                    interactive: false
+                }).addTo(layerGroup);
+            });
+            
+            targetLayer.on('mouseout', function() {
+                if (tempLabel) {
+                    layerGroup.removeLayer(tempLabel);
+                    tempLabel = null;
+                }
+            });
+        }
+    }
 }
 
+// Функция переключения режима подписей
+function toggleLabelDisplayMode() {
+    labelDisplayMode = labelDisplayMode === 'static' ? 'interactive' : 'static';
+    localStorage.setItem('labelDisplayMode', labelDisplayMode);
+    
+    // Перезагружаем слои для применения нового режима
+    reloadAllKmlLayers();
+}
 
+// Функция перезагрузки всех KML слоев
+async function reloadAllKmlLayers() {
+    // Удаляем текущий слой
+    if (currentLayer) {
+        map.removeLayer(currentLayer);
+        currentLayer = null;
+    }
+    
+    // Перезагружаем постоянные слои
+    await loadPermanentKmlLayers();
+    
+    // Перезагружаем текущий KML файл
+    if (kmlFiles[currentIndex]) {
+        await loadKmlFile(kmlFiles[currentIndex]);
+    }
+}
 
