@@ -1941,56 +1941,55 @@ function addLabelToLayer(name, geometryType, coords, layerGroup, targetLayer = n
 // функция для добавления интерактивных подписей
 function addInteractiveLabel(targetLayer, name, labelCoords, layerGroup) {
     let tempLabel = null;
+    let labelElement = null;
     
-    // Сохраняем оригинальные стили для восстановления
-    const originalStyle = {
-        color: targetLayer.options.color,
-        weight: targetLayer.options.weight,
-        fillColor: targetLayer.options.fillColor,
-        fillOpacity: targetLayer.options.fillOpacity
+    // Создаем элемент для подписи, который будет следовать за курсором
+    const createLabelElement = () => {
+        if (labelElement) return;
+        
+        labelElement = L.DomUtil.create('div', 'kml-label interactive follow-cursor');
+        labelElement.innerHTML = name;
+        labelElement.style.position = 'absolute';
+        labelElement.style.zIndex = 1000;
+        labelElement.style.pointerEvents = 'none';
+        labelElement.style.display = 'none';
+        
+        document.body.appendChild(labelElement);
+    };
+    
+    // Функция для обновления позиции подписи
+    const updateLabelPosition = (e) => {
+        if (!labelElement) return;
+        
+        const mouseX = e.originalEvent.clientX;
+        const mouseY = e.originalEvent.clientY;
+        
+        labelElement.style.left = (mouseX + 15) + 'px';
+        labelElement.style.top = (mouseY + 15) + 'px';
+        labelElement.style.display = 'block';
     };
     
     // Обработчик наведения
-    targetLayer.on('mouseover', function() {
-        // Подсвечиваем объект
-        if (targetLayer.setStyle) {
-            targetLayer.setStyle({
-                color: '#ff0000',
-                weight: originalStyle.weight + 2,
-                fillColor: '#ff0000',
-                fillOpacity: originalStyle.fillOpacity + 0.2
-            });
-        }
-        
-        // Создаем подпись
-        const labelIcon = L.divIcon({
-            className: 'kml-label interactive',
-            html: name,
-            iconSize: [100, 20],
-            iconAnchor: [50, 0]
-        });
-        
-        tempLabel = L.marker(labelCoords, {
-            icon: labelIcon,
-            interactive: false
-        }).addTo(layerGroup);
+    targetLayer.on('mouseover', function(e) {
+        createLabelElement();
+        updateLabelPosition(e);
         
         // Сохраняем связь
-        labelMap.set(targetLayer, { label: tempLabel, originalStyle });
+        labelMap.set(targetLayer, { element: labelElement });
+        
+        // Подписываемся на движение мыши по карте
+        map.on('mousemove', updateLabelPosition);
     });
     
     // Обработчик ухода курсора
     targetLayer.on('mouseout', function() {
-        // Восстанавливаем оригинальный стиль
-        if (targetLayer.setStyle && originalStyle) {
-            targetLayer.setStyle(originalStyle);
+        // Скрываем подпись
+        if (labelElement) {
+            labelElement.style.display = 'none';
         }
         
-        // Удаляем подпись
-        if (tempLabel) {
-            layerGroup.removeLayer(tempLabel);
-            tempLabel = null;
-        }
+        // Отписываемся от движения мыши
+        map.off('mousemove', updateLabelPosition);
         
         // Удаляем связь
         labelMap.delete(targetLayer);
@@ -2003,10 +2002,37 @@ function addInteractiveLabel(targetLayer, name, labelCoords, layerGroup) {
     }
 }
 
+// функция очистки всех подписей при смене режима или перезагрузке
+function clearAllInteractiveLabels() {
+    // Удаляем все элементы подписей
+    document.querySelectorAll('.kml-label.interactive.follow-cursor').forEach(el => {
+        el.remove();
+    });
+    
+    // Очищаем карту связей
+    labelMap.clear();
+    
+    // Отписываемся от всех событий движения мыши
+    map.off('mousemove');
+}
+
+
 // Функция переключения режима подписей
 function toggleLabelDisplayMode() {
+    // Очищаем все интерактивные подписи перед сменой режима
+    clearAllInteractiveLabels();
+    
     labelDisplayMode = labelDisplayMode === 'static' ? 'interactive' : 'static';
     localStorage.setItem('labelDisplayMode', labelDisplayMode);
+    
+    // Обновляем иконку кнопки
+    const labelToggleBtn = document.querySelector('.leaflet-control-label-toggle-btn');
+    if (labelToggleBtn) {
+        labelToggleBtn.dataset.mode = labelDisplayMode;
+        labelToggleBtn.title = labelDisplayMode === 'static' ? 
+            'Переключить на интерактивные подписи' : 
+            'Переключить на статические подписи';
+    }
     
     // Перезагружаем слои для применения нового режима
     reloadAllKmlLayers();
@@ -2014,6 +2040,9 @@ function toggleLabelDisplayMode() {
 
 // Функция перезагрузки всех KML слоев
 async function reloadAllKmlLayers() {
+    // Очищаем все интерактивные подписи
+    clearAllInteractiveLabels();
+    
     // Удаляем текущий слой
     if (currentLayer) {
         map.removeLayer(currentLayer);

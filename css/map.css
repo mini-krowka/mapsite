@@ -544,3 +544,30 @@
     cursor: pointer;
 }
 
+/* Стили для интерактивных подписей, следующих за курсором */
+.kml-label.interactive.follow-cursor {
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 6px 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    font-weight: bold;
+    color: #333;
+    white-space: nowrap;
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 14px;
+    pointer-events: none;
+    transform: translateZ(0); /* Для улучшения производительности */
+}
+
+/* Улучшаем видимость при наведении на объекты */
+.leaflet-interactive {
+    cursor: pointer;
+}
+
+.leaflet-interactive:hover {
+    filter: brightness(1.2);
+}
+

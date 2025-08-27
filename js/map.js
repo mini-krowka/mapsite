@@ -539,7 +539,9 @@ labelToggleControl.onAdd = function(map) {
     this._div = L.DomUtil.create('div', 'leaflet-bar leaflet-control leaflet-control-label-toggle');
     const link = L.DomUtil.create('a', 'leaflet-control-label-toggle-btn', this._div);
     link.href = '#';
-    link.title = 'Переключить режим подписей';
+    link.title = window.labelDisplayMode === 'static' ? 
+        'Переключить на интерактивные подписи' : 
+        'Переключить на статические подписи';
     link.innerHTML = '🏷️'; // Иконка подписи
     link.dataset.mode = window.labelDisplayMode || 'static';
     
@@ -547,7 +549,6 @@ labelToggleControl.onAdd = function(map) {
         L.DomEvent.stopPropagation(e);
         L.DomEvent.preventDefault(e);
         toggleLabelDisplayMode();
-        link.dataset.mode = window.labelDisplayMode;
     });
     
     return this._div;
