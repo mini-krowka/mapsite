@@ -529,9 +529,18 @@
 /* Стили для интерактивных подписей */
 .kml-label.interactive {
     z-index: 1000;
-    background: rgba(255, 255, 255, 0.9);
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid #ccc;
     border-radius: 4px;
-    padding: 2px 5px;
-    box-shadow: 0 0 5px rgba(0,0,0,0.3);
+    padding: 4px 8px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+    font-weight: bold;
+    color: #333;
+    white-space: nowrap;
+}
+
+/* Стиль для подсвеченных объектов */
+.leaflet-interactive:hover {
+    cursor: pointer;
 }
 
