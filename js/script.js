@@ -320,8 +320,8 @@ function parseCoordinates(element, crs) {
     const val = element.trim();
     if (!val) return [];
     if (typeof parseCoordinateString === 'function') {
-      const tuple = parseCoordinateString(val);
-      return Array.isArray(tuple) && tuple.length >= 2 ? [tuple[0], tuple[1]] : [];
+      const t = parseCoordinateString(val);
+      return Array.isArray(t) && t.length >= 2 ? [t[0], t[1]] : [];
     }
     const m = val.match(/(-?\d+(?:[\.,]\d+)?)[\s,]+(-?\d+(?:[\.,]\d+)?)/);
     if (!m) return [];
@@ -330,21 +330,17 @@ function parseCoordinates(element, crs) {
     return [lat, lng];
   }
 
-  // KML-элемент — массив пар [[lat, lng], ...]
-  const coordinates = element?.querySelector('coordinates')?.textContent;
-  if (!coordinates) return [];
-  return coordinates
-    .trim()
-    .split(/\s+/)
-    .map(coord => {
-      const parts = coord.split(',');
-      if (parts.length < 2) return null;
-      const lng = parseFloat(parts[0]);
-      const lat = parseFloat(parts[1]);
-      if (Number.isNaN(lat) || Number.isNaN(lng)) return null;
-      return [lat, lng];
-    })
-    .filter(Boolean);
+  // DOM-элемент KML — массив пар [[lat, lng], ...]
+  const raw = element?.querySelector('coordinates')?.textContent;
+  if (!raw) return [];
+  return raw.trim().split(/\s+/).map(s => {
+    const p = s.split(',');
+    if (p.length < 2) return null;
+    const lng = parseFloat(p[0]);
+    const lat = parseFloat(p[1]);
+    if (Number.isNaN(lat) || Number.isNaN(lng)) return null;
+    return [lat, lng];
+  }).filter(Boolean);
 }
 
 function parseColor(kmlColor) {
@@ -1889,7 +1885,7 @@ function getPolygonCenter(coords) {
 }
 // функция для добавления метки к объекту
 function addLabelToLayer(name, geometryType, coords, layerGroup, targetLayer = null) {
-    if (!name || name.trim() === '') return;
+    //if (!name || name.trim() === '') return;
     
     console.log(`Adding label for: ${name}, type: ${geometryType}, mode: ${labelDisplayMode}`);
     
@@ -2138,4 +2134,44 @@ function debugKmlLoading(layerGroup, filePath) {
     });
     
     console.groupEnd();
+}
+
+function nameFromProps(props) {
+  return props?.name ?? props?.Name ?? props?.NAME ?? '';
+}
+
+// labelsMode: 'static' | 'interactive'
+function onEachKmlFeature(feature, layer, labelsMode = 'static') {
+  const name = nameFromProps(feature.properties);
+  // Не блокируем отрисовку фич без названия! Просто не подписываем.
+  // Но СЛОЙ ВСЁ РАВНО ДОЛЖЕН ОСТАТЬСЯ ИНТЕРАКТИВНЫМ, иначе hover не сработает на других.
+  layer.options.interactive = true;
+
+  if (!name) return; // нет подписи — но слой остаётся
+
+  if (labelsMode === 'static') {
+    layer.bindTooltip(name, {
+      permanent: true,
+      direction: 'center',
+      className: 'kml-label'
+    });
+  } else {
+    layer.bindTooltip(name, {
+      permanent: false,
+      sticky: true,
+      direction: 'top',
+      className: 'kml-label interactive',
+      opacity: 0.95
+    });
+    layer.on('mouseover', (e) => {
+      layer.openTooltip(e.latlng);
+    });
+    layer.on('mousemove', (e) => {
+      const tt = layer.getTooltip && layer.getTooltip();
+      if (tt) tt.setLatLng(e.latlng);
+    });
+    layer.on('mouseout', () => {
+      layer.closeTooltip();
+    });
+  }
 }

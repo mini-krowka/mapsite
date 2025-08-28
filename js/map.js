@@ -554,3 +554,22 @@ labelToggleControl.onAdd = function(map) {
     return this._div;
 };
 labelToggleControl.addTo(map);
+
+
+
+const group = L.featureGroup();
+
+omnivore.kml(url).on('ready', function() {
+  this.eachLayer(function(layer) {
+    // 1) Стиль (не пропускаем пустые!)
+    if (typeof styleKmlFeature === 'function') {
+      try { layer.setStyle(styleKmlFeature(layer.feature)); } catch(e){}
+    }
+
+    // 2) Подписи (но не удаляем слои, если нет подписи)
+    onEachKmlFeature(layer.feature, layer, labelsMode);
+
+    // 3) Добавляем ВСЕ фичи
+    group.addLayer(layer);
+  });
+}).addTo(map);
