@@ -543,6 +543,7 @@ async function loadPermanentKmlLayers() {
 //                }
 
                 logKmlStructure(kmlDoc, layerData.path);
+                debugKmlLoading(layerGroup, layerData.path);
             } catch (error) {
                 console.error(`Ошибка обработки слоя ${layerData.path}:`, error);
             }
@@ -1922,11 +1923,15 @@ function addLabelToLayer(name, geometryType, coords, layerGroup, targetLayer = n
         if (!targetLayer) {
             setTimeout(() => {
                 const layers = layerGroup.getLayers();
+                console.log(`Searching for layer in group with ${layers.length} layers`);
+                
                 const foundLayer = layers.find(layer => {
                     // Более надежный способ поиска соответствующего слоя
                     if (geometryType === 'LineString' && layer instanceof L.Polyline) {
+                        console.log(`Found LineString layer for: ${name}`);
                         return true;
                     } else if (geometryType === 'Polygon' && layer instanceof L.Polygon) {
+                        console.log(`Found Polygon layer for: ${name}`);
                         return true;
                     }
                     return false;
@@ -1936,7 +1941,16 @@ function addLabelToLayer(name, geometryType, coords, layerGroup, targetLayer = n
                     console.log(`Found layer for interactive label: ${name}`);
                     addInteractiveLabel(foundLayer, name, layerGroup);
                 } else {
-                    console.warn(`Could not find layer for interactive label: ${name}`);
+                    console.warn(`Could not find layer for interactive label: ${name}, type: ${geometryType}`);
+                    // Создаем временный маркер как запасной вариант
+                    const labelCoords = geometryType === 'LineString' ? coords[0] : getPolygonCenter(coords);
+                    if (labelCoords) {
+                        const tempMarker = L.marker(labelCoords, {
+                            interactive: true,
+                            opacity: 0.01 // Почти невидимый
+                        }).addTo(layerGroup);
+                        addInteractiveLabel(tempMarker, name, layerGroup);
+                    }
                 }
             }, 300);
         } else {
@@ -2101,6 +2115,26 @@ function logKmlStructure(kmlDoc, filePath) {
         }
         
         console.groupEnd();
+    });
+    
+    console.groupEnd();
+}
+function debugKmlLoading(layerGroup, filePath) {
+    console.group(`Debug KML Loading: ${filePath}`);
+    const layers = layerGroup.getLayers();
+    console.log(`Total layers in group: ${layers.length}`);
+    
+    layers.forEach((layer, index) => {
+        console.log(`Layer ${index + 1}:`);
+        console.log(`- Type: ${layer.constructor.name}`);
+        console.log(`- Interactive: ${layer.options.interactive}`);
+        console.log(`- Visible: ${layer._map !== null}`);
+        
+        if (layer instanceof L.Polyline) {
+            console.log(`- Points: ${layer.getLatLngs().length}`);
+        } else if (layer instanceof L.Polygon) {
+            console.log(`- Points: ${layer.getLatLngs()[0].length}`);
+        }
     });
     
     console.groupEnd();
