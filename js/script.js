@@ -237,7 +237,7 @@ function centerMap(lat, lng) {
     }).addTo(map);
 
     // Обработчик события перетаскивания маркера
-    highlightMarker.on('dragend', function(e) {
+    highlightMarker.on('drag', function(e) {
         const position = highlightMarker.getLatLng();
         const newLat = position.lat;
         const newLng = position.lng;
@@ -1940,6 +1940,7 @@ function addLabelToLayer(name, geometryType, coords, layerGroup) {
     return labelMarker;
 
 }
+
 
 
 
