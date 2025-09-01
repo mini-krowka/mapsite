@@ -181,8 +181,8 @@ const baseLayers = {
     "ESRI World Imagery": esri,
     // "CartoDB Voyager": carto,
     // "RU Army": ru,
-    "Google Maps": goo,
-    "Yandex Maps": yandexLayer
+    "Google Maps": goo
+    // "Yandex Maps": yandexLayer
 };
 
 // Создаем кастомный контрол слоев
@@ -532,44 +532,3 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 
-
-// Добавляем кнопку переключения режима подписей
-const labelToggleControl = L.control({position: 'topright'});
-labelToggleControl.onAdd = function(map) {
-    this._div = L.DomUtil.create('div', 'leaflet-bar leaflet-control leaflet-control-label-toggle');
-    const link = L.DomUtil.create('a', 'leaflet-control-label-toggle-btn', this._div);
-    link.href = '#';
-    link.title = window.labelDisplayMode === 'static' ? 
-        'Переключить на интерактивные подписи' : 
-        'Переключить на статические подписи';
-    link.innerHTML = '🏷️'; // Иконка подписи
-    link.dataset.mode = window.labelDisplayMode || 'static';
-    
-    L.DomEvent.on(link, 'click', function(e) {
-        L.DomEvent.stopPropagation(e);
-        L.DomEvent.preventDefault(e);
-        toggleLabelDisplayMode();
-    });
-    
-    return this._div;
-};
-labelToggleControl.addTo(map);
-
-
-
-const group = L.featureGroup();
-
-omnivore.kml(url).on('ready', function() {
-  this.eachLayer(function(layer) {
-    // 1) Стиль (не пропускаем пустые!)
-    if (typeof styleKmlFeature === 'function') {
-      try { layer.setStyle(styleKmlFeature(layer.feature)); } catch(e){}
-    }
-
-    // 2) Подписи (но не удаляем слои, если нет подписи)
-    onEachKmlFeature(layer.feature, layer, labelsMode);
-
-    // 3) Добавляем ВСЕ фичи
-    group.addLayer(layer);
-  });
-}).addTo(map);

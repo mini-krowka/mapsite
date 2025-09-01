@@ -3,10 +3,6 @@ let permanentLayer = null;
 let currentIndex = kmlFiles.length - 1;
 let preserveZoom = false;
 
-let labelDisplayMode = 'static'; // 'static' или 'interactive'
-// глобальный объект для хранения связей между объектами и подписями
-const labelMap = new Map();
-
 let lastSelectedCity = null;
 citiesDropdown = document.getElementById('cities-dropdown');
 coordsInput = document.getElementById('coords-input');
@@ -320,8 +316,8 @@ function parseCoordinates(element, crs) {
     const val = element.trim();
     if (!val) return [];
     if (typeof parseCoordinateString === 'function') {
-      const t = parseCoordinateString(val);
-      return Array.isArray(t) && t.length >= 2 ? [t[0], t[1]] : [];
+      const tuple = parseCoordinateString(val);
+      return Array.isArray(tuple) && tuple.length >= 2 ? [tuple[0], tuple[1]] : [];
     }
     const m = val.match(/(-?\d+(?:[\.,]\d+)?)[\s,]+(-?\d+(?:[\.,]\d+)?)/);
     if (!m) return [];
@@ -330,17 +326,21 @@ function parseCoordinates(element, crs) {
     return [lat, lng];
   }
 
-  // DOM-элемент KML — массив пар [[lat, lng], ...]
-  const raw = element?.querySelector('coordinates')?.textContent;
-  if (!raw) return [];
-  return raw.trim().split(/\s+/).map(s => {
-    const p = s.split(',');
-    if (p.length < 2) return null;
-    const lng = parseFloat(p[0]);
-    const lat = parseFloat(p[1]);
-    if (Number.isNaN(lat) || Number.isNaN(lng)) return null;
-    return [lat, lng];
-  }).filter(Boolean);
+  // KML-элемент — массив пар [[lat, lng], ...]
+  const coordinates = element?.querySelector('coordinates')?.textContent;
+  if (!coordinates) return [];
+  return coordinates
+    .trim()
+    .split(/\s+/)
+    .map(coord => {
+      const parts = coord.split(',');
+      if (parts.length < 2) return null;
+      const lng = parseFloat(parts[0]);
+      const lat = parseFloat(parts[1]);
+      if (Number.isNaN(lat) || Number.isNaN(lng)) return null;
+      return [lat, lng];
+    })
+    .filter(Boolean);
 }
 
 function parseColor(kmlColor) {
@@ -471,10 +471,10 @@ async function loadPermanentKmlLayers() {
                                 color: style.line.color || '#3388ff',
                                 weight: style.line.weight || 3,
                                 opacity: style.line.opacity || 1,
-								interactive: labelDisplayMode === 'interactive' // Делаем интерактивным только в интерактивном режиме
+								interactive: false
                             }).addTo(layerGroup);
                             
-                            addLabelToLayer(name, 'LineString', coords, layerGroup, polyline);
+                            addLabelToLayer(name, 'LineString', coords, layerGroup);
                             
                             // Обновляем границы СРАЗУ ПОСЛЕ СОЗДАНИЯ
                             if (polyline.getBounds && polyline.getBounds().isValid()) {
@@ -500,10 +500,10 @@ async function loadPermanentKmlLayers() {
                                 weight: style.line.weight || 0,
                                 fillColor: style.poly.fillColor || '#3388ff',
                                 fillOpacity: style.poly.fillOpacity || 0.5,
-								interactive: labelDisplayMode === 'interactive' // Делаем интерактивным только в интерактивном режиме
+								interactive: false // Отключаем интерактивность полигонов
                             }).addTo(layerGroup);
                             
-                            addLabelToLayer(name, 'Polygon', coords, layerGroup, polygon);
+                            addLabelToLayer(name, 'Polygon', coords, layerGroup);
                             
                             // Обновляем границы СРАЗУ ПОСЛЕ СОЗДАНИЯ
                             if (poly.getBounds && poly.getBounds().isValid()) {
@@ -537,9 +537,6 @@ async function loadPermanentKmlLayers() {
 //                if (bounds.isValid()) {
 //                    map.fitBounds(bounds);
 //                }
-
-                logKmlStructure(kmlDoc, layerData.path);
-                debugKmlLoading(layerGroup, layerData.path);
             } catch (error) {
                 console.error(`Ошибка обработки слоя ${layerData.path}:`, error);
             }
@@ -662,10 +659,10 @@ async function loadKmlFile(file, targetCRS) {
                     color: style.color || '#3388ff',
                     weight: style.weight || 3,
                     opacity: style.opacity || 1,
-                    interactive: labelDisplayMode === 'interactive' // Делаем интерактивным только в интерактивном режиме
+                    interactive: false
                 }).addTo(layerGroup);
                 
-                addLabelToLayer(name, 'LineString', coords, layerGroup, polyline);
+                addLabelToLayer(name, 'LineString', coords, layerGroup);
 
                 // Логирование информации о линии
                 if (LOG_TEMPORARY_STYLES) {
@@ -695,10 +692,10 @@ async function loadKmlFile(file, targetCRS) {
                     weight: style.weight || 3,
                     fillColor: style.fillColor || '#3388ff',
                     fillOpacity: style.fillOpacity || 0.5,
-					interactive: labelDisplayMode === 'interactive' // Делаем интерактивным только в интерактивном режиме
+					interactive: false // Отключаем интерактивность полигонов
                 }).addTo(layerGroup);
 
-                addLabelToLayer(name, 'Polygon', coords, layerGroup, poly);
+                addLabelToLayer(name, 'Polygon', coords, layerGroup);
 
                 // Логирование информации о полигоне
                 if (LOG_TEMPORARY_STYLES) {
@@ -998,12 +995,6 @@ async function init() {
     }, 50);
 	
 	map.options.crs = L.CRS.EPSG3857;
-    
-    // Читаем сохраненный режим подписей
-    const savedMode = localStorage.getItem('labelDisplayMode');
-    if (savedMode) {
-        labelDisplayMode = savedMode;
-    }
     
     const flagInterval = setInterval(() => {
     if (document.querySelector('.leaflet-control-attribution')) {
@@ -1884,294 +1875,33 @@ function getPolygonCenter(coords) {
     return [(minLat + maxLat) / 2, (minLng + maxLng) / 2];
 }
 // функция для добавления метки к объекту
-function addLabelToLayer(name, geometryType, coords, layerGroup, targetLayer = null) {
-    //if (!name || name.trim() === '') return;
+function addLabelToLayer(name, geometryType, coords, layerGroup) {
+    if (!name || name.trim() === '') return;
     
-    console.log(`Adding label for: ${name}, type: ${geometryType}, mode: ${labelDisplayMode}`);
-    
-    if (labelDisplayMode === 'static') {
-        // Статический режим - всегда видимые подписи
-        let labelCoords;
-        if (geometryType === 'LineString') {
-            labelCoords = coords[0];
-        } else if (geometryType === 'Polygon') {
-            labelCoords = getPolygonCenter(coords);
-        }
-
-        if (!labelCoords) return;
-
-        const labelIcon = L.divIcon({
-            className: 'kml-label',
-            html: name,
-            iconSize: [100, 20],
-            iconAnchor: [50, 0]
-        });
-        
-        const labelMarker = L.marker(labelCoords, {
-            icon: labelIcon,
-            interactive: false
-        }).addTo(layerGroup);
-        
-        return labelMarker;
-    } else {
-        // Интерактивный режим - подписи при наведении
-        // Если targetLayer не передан, пытаемся найти его
-        if (!targetLayer) {
-            setTimeout(() => {
-                const layers = layerGroup.getLayers();
-                console.log(`Searching for layer in group with ${layers.length} layers`);
-                
-                const foundLayer = layers.find(layer => {
-                    // Более надежный способ поиска соответствующего слоя
-                    if (geometryType === 'LineString' && layer instanceof L.Polyline) {
-                        console.log(`Found LineString layer for: ${name}`);
-                        return true;
-                    } else if (geometryType === 'Polygon' && layer instanceof L.Polygon) {
-                        console.log(`Found Polygon layer for: ${name}`);
-                        return true;
-                    }
-                    return false;
-                });
-                
-                if (foundLayer) {
-                    console.log(`Found layer for interactive label: ${name}`);
-                    addInteractiveLabel(foundLayer, name, layerGroup);
-                } else {
-                    console.warn(`Could not find layer for interactive label: ${name}, type: ${geometryType}`);
-                    // Создаем временный маркер как запасной вариант
-                    const labelCoords = geometryType === 'LineString' ? coords[0] : getPolygonCenter(coords);
-                    if (labelCoords) {
-                        const tempMarker = L.marker(labelCoords, {
-                            interactive: true,
-                            opacity: 0.01 // Почти невидимый
-                        }).addTo(layerGroup);
-                        addInteractiveLabel(tempMarker, name, layerGroup);
-                    }
-                }
-            }, 300);
-        } else {
-            addInteractiveLabel(targetLayer, name, layerGroup);
-        }
+    let labelCoords;
+    if (geometryType === 'LineString') {
+        labelCoords = coords[0]; // Первая точка линии
+    } else if (geometryType === 'Polygon') {
+        labelCoords = getPolygonCenter(coords); // Центр полигона
     }
-}
 
-// функция для добавления интерактивных подписей
-function addInteractiveLabel(targetLayer, name, layerGroup) {
-    console.log(`Adding interactive label handlers for: ${name}`);
-    
-    let labelElement = null;
-    
-    // Создаем элемент для подписи
-    const createLabelElement = () => {
-        if (labelElement) return;
-        
-        labelElement = L.DomUtil.create('div', 'kml-label interactive follow-cursor');
-        labelElement.innerHTML = name;
-        labelElement.style.position = 'absolute';
-        labelElement.style.zIndex = 1000;
-        labelElement.style.pointerEvents = 'none';
-        labelElement.style.display = 'none';
-        
-        document.body.appendChild(labelElement);
-    };
-    
-    // Функция для обновления позиции подписи
-    const updateLabelPosition = (e) => {
-        if (!labelElement) return;
-        
-        const mouseX = e.originalEvent.clientX;
-        const mouseY = e.originalEvent.clientY;
-        
-        labelElement.style.left = (mouseX + 15) + 'px';
-        labelElement.style.top = (mouseY + 15) + 'px';
-        labelElement.style.display = 'block';
-    };
-    
-    // Убедимся, что слой интерактивен
-    if (!targetLayer.options.interactive) {
-        targetLayer.options.interactive = true;
-        targetLayer.options.bubblingMouseEvents = true;
-    }
-    
-    // Обработчик наведения
-    targetLayer.on('mouseover', function(e) {
-        console.log(`Mouse over: ${name}`);
-        createLabelElement();
-        updateLabelPosition(e);
-        
-        // Сохраняем связь
-        labelMap.set(targetLayer, { element: labelElement });
-        
-        // Подписываемся на движение мыши по карте
-        map.on('mousemove', updateLabelPosition);
-    });
-    
-    // Обработчик ухода курсора
-    targetLayer.on('mouseout', function() {
-        console.log(`Mouse out: ${name}`);
-        // Скрываем подпись
-        if (labelElement) {
-            labelElement.style.display = 'none';
-        }
-        
-        // Отписываемся от движения мыши
-        map.off('mousemove', updateLabelPosition);
-        
-        // Удаляем связь
-        labelMap.delete(targetLayer);
-    });
-    
-    // Обработчик удаления слоя
-    targetLayer.on('remove', function() {
-        if (labelElement) {
-            labelElement.remove();
-        }
-        map.off('mousemove', updateLabelPosition);
-        labelMap.delete(targetLayer);
-    });
-}
+    if (!labelCoords) return;
 
-// функция очистки всех подписей при смене режима или перезагрузке
-function clearAllInteractiveLabels() {
-    // Удаляем все элементы подписей
-    document.querySelectorAll('.kml-label.interactive.follow-cursor').forEach(el => {
-        el.remove();
+    const labelIcon = L.divIcon({
+        className: 'kml-label',
+        html: name,
+        iconSize: [100, 20],
+        iconAnchor: [50, 0]
     });
     
-    // Очищаем карту связей
-    labelMap.clear();
+    const labelMarker = L.marker(labelCoords, {
+        icon: labelIcon,
+        interactive: false
+    }).addTo(layerGroup);
     
-    // Отписываемся от всех событий движения мыши
-    map.off('mousemove');
+    return labelMarker;
+
 }
 
 
-// Функция переключения режима подписей
-function toggleLabelDisplayMode() {
-    // Очищаем все интерактивные подписи перед сменой режима
-    clearAllInteractiveLabels();
-    
-    labelDisplayMode = labelDisplayMode === 'static' ? 'interactive' : 'static';
-    localStorage.setItem('labelDisplayMode', labelDisplayMode);
-    
-    // Обновляем иконку кнопки
-    const labelToggleBtn = document.querySelector('.leaflet-control-label-toggle-btn');
-    if (labelToggleBtn) {
-        labelToggleBtn.dataset.mode = labelDisplayMode;
-        labelToggleBtn.title = labelDisplayMode === 'static' ? 
-            'Переключить на интерактивные подписи' : 
-            'Переключить на статические подписи';
-    }
-    
-    // Перезагружаем слои для применения нового режима
-    reloadAllKmlLayers();
-}
 
-// Функция перезагрузки всех KML слоев
-async function reloadAllKmlLayers() {
-    // Очищаем все интерактивные подписи
-    clearAllInteractiveLabels();
-    
-    // Удаляем текущий слой
-    if (currentLayer) {
-        map.removeLayer(currentLayer);
-        currentLayer = null;
-    }
-    
-    // Перезагружаем постоянные слои
-    await loadPermanentKmlLayers();
-    
-    // Перезагружаем текущий KML файл
-    if (kmlFiles[currentIndex]) {
-        await loadKmlFile(kmlFiles[currentIndex]);
-    }
-}
-
-// Функция для логирования структуры KML
-function logKmlStructure(kmlDoc, filePath) {
-    console.group(`KML Structure: ${filePath}`);
-    
-    // Логируем количество Placemarks
-    const placemarks = kmlDoc.querySelectorAll('Placemark');
-    console.log(`Total Placemarks: ${placemarks.length}`);
-    
-    // Логируем информацию о каждом Placemark
-    placemarks.forEach((placemark, index) => {
-        const name = placemark.querySelector('name')?.textContent || 'Unnamed';
-        const lineString = placemark.querySelector('LineString');
-        const polygon = placemark.querySelector('Polygon');
-        
-        console.group(`Placemark ${index + 1}: ${name}`);
-        console.log(`Has LineString: ${!!lineString}`);
-        console.log(`Has Polygon: ${!!polygon}`);
-        
-        if (polygon) {
-            const linearRing = polygon.querySelector('LinearRing');
-            console.log(`Has LinearRing: ${!!linearRing}`);
-        }
-        
-        console.groupEnd();
-    });
-    
-    console.groupEnd();
-}
-function debugKmlLoading(layerGroup, filePath) {
-    console.group(`Debug KML Loading: ${filePath}`);
-    const layers = layerGroup.getLayers();
-    console.log(`Total layers in group: ${layers.length}`);
-    
-    layers.forEach((layer, index) => {
-        console.log(`Layer ${index + 1}:`);
-        console.log(`- Type: ${layer.constructor.name}`);
-        console.log(`- Interactive: ${layer.options.interactive}`);
-        console.log(`- Visible: ${layer._map !== null}`);
-        
-        if (layer instanceof L.Polyline) {
-            console.log(`- Points: ${layer.getLatLngs().length}`);
-        } else if (layer instanceof L.Polygon) {
-            console.log(`- Points: ${layer.getLatLngs()[0].length}`);
-        }
-    });
-    
-    console.groupEnd();
-}
-
-function nameFromProps(props) {
-  return props?.name ?? props?.Name ?? props?.NAME ?? '';
-}
-
-// labelsMode: 'static' | 'interactive'
-function onEachKmlFeature(feature, layer, labelsMode = 'static') {
-  const name = nameFromProps(feature.properties);
-  // Не блокируем отрисовку фич без названия! Просто не подписываем.
-  // Но СЛОЙ ВСЁ РАВНО ДОЛЖЕН ОСТАТЬСЯ ИНТЕРАКТИВНЫМ, иначе hover не сработает на других.
-  layer.options.interactive = true;
-
-  if (!name) return; // нет подписи — но слой остаётся
-
-  if (labelsMode === 'static') {
-    layer.bindTooltip(name, {
-      permanent: true,
-      direction: 'center',
-      className: 'kml-label'
-    });
-  } else {
-    layer.bindTooltip(name, {
-      permanent: false,
-      sticky: true,
-      direction: 'top',
-      className: 'kml-label interactive',
-      opacity: 0.95
-    });
-    layer.on('mouseover', (e) => {
-      layer.openTooltip(e.latlng);
-    });
-    layer.on('mousemove', (e) => {
-      const tt = layer.getTooltip && layer.getTooltip();
-      if (tt) tt.setLatLng(e.latlng);
-    });
-    layer.on('mouseout', () => {
-      layer.closeTooltip();
-    });
-  }
-}
