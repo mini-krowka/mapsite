@@ -205,9 +205,9 @@ let highlightMarker = null;
 let highlightTimeout = null;
 let highlightAnimationInterval = null;
 
-function centerMap(lat, lng) {    
-    const centerMapZoom = 14;
-    map.setView([lat, lng], centerMapZoom);
+function centerMap(lat, lng, zoom = 14) {    
+    // const centerMapZoom = 14;
+    map.setView([lat, lng], zoom);
     document.getElementById('coords-input').value = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
 
     // Очищаем предыдущие элементы
@@ -1947,7 +1947,8 @@ function addLabelToLayer(name, geometryType, coords, layerGroup) {
 // Добавим функцию для добавления маркера в текущий центр карты
 function addMarkerAtCurrentCenter() {
     const center = map.getCenter();
-    centerMap(center.lat, center.lng);
+    const currentZoom = map.getZoom();
+    centerMap(center.lat, center.lng, currentZoom);
 }
 
 // Добавим обработчики для кнопок добавления маркера
