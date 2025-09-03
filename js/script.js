@@ -1944,3 +1944,23 @@ function addLabelToLayer(name, geometryType, coords, layerGroup) {
 
 
 
+// Добавим функцию для добавления маркера в текущий центр карты
+function addMarkerAtCurrentCenter() {
+    const center = map.getCenter();
+    centerMap(center.lat, center.lng);
+}
+
+// Добавим обработчики для кнопок добавления маркера
+document.addEventListener('DOMContentLoaded', function() {
+    // Для основной кнопки
+    const addMarkerBtn = document.getElementById('add-marker-btn');
+    if (addMarkerBtn) {
+        addMarkerBtn.addEventListener('click', addMarkerAtCurrentCenter);
+    }
+    
+    // Для клона в дартс-меню
+    const addMarkerBtnClone = document.getElementById('add-marker-btn-clone');
+    if (addMarkerBtnClone) {
+        addMarkerBtnClone.addEventListener('click', addMarkerAtCurrentCenter);
+    }
+});
