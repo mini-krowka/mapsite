@@ -595,3 +595,42 @@ body {
     width: 16px;
     height: 16px;
 }
+
+
+
+
+
+
+
+.input-with-clear .copy-input-btn {
+            position: absolute;
+            right: 1.4rem;
+            top: 50%;
+            transform: translateY(-50%);
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            color: #666;
+            padding: 0 2px;
+            line-height: 1;
+            z-index: 3;
+            display: none;
+        }
+        
+        .input-with-clear .copy-input-btn:hover {
+            color: #000;
+        }
+        
+        .input-with-clear input:not(:placeholder-shown) ~ .copy-input-btn {
+            display: inline-flex;
+        }
+        
+        .copy-input-btn.copied {
+            background-color: #4CAF50 !important;
+            color: white !important;
+        }
+        
+        /* Адаптация для мобильного меню */
+        .nav-dropdown .input-with-clear .copy-input-btn {
+            right: 2rem;
+        }

@@ -1280,6 +1280,12 @@ function setupInputWithClear(inputEl, clearBtn) {
         } else {
             clearBtn.style.display = "none";
         }
+		
+		// Также управляем видимостью кнопки копирования
+		const copyBtn = input.parentNode.querySelector('.copy-input-btn');
+		if (copyBtn) {
+			copyBtn.style.display = input.value ? 'inline-flex' : 'none';
+		}
     }
 
     // следим за вводом, вставкой и изменениями
@@ -1964,4 +1970,62 @@ document.addEventListener('DOMContentLoaded', function() {
     if (addMarkerBtnClone) {
         addMarkerBtnClone.addEventListener('click', addMarkerAtCurrentCenter);
     }
+});
+
+// Добавляем эту функцию для создания кнопок копирования
+function addCopyButtonsToInputs() {
+    // Для основного поля ввода
+    const coordsInput = document.getElementById('coords-input');
+    if (coordsInput && !coordsInput.parentNode.querySelector('.copy-input-btn')) {
+        const copyBtn = document.createElement('button');
+        copyBtn.className = 'copy-input-btn';
+        copyBtn.title = translations[currentLang].copyTooltip;
+        copyBtn.innerHTML = '⎘';
+        copyBtn.setAttribute('aria-label', 'Копировать координаты');
+        
+        // Вставляем кнопку после поля ввода
+        coordsInput.parentNode.insertBefore(copyBtn, coordsInput.nextSibling);
+        
+        // Обработчик копирования
+        copyBtn.addEventListener('click', function() {
+            if (coordsInput.value) {
+                copyToClipboard(coordsInput.value, this);
+            }
+        });
+    }
+    
+    // Для клона поля ввода в дартс-меню
+    const coordsClone = document.getElementById('coords-input-clone');
+    if (coordsClone && !coordsClone.parentNode.querySelector('.copy-input-btn')) {
+        const copyBtn = document.createElement('button');
+        copyBtn.className = 'copy-input-btn';
+        copyBtn.title = translations[currentLang].copyTooltip;
+        copyBtn.innerHTML = '⎘';
+        copyBtn.setAttribute('aria-label', 'Копировать координаты');
+        
+        // Вставляем кнопку после поля ввода
+        coordsClone.parentNode.insertBefore(copyBtn, coordsClone.nextSibling);
+        
+        // Обработчик копирования
+        copyBtn.addEventListener('click', function() {
+            if (coordsClone.value) {
+                copyToClipboard(coordsClone.value, this);
+            }
+        });
+    }
+}
+
+// Вызываем функции инициализации
+document.addEventListener('DOMContentLoaded', function() {
+    addCopyButtonsToInputs();
+    
+    // Также обновляем видимость кнопок при изменении содержимого полей
+    document.querySelectorAll('#coords-input, #coords-input-clone').forEach(input => {
+        input.addEventListener('input', function() {
+            const copyBtn = this.parentNode.querySelector('.copy-input-btn');
+            if (copyBtn) {
+                copyBtn.style.display = this.value ? 'inline-flex' : 'none';
+            }
+        });
+    });
 });
