@@ -510,8 +510,9 @@ body {
 
 /* Моб. и планшет: центрируем кнопку строго по высоте инпута в меню */
 @media (max-width: 1837px) {
- #coords-input + .clear-input-btn { display: none !important; }
+ /* #coords-input + .clear-input-btn { display: none !important; } */
  #coords-input + .copy-input-btn { display: none !important; }
+ #coords-input + .copy-input-btn + .clear-input-btn{ display: none !important; }
   .nav-dropdown .input-with-clear {
     position: relative;
     display: inline-flex;     /* высота = высоте инпута */
@@ -538,8 +539,9 @@ body {
 
 /* Очень узкие — те же правила (дублируем, если у тебя есть отдельные медиа ниже 901px) */
 @media (max-width: 901px) {
- #coords-input + .clear-input-btn { display: none !important; }
+ /* #coords-input + .clear-input-btn { display: none !important; } */
  #coords-input + .copy-input-btn { display: none !important; }
+ #coords-input + .copy-input-btn + .clear-input-btn { display: none !important; }
   .nav-dropdown .input-with-clear {
     position: relative;
     display: inline-flex;
