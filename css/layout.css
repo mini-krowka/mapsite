@@ -479,7 +479,7 @@ body {
   align-items: center;
 }
 .input-with-clear > input {
-  padding-right: 2rem;       /* место под крестик */
+  padding-right: 3rem;       /* место под крестик */
 }
 .clear-input-btn {
   position: absolute;
@@ -511,6 +511,7 @@ body {
 /* Моб. и планшет: центрируем кнопку строго по высоте инпута в меню */
 @media (max-width: 1837px) {
  #coords-input + .clear-input-btn { display: none !important; }
+ #coords-input + .copy-input-btn { display: none !important; }
   .nav-dropdown .input-with-clear {
     position: relative;
     display: inline-flex;     /* высота = высоте инпута */
@@ -538,6 +539,7 @@ body {
 /* Очень узкие — те же правила (дублируем, если у тебя есть отдельные медиа ниже 901px) */
 @media (max-width: 901px) {
  #coords-input + .clear-input-btn { display: none !important; }
+ #coords-input + .copy-input-btn { display: none !important; }
   .nav-dropdown .input-with-clear {
     position: relative;
     display: inline-flex;
@@ -602,35 +604,30 @@ body {
 
 
 
-.input-with-clear .copy-input-btn {
-            position: absolute;
-            right: 1.4rem;
-            top: 50%;
-            transform: translateY(-50%);
-            background: transparent;
-            border: none;
-            cursor: pointer;
-            color: #666;
-            padding: 0 2px;
-            line-height: 1;
-            z-index: 3;
-            display: none;
-        }
+.copy-input-btn {
+		position: absolute;
+		right: 1.7rem;
+		top: 50%;
+		transform: translateY(-50%);
+		background: transparent;
+		border: none;
+		cursor: pointer;
+		color: #666;
+		padding: 0 2px;
+		line-height: 1;
+		z-index: 3;
+		display: none;
+	}
         
-        .input-with-clear .copy-input-btn:hover {
-            color: #000;
-        }
-        
-        .input-with-clear input:not(:placeholder-shown) ~ .copy-input-btn {
-            display: inline-flex;
-        }
-        
-        .copy-input-btn.copied {
-            background-color: #4CAF50 !important;
-            color: white !important;
-        }
-        
-        /* Адаптация для мобильного меню */
-        .nav-dropdown .input-with-clear .copy-input-btn {
-            right: 2rem;
-        }
+.copy-input-btn:hover {
+	color: #000;
+}
+
+.input-with-clear input:not(:placeholder-shown) ~ .copy-input-btn {
+	display: inline-flex;
+}
+
+.copy-input-btn.copied {
+	background-color: #4CAF50 !important;
+	color: white !important;
+}

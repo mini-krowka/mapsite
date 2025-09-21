@@ -1539,16 +1539,23 @@ function copyToClipboard(text, button) {
         const successful = document.execCommand('copy');
         document.body.removeChild(textArea);
         
-        // Показываем обратную связь
-        const t = translations[currentLang];
-        button.textContent = t ? t.copiedText : '✓';
-        button.classList.add('copied');
+        // Сохраняем исходное состояние если еще не сохранено
+        if (!button.dataset.originalHtml) {
+            button.dataset.originalHtml = button.innerHTML;
+            button.dataset.originalClass = button.className;
+        }
         
+        // Визуальная обратная связь
+        const t = translations[currentLang];
+        button.innerHTML = t ? t.copiedText : '✓';
+        button.className = button.className + ' copied';
+        
+        // Восстанавливаем исходное состояние после 2 секунд
         setTimeout(() => {
-            if (button.dataset.originalText) {
-                button.textContent = button.dataset.originalText;
+            if (button.dataset.originalHtml) {
+                button.innerHTML = button.dataset.originalHtml;
+                button.className = button.dataset.originalClass;
             }
-            button.classList.remove('copied');
         }, 2000);
         
         if (!successful) {
@@ -1557,12 +1564,12 @@ function copyToClipboard(text, button) {
         }
     } catch (err) {
         console.error('Ошибка копирования:', err);
-        button.textContent = translations[currentLang]?.copyError || "Ошибка";
+        button.innerHTML = translations[currentLang]?.copyError || "Ошибка";
         setTimeout(() => {
-            if (button.dataset.originalText) {
-                button.textContent = button.dataset.originalText;
+            if (button.dataset.originalHtml) {
+                button.innerHTML = button.dataset.originalHtml;
+                button.className = button.dataset.originalClass;
             }
-            button.classList.remove('copied');
         }, 2000);
     }
 }
