@@ -513,7 +513,7 @@ body {
  #coords-input + .clear-input-btn { display: none !important; }
  /* #coords-input + .copy-input-btn { display: none !important; } */
  /* #coords-input + .copy-input-btn + .clear-input-btn{ display: none !important; } */
-	.copy-input-btn.external { display: none !important; }
+	/* .copy-input-btn.external { display: none !important; } */
   .nav-dropdown .input-with-clear {
     position: relative;
     display: inline-flex;     /* высота = высоте инпута */
@@ -543,7 +543,7 @@ body {
  #coords-input + .clear-input-btn { display: none !important; }
  /* #coords-input + .copy-input-btn { display: none !important; } */
  /* #coords-input + .copy-input-btn + .clear-input-btn { display: none !important; } */
-	.copy-input-btn.external { display: none !important; }
+	/* .copy-input-btn.external { display: none !important; } */
   .nav-dropdown .input-with-clear {
     position: relative;
     display: inline-flex;
@@ -603,6 +603,15 @@ body {
 }
 
 
+
+.nav-dropdown .copy-input-btn.external {
+    flex-shrink: 0;
+    width: 30px;
+    height: 30px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
 
 
 /* Стили для внешней кнопки копирования */

@@ -1372,6 +1372,7 @@ function initDartMenu() {
     const elementsToClone = [
         'centerOn-label',
         'coords-input',
+		'copy-coords-external-btn',
         'cities-dropdown',
         'currentCenter-label',
         'current-center-coords',
@@ -1600,6 +1601,17 @@ function setupDropdownListeners() {
                 if (centerMapFromInput(this, true)) {
                     navDropdown.classList.remove('active');
                 }
+            }
+        });
+    }
+	
+	 // Обработчик для клонированной внешней кнопки копирования
+    const copyExternalBtnClone = document.getElementById('copy-coords-external-btn-clone');
+    if (copyExternalBtnClone) {
+        copyExternalBtnClone.addEventListener('click', function() {
+            const coordsInputClone = document.getElementById('coords-input-clone');
+            if (coordsInputClone && coordsInputClone.value) {
+                copyToClipboard(coordsInputClone.value, this);
             }
         });
     }
