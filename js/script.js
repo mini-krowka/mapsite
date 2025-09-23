@@ -1441,6 +1441,17 @@ function syncDropdownState() {
     const cloneInput = document.getElementById('coords-input-clone');
     if (originalInput && cloneInput) {
         cloneInput.value = originalInput.value;
+        
+        // Синхронизация видимости внешних кнопок копирования
+        const originalCopyBtn = document.getElementById('copy-coords-external-btn');
+        const cloneCopyBtn = document.getElementById('copy-coords-external-btn-clone');
+        
+        if (originalCopyBtn) {
+            originalCopyBtn.style.display = originalInput.value ? 'inline-flex' : 'none';
+        }
+        if (cloneCopyBtn) {
+            cloneCopyBtn.style.display = cloneInput.value ? 'inline-flex' : 'none';
+        }
     }
 
     // Выпадающий список городов
@@ -1981,45 +1992,36 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Добавляем эту функцию для создания кнопок копирования
 function addCopyButtonsToInputs() {
-    // Для основного поля ввода
-    const coordsInput = document.getElementById('coords-input');
-    if (coordsInput && !coordsInput.parentNode.querySelector('.copy-input-btn')) {
-        const copyBtn = document.createElement('button');
-        copyBtn.className = 'copy-input-btn';
-        copyBtn.title = translations[currentLang].copyTooltip;
-        copyBtn.innerHTML = '⎘';
-        copyBtn.setAttribute('aria-label', 'Копировать координаты');
+    // Удаляем старые внутренние кнопки копирования
+    document.querySelectorAll('.copy-input-btn:not(.external)').forEach(btn => {
+        btn.remove();
+    });
+
+    // Обработчики для внешних кнопок копирования
+    function setupExternalCopyButton(buttonId, inputId) {
+        const copyBtn = document.getElementById(buttonId);
+        const input = document.getElementById(inputId);
         
-        // Вставляем кнопку после поля ввода
-        coordsInput.parentNode.insertBefore(copyBtn, coordsInput.nextSibling);
-        
-        // Обработчик копирования
-        copyBtn.addEventListener('click', function() {
-            if (coordsInput.value) {
-                copyToClipboard(coordsInput.value, this);
-            }
-        });
+        if (copyBtn && input) {
+            copyBtn.addEventListener('click', function() {
+                if (input.value) {
+                    copyToClipboard(input.value, this);
+                }
+            });
+            
+            // Управление видимостью на основе содержимого поля
+            input.addEventListener('input', function() {
+                copyBtn.style.display = this.value ? 'inline-flex' : 'none';
+            });
+            
+            // Инициализация видимости
+            copyBtn.style.display = input.value ? 'inline-flex' : 'none';
+        }
     }
-    
-    // Для клона поля ввода в дартс-меню
-    const coordsClone = document.getElementById('coords-input-clone');
-    if (coordsClone && !coordsClone.parentNode.querySelector('.copy-input-btn')) {
-        const copyBtn = document.createElement('button');
-        copyBtn.className = 'copy-input-btn';
-        copyBtn.title = translations[currentLang].copyTooltip;
-        copyBtn.innerHTML = '⎘';
-        copyBtn.setAttribute('aria-label', 'Копировать координаты');
-        
-        // Вставляем кнопку после поля ввода
-        coordsClone.parentNode.insertBefore(copyBtn, coordsClone.nextSibling);
-        
-        // Обработчик копирования
-        copyBtn.addEventListener('click', function() {
-            if (coordsClone.value) {
-                copyToClipboard(coordsClone.value, this);
-            }
-        });
-    }
+
+    // Настройка кнопок для основного поля и клона
+    setupExternalCopyButton('copy-coords-external-btn', 'coords-input');
+    setupExternalCopyButton('copy-coords-external-btn-clone', 'coords-input-clone');
 }
 
 // Вызываем функции инициализации

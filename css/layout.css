@@ -510,9 +510,10 @@ body {
 
 /* Моб. и планшет: центрируем кнопку строго по высоте инпута в меню */
 @media (max-width: 1837px) {
- /* #coords-input + .clear-input-btn { display: none !important; } */
- #coords-input + .copy-input-btn { display: none !important; }
- #coords-input + .copy-input-btn + .clear-input-btn{ display: none !important; }
+ #coords-input + .clear-input-btn { display: none !important; }
+ /* #coords-input + .copy-input-btn { display: none !important; } */
+ /* #coords-input + .copy-input-btn + .clear-input-btn{ display: none !important; } */
+	.copy-input-btn.external { display: none !important; }
   .nav-dropdown .input-with-clear {
     position: relative;
     display: inline-flex;     /* высота = высоте инпута */
@@ -539,9 +540,10 @@ body {
 
 /* Очень узкие — те же правила (дублируем, если у тебя есть отдельные медиа ниже 901px) */
 @media (max-width: 901px) {
- /* #coords-input + .clear-input-btn { display: none !important; } */
- #coords-input + .copy-input-btn { display: none !important; }
- #coords-input + .copy-input-btn + .clear-input-btn { display: none !important; }
+ #coords-input + .clear-input-btn { display: none !important; }
+ /* #coords-input + .copy-input-btn { display: none !important; } */
+ /* #coords-input + .copy-input-btn + .clear-input-btn { display: none !important; } */
+	.copy-input-btn.external { display: none !important; }
   .nav-dropdown .input-with-clear {
     position: relative;
     display: inline-flex;
@@ -603,33 +605,32 @@ body {
 
 
 
-
-
-
-.copy-input-btn {
-		position: absolute;
-		right: 1.7rem;
-		top: 50%;
-		transform: translateY(-50%);
-		background: transparent;
-		border: none;
-		cursor: pointer;
-		color: #666;
-		padding: 0 2px;
-		line-height: 1;
-		z-index: 3;
-		display: none;
-	}
-        
-.copy-input-btn:hover {
-	color: #000;
+/* Стили для внешней кнопки копирования */
+.copy-input-btn.external {
+    position: static;
+    transform: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    background: #f0f0f0;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    cursor: pointer;
+    color: #666;
+    padding: 0;
+    flex-shrink: 0;
+	font-size: 1rem;
 }
 
-.input-with-clear input:not(:placeholder-shown) ~ .copy-input-btn {
-	display: inline-flex;
+.copy-input-btn.external:hover {
+    background: #e0e0e0;
+    color: #000;
 }
 
-.copy-input-btn.copied {
-	background-color: #4CAF50 !important;
-	color: white !important;
+.copy-input-btn.external.copied {
+    background-color: #4CAF50 !important;
+    color: white !important;
+    border-color: #4CAF50 !important;
 }
