@@ -630,7 +630,7 @@ body {
     color: #666;
     padding: 0;
     flex-shrink: 0;
-    font-size: 1rem;
+    font-size: 1.5rem;
     opacity: 1; /* Всегда видима */
     visibility: visible; /* Всегда видима */
 }
