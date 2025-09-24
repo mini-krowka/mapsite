@@ -91,7 +91,8 @@
 }
 
 .current-center {
-    display: flex;
+  display:none!important;
+    /* display: flex; */
     align-items: center;
     gap: 5px;
     margin-left: 10px;
@@ -199,7 +200,8 @@
 }
 
 .nav-dropdown .current-center {
-    display: flex;
+  display:none!important;
+    /* display: flex; */
     flex-wrap: wrap;
     /* gap: 5px; */
     align-items: center;
@@ -326,12 +328,14 @@
 }
 
 .nav-dropdown .current-center {
+  display:none!important;
     flex-wrap: wrap; /* Разрешаем перенос элементов */
     /* gap: 5px; Добавляем промежутки */
     box-sizing: border-box;
 }
 
 .nav-dropdown .current-center > * {
+  display:none!important;
     flex: 1 1 auto; /* Гибкое распределение пространства */
     min-width: min-content; /* Минимальная ширина по содержимому */
     box-sizing: border-box;
@@ -531,4 +535,14 @@
 .leaflet-dragging .leaflet-marker-pane,
 .leaflet-dragging .leaflet-shadow-pane {
     transition: none;
+}
+
+.nav-dropdown #currentCenter-label-clone {
+  display: none !important;
+}
+.nav-dropdown #current-center-coords-clone {
+  display: none !important;
+}
+.nav-dropdown #copy-coords-btn-clone{
+  display: none !important;
 }
