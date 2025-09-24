@@ -215,14 +215,18 @@ function updateCopyButtonsVisibility() {
     const externalCopyBtn = document.getElementById('copy-coords-external-btn');
     const externalCopyBtnClone = document.getElementById('copy-coords-external-btn-clone');
     
-    // Обновляем видимость для основного поля
+    // Обновляем состояние для основного поля
     if (coordsInput && externalCopyBtn) {
-        externalCopyBtn.style.display = coordsInput.value.trim() ? 'inline-flex' : 'none';
+        const hasValue = coordsInput.value.trim().length > 0;
+        externalCopyBtn.disabled = !hasValue;
+        externalCopyBtn.style.display = 'inline-flex'; // Всегда показываем
     }
     
-    // Обновляем видимость для клона
+    // Обновляем состояние для клона
     if (coordsClone && externalCopyBtnClone) {
-        externalCopyBtnClone.style.display = coordsClone.value.trim() ? 'inline-flex' : 'none';
+        const hasValue = coordsClone.value.trim().length > 0;
+        externalCopyBtnClone.disabled = !hasValue;
+        externalCopyBtnClone.style.display = 'inline-flex'; // Всегда показываем
     }
 }
 // Инициализация видимости кнопок при загрузке
@@ -1092,6 +1096,8 @@ async function init() {
 	// Настройка кнопки после инициализации элементов
     setTimeout(() => {
         setupCopyCoordsButton();
+        addCopyButtonsToInputs(); // Добавляем инициализацию кнопок копирования
+        updateCopyButtonsVisibility(); // Инициализируем состояние кнопок
     }, 500);
     
     // Инициализация дартс-меню
@@ -1643,6 +1649,11 @@ navMenuToggle.addEventListener('click', function(e) {
 
 
 function copyToClipboard(text, button) {
+    // Проверяем, не disabled ли кнопка
+    if (button.disabled) {
+        return;
+    }
+	
     if (!text || text.includes('не определен') || text.includes('undefined')) {
         return;
     }
@@ -2125,24 +2136,28 @@ function addCopyButtonsToInputs() {
     });
 
     // Обработчики для внешних кнопок копирования
-    function setupExternalCopyButton(buttonId, inputId) {
+        function setupExternalCopyButton(buttonId, inputId) {
         const copyBtn = document.getElementById(buttonId);
         const input = document.getElementById(inputId);
         
         if (copyBtn && input) {
             copyBtn.addEventListener('click', function() {
-                if (input.value) {
+                if (input.value && !this.disabled) {
                     copyToClipboard(input.value, this);
                 }
             });
             
-            // Управление видимостью на основе содержимого поля
+            // Управление активностью на основе содержимого поля
             input.addEventListener('input', function() {
-                copyBtn.style.display = this.value ? 'inline-flex' : 'none';
+                const hasValue = this.value.trim().length > 0;
+                copyBtn.disabled = !hasValue;
+                copyBtn.style.display = 'inline-flex'; // Всегда показываем
             });
             
-            // Инициализация видимости
-            copyBtn.style.display = input.value ? 'inline-flex' : 'none';
+            // Инициализация состояния
+            const hasValue = input.value.trim().length > 0;
+            copyBtn.disabled = !hasValue;
+            copyBtn.style.display = 'inline-flex'; // Всегда показываем
         }
     }
 

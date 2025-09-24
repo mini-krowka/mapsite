@@ -618,7 +618,7 @@ body {
 .copy-input-btn.external {
     position: static;
     transform: none;
-    display: inline-flex;
+    display: inline-flex !important; /* Всегда показываем */
     align-items: center;
     justify-content: center;
     width: 30px;
@@ -630,7 +630,35 @@ body {
     color: #666;
     padding: 0;
     flex-shrink: 0;
-	font-size: 1rem;
+    font-size: 1rem;
+    opacity: 1; /* Всегда видима */
+    visibility: visible; /* Всегда видима */
+}
+
+/* Активное состояние (когда поле не пустое) */
+.copy-input-btn.external:not(:disabled) {
+    background: #f0f0f0;
+    color: #666;
+    cursor: pointer;
+}
+
+.copy-input-btn.external:not(:disabled):hover {
+    background: #e0e0e0;
+    color: #000;
+}
+
+/* Неактивное состояние (когда поле пустое) */
+.copy-input-btn.external:disabled {
+    background: #f5f5f5 !important;
+    color: #aaa !important;
+    border-color: #ddd !important;
+    cursor: not-allowed !important;
+    opacity: 0.6;
+}
+
+.copy-input-btn.external:disabled:hover {
+    background: #f5f5f5 !important;
+    color: #aaa !important;
 }
 
 .copy-input-btn.external:hover {
@@ -642,4 +670,10 @@ body {
     background-color: #4CAF50 !important;
     color: white !important;
     border-color: #4CAF50 !important;
+}
+
+.copy-input-btn.external:disabled.copied {
+    background-color: #81c784 !important; /* Более светлый зеленый для disabled */
+    color: white !important;
+    border-color: #81c784 !important;
 }
