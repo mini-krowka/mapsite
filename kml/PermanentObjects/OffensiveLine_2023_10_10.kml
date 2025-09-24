@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='UTF-8' ?>
 <kml>
   <Document>
-    <name>Имя 1</name>
+    <name>UTM Measure</name>
     <open>1</open>
     <description>Exported data from UTM Measure APP</description>
     <Style id="121">
@@ -20,11 +20,11 @@
       </PolyStyle>
     </Style>
     <Folder>
-      <name>Имя 2</name>
+      <name>Polygon</name>
       <visibility>1</visibility>
       <description>Polygon features</description>
       <Placemark>
-        <name>Имя 1</name>
+        <name> </name>
         <visibility>1</visibility>
         <description>1</description>
         <styleUrl>#122</styleUrl>
@@ -336,7 +336,7 @@
         </Polygon>
       </Placemark>
       <Placemark>
-        <name> Имя 3</name>
+        <name> </name>
         <visibility>1</visibility>
         <description>1</description>
         <styleUrl>#122</styleUrl>
@@ -839,7 +839,7 @@
         </Polygon>
       </Placemark>
       <Placemark>
-        <name>Имя 4</name>
+        <name> </name>
         <visibility>1</visibility>
         <description>1</description>
         <styleUrl>#122</styleUrl>
@@ -940,7 +940,7 @@
         </Polygon>
       </Placemark>
       <Placemark>
-        <name>Имя 5</name>
+        <name> </name>
         <visibility>1</visibility>
         <description>1</description>
         <styleUrl>#122</styleUrl>
@@ -1489,7 +1489,7 @@
         </Polygon>
       </Placemark>
       <Placemark>
-        <name>Имя 6</name>
+        <name> </name>
         <visibility>1</visibility>
         <description>1</description>
         <styleUrl>#122</styleUrl>
@@ -1858,7 +1858,7 @@
         </Polygon>
       </Placemark>
       <Placemark>
-        <name>Имя 7</name>
+        <name> </name>
         <visibility>1</visibility>
         <description>1</description>
         <styleUrl>#122</styleUrl>
@@ -2636,7 +2636,7 @@
         </Polygon>
       </Placemark>
       <Placemark>
-        <name>Имя 8</name>
+        <name> </name>
         <visibility>1</visibility>
         <description>1</description>
         <styleUrl>#122</styleUrl>
@@ -5717,7 +5717,7 @@
         </Polygon>
       </Placemark>
       <Placemark>
-        <name>Имя 9</name>
+        <name> </name>
         <visibility>1</visibility>
         <description>1</description>
         <styleUrl>#122</styleUrl>
@@ -6015,7 +6015,7 @@
         </Polygon>
       </Placemark>
       <Placemark>
-        <name> Имя 10</name>
+        <name> </name>
         <visibility>1</visibility>
         <description>1</description>
         <styleUrl>#122</styleUrl>
@@ -6307,7 +6307,7 @@
         </Polygon>
       </Placemark>
       <Placemark>
-        <name>Имя 11</name>
+        <name> </name>
         <visibility>1</visibility>
         <description>1</description>
         <styleUrl>#122</styleUrl>
@@ -6960,7 +6960,7 @@
         </Polygon>
       </Placemark>
       <Placemark>
-        <name>Имя 12</name>
+        <name> </name>
         <visibility>1</visibility>
         <description>1</description>
         <styleUrl>#122</styleUrl>
@@ -7837,7 +7837,7 @@
       <visibility>1</visibility>
       <description>Line and polyline features</description>
       <Placemark>
-        <name> Объект 1</name>
+        <name> </name>
         <visibility>1</visibility>
         <description>1</description>
         <styleUrl>#121</styleUrl>
@@ -8013,7 +8013,7 @@
         </LineString>
       </Placemark>
       <Placemark>
-        <name> Объект3</name>
+        <name>ЛБС 10.10.23</name>
         <visibility>1</visibility>
         <description>1</description>
         <styleUrl>#121</styleUrl>
@@ -9864,7 +9864,7 @@
         </LineString>
       </Placemark>
       <Placemark>
-        <name> Объект 4</name>
+        <name>ЛБС 10.10.23</name>
         <visibility>1</visibility>
         <description>1</description>
         <styleUrl>#121</styleUrl>
@@ -10312,7 +10312,7 @@
         </LineString>
       </Placemark>
       <Placemark>
-        <name> Объект 2</name>
+        <name>ЛБС 10.10.23</name>
         <visibility>1</visibility>
         <description>1</description>
         <styleUrl>#121</styleUrl>
@@ -11922,4 +11922,6 @@
       </Placemark>
     </Folder>
   </Document>
+
 </kml>
+

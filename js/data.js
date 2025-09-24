@@ -52,27 +52,32 @@ window.kmlFiles = [
     { name: "06.08.25", path: "kml/ControlZones/Control_25_08_06.kml" },
     { name: "10.08.25", path: "kml/ControlZones/Control_25_08_10.kml" },
     { name: "14.08.25", path: "kml/ControlZones/Control_25_08_14.kml" },
-    { name: "18.08.25", path: "kml/ControlZones/Control_25_08_18.kml" }
+    { name: "18.08.25", path: "kml/ControlZones/Control_25_08_18.kml" },
+    { name: "22.08.25", path: "kml/ControlZones/Control_25_08_22.kml" },
+    { name: "26.08.25", path: "kml/ControlZones/Control_25_08_26.kml" },
+    { name: "30.08.25", path: "kml/ControlZones/Control_25_08_30.kml" },
+    { name: "03.09.25", path: "kml/ControlZones/Control_25_09_03.kml" },
+    { name: "07.09.25", path: "kml/ControlZones/Control_25_09_07.kml" },
+    { name: "11.09.25", path: "kml/ControlZones/Control_25_09_11.kml" },
+    { name: "15.09.25", path: "kml/ControlZones/Control_25_09_15.kml" },
+    { name: "19.09.25", path: "kml/ControlZones/Control_25_09_19.kml" },
+    { name: "23.09.25", path: "kml/ControlZones/Control_25_09_23.kml" }
 ];
 
 // Постоянные слои
 window.permanentLayers = [
-    // { name: "LDPR", path: "kml/PermanentObjects/LDPR.kml" },
-    // граница ЛДНР без ростовской области
-    { name: "LDPR",                   path: "kml/PermanentObjects/LDPR_line3.kml" },
-    //конституционная граница РФ
-    { name: "RuUaBorder",             path: "kml/PermanentObjects/RuUaBorder.kml" },
-    // { name: "RuUaBorder",             path: "kml/PermanentObjects/5.kml" },
-    // { name: "Offensive_23_10_10", path: "kml/PermanentObjects/FrontLine_23_10_06.kml" },
     // Текущая ЛБС
-    { name: "Current_frontline",      path: "kml/FrontLine/FrontLine_25_08_14.kml" },
-    // Составная линия на 10.10.23
-    //{ name: "Offensive_23_10_10",     path: "kml/PermanentObjects/тест2-101023.kml" },
-    //{ name: "Offensive_23_10_10_add", path: "kml/PermanentObjects/тест3_101023_add.kml" },
-    //Единая линия на 10.10.23
+    { name: "Current_frontline",      path: "kml/FrontLine/FrontLine_25_09_19.kml" },
+    // Граница ЛДНР без Ростовской области
+    { name: "LDPR",                   path: "kml/PermanentObjects/LDPR_line3.kml" },
+    //Конституционная граница РФ
+    { name: "RuUaBorder",             path: "kml/PermanentObjects/RuUaBorder.kml" },
+        //Единая линия на 10.10.23
     { name: "Offensive_23_10_10",     path: "kml/PermanentObjects/OffensiveLine_2023_10_10.kml" },
     //Линия максимального продвижения ВСУ в Курской области.
-    { name: "AFU_advance_Kursk2024",  path: "kml/PermanentObjects/AFU_advance_Kursk2024.kml" }
+    { name: "AFU_advance_Kursk2024",  path: "kml/PermanentObjects/AFU_advance_Kursk2024.kml" },
+    // Контур максимального продвижения в Доброполье
+    { name: "Добропольский прорыв",  path: "kml/PermanentObjects/Доброполье.kml" }
 ];
 
 // Список городов с координатами
@@ -89,6 +94,16 @@ window.cities = [
     { name: { ru: "Гуляйполе", en: "Gulyaypole" }, lat: 47.66336,  lng:  36.2587   },
     { name: { ru: "Орехов",    en: "Orekhov"    }, lat: 47.5675,   lng:  35.78845  },
 ];
+
+
+
+
+
+
+
+
+
+
 
 
 
