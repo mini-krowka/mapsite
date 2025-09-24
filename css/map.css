@@ -246,7 +246,7 @@
 	
     .leaflet-top.leaflet-right {
 	    z-index: 1000 !important;
-    }
+    }	
 }
 
 @media (min-width: 1838px) {
@@ -258,7 +258,6 @@
         display: none !important;
     }
 }
-
 
 
 @media (max-width: 901px) {
@@ -322,6 +321,10 @@
     box-sizing: border-box;
 }
 
+.nav-dropdown #copy-coords-external-btn-clone{
+	width:100%;
+}
+
 .nav-dropdown .current-center {
     flex-wrap: wrap; /* Разрешаем перенос элементов */
     /* gap: 5px; Добавляем промежутки */
@@ -341,7 +344,6 @@
      /* max-width: calc(100% - 30px);Оставляем место для кнопки */
     box-sizing: border-box;
 }
-
 
 
 /* Слои карты */
