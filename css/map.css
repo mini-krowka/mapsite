@@ -321,6 +321,7 @@
     /* width: 100% !important; */
     max-width: 100%;
     box-sizing: border-box;
+	text-align: center;
 }
 
 .nav-dropdown #copy-coords-external-btn-clone{
