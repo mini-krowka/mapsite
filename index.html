@@ -21,6 +21,7 @@
     <link rel="stylesheet" href="css/language.css">
     <link rel="stylesheet" href="css/view-switcher.css">
     <link rel="stylesheet" href="css/info.css">
+    <link rel="stylesheet" href="css/draw-panel.css">
 </head>
 <body>
     <div class="top-bar">
@@ -167,15 +168,17 @@
     <script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.9/dist/l10n/default.min.js"></script>
     <!-- Для линейки -->
     <script src="https://ppete2.github.io/Leaflet.PolylineMeasure/Leaflet.PolylineMeasure.js"></script>
+    <!-- Для скриншотов -->
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
         
     <script src="js/data.js"></script>
     <script src="js/language.js"></script>
     <script src="js/map.js"></script> <!-- Слои карты -->
     <script src="js/script.js"></script>
+    <script src="js/draw-panel.js"></script>
     <script>
         // Делаем доступные даты глобально доступными
         window.availableDates = kmlFiles.map(file => file.name);
     </script>
 </body>
 </html>
-

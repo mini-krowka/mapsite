@@ -541,3 +541,24 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 
+
+
+
+
+
+
+
+
+
+window.leafletMap = map;
+console.log('Карта доступна как window.leafletMap');
+
+// Инициализация панели рисования после загрузки карты
+map.whenReady(function() {
+    setTimeout(() => {
+        if (typeof DrawPanel !== 'undefined' && !window.drawPanel) {
+            window.drawPanel = new DrawPanel(window.leafletMap);
+            console.log('Панель рисования инициализирована автоматически');
+        }
+    }, 1000);
+});
