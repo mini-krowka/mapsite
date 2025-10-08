@@ -2,7 +2,7 @@
 .draw-panel {
     position: absolute;
     top: 10px;
-    left: 10px;
+    left: 50px;
     background: white;
     border: 1px solid #ccc;
     border-radius: 8px;
@@ -19,7 +19,7 @@
 .draw-toggle-btn {
     position: absolute;
     top: 10px;
-    left: 10px;
+    left: 50px;
     background: white;
     border: 1px solid #ccc;
     border-radius: 4px;
@@ -228,3 +228,4 @@
     border: 1px solid #dee2e6;
     transition: all 0.3s ease;
 }
+
