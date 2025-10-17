@@ -636,7 +636,6 @@ async function loadPermanentKmlLayers() {
 }
 
 // Функция загрузки основного KML (с сохранением оригинальных стилей)
-// Функция загрузки основного KML (с сохранением оригинальных стилей)
 async function loadKmlFile(file, targetCRS) {
     if (currentLayer) {
         map.removeLayer(currentLayer);
@@ -688,6 +687,8 @@ async function loadKmlFile(file, targetCRS) {
         let elementCount = 0;
         if (LOG_TEMPORARY_STYLES) {
             console.groupCollapsed(`Temporary layer loaded: ${file.path}`);
+            console.log('Found styles:', styles);
+            console.log('Found styleMaps:', styleMaps);
         }
 
         kmlDoc.querySelectorAll('Placemark').forEach(placemark => {
@@ -699,19 +700,15 @@ async function loadKmlFile(file, targetCRS) {
                 // Проверяем StyleMap
                 if (styleMaps[styleUrl]) {
                     const normalStyleId = styleMaps[styleUrl].normal;
-                    style = Object.assign(
-                        {}, 
-                        styles[normalStyleId]?.line || {},
-                        styles[normalStyleId]?.poly || {}
-                    );
+                    if (styles[normalStyleId]) {
+                        style.line = styles[normalStyleId].line || {};
+                        style.poly = styles[normalStyleId].poly || {};
+                    }
                 } 
                 // Проверяем обычный стиль
                 else if (styles[styleUrl]) {
-                    style = Object.assign(
-                        {}, 
-                        styles[styleUrl].line || {},
-                        styles[styleUrl].poly || {}
-                    );
+                    style.line = styles[styleUrl].line || {};
+                    style.poly = styles[styleUrl].poly || {};
                 }
             }
             
@@ -720,20 +717,11 @@ async function loadKmlFile(file, targetCRS) {
 
             // Логирование для временных файлов
             if (LOG_TEMPORARY_STYLES) {
-                console.groupCollapsed(`Placemark styles: ${placemark.querySelector('name')?.textContent || 'unnamed'}`);
+                console.groupCollapsed(`Placemark styles: ${name || 'unnamed'}`);
                 console.log('Name:', name);
                 console.log('Style URL:', styleUrl);
-                console.log('Line Style:', style.line ? {
-                    rawColor: style.line.rawColor, 
-                    parsedColor: style.line.color,
-                    weight: style.line.weight,
-                    opacity: style.line.opacity
-                } : null);
-                console.log('Poly Style:', style.poly ? {
-                    rawColor: style.poly.rawColor, 
-                    parsedFillColor: style.poly.fillColor,
-                    fillOpacity: style.poly.fillOpacity
-                } : null);
+                console.log('Resolved Line Style:', style.line);
+                console.log('Resolved Poly Style:', style.poly);
             }
 
             // Обработка MultiGeometry
@@ -747,26 +735,30 @@ async function loadKmlFile(file, targetCRS) {
                         return;
                     }
 
+                    // Создаем полигон с правильными стилями
                     const poly = L.polygon(coords, {
-                        color: style.color || '#3388ff',
-                        weight: style.weight || 3,
-                        fillColor: style.fillColor || '#3388ff',
-                        fillOpacity: style.fillOpacity || 0.5,
+                        color: style.line.color || '#3388ff',
+                        weight: style.line.weight || 3,
+                        fillColor: style.poly.fillColor || '#3388ff',
+                        fillOpacity: style.poly.fillOpacity || 0.5,
                         interactive: false
                     }).addTo(layerGroup);
 
-                    addLabelToLayer(name, 'Polygon', coords, layerGroup);
+                    // Добавляем метку если есть название
+                    if (name && name.trim() !== '') {
+                        addLabelToLayer(name, 'Polygon', coords, layerGroup);
+                    }
 
                     // Логирование информации о полигоне
                     if (LOG_TEMPORARY_STYLES) {
                         console.log(`Polygon in MultiGeometry #${++elementCount}:`);
-                        console.log(`- Raw fill color: ${style.poly?.rawColor || 'not set'}`); 
-                        console.log(`- Parsed fill color: ${style.poly?.fillColor || 'default'}`);
-                        console.log(`- Fill opacity: ${style.poly?.fillOpacity || 'default'}`);
-                        console.log(`- Raw border color: ${style.line?.rawColor || 'not set'}`);
-                        console.log(`- Parsed border color: ${style.line?.color || 'default'}`);
-                        console.log(`- Border weight: ${style.line?.weight || 'default'}`);
-                        console.log(`- Border opacity: ${style.line?.opacity || 'default'}`);
+                        console.log('- Coordinates count:', coords.length);
+                        console.log('- Applied styles:', {
+                            color: style.line.color || '#3388ff',
+                            weight: style.line.weight || 3,
+                            fillColor: style.poly.fillColor || '#3388ff',
+                            fillOpacity: style.poly.fillOpacity || 0.5
+                        });
                     }
 
                     if (poly.getBounds().isValid()) {
@@ -783,21 +775,25 @@ async function loadKmlFile(file, targetCRS) {
                     }
 
                     const polyline = L.polyline(coords, {
-                        color: style.color || '#3388ff',
-                        weight: style.weight || 3,
-                        opacity: style.opacity || 1,
+                        color: style.line.color || '#3388ff',
+                        weight: style.line.weight || 3,
+                        opacity: style.line.opacity || 1,
                         interactive: false
                     }).addTo(layerGroup);
                     
-                    addLabelToLayer(name, 'LineString', coords, layerGroup);
+                    if (name && name.trim() !== '') {
+                        addLabelToLayer(name, 'LineString', coords, layerGroup);
+                    }
 
                     // Логирование информации о линии
                     if (LOG_TEMPORARY_STYLES) {
                         console.log(`LineString in MultiGeometry #${++elementCount}:`);
-                        console.log(`- Raw color: ${style.line?.rawColor || 'not set'}`);
-                        console.log(`- Parsed color: ${style.line?.color || 'default'}`);
-                        console.log(`- Weight: ${style.line?.weight || 'default'}`);
-                        console.log(`- Opacity: ${style.line?.opacity || 'default'}`);
+                        console.log('- Coordinates count:', coords.length);
+                        console.log('- Applied styles:', {
+                            color: style.line.color || '#3388ff',
+                            weight: style.line.weight || 3,
+                            opacity: style.line.opacity || 1
+                        });
                     }
 
                     if (polyline.getBounds().isValid()) {
@@ -816,25 +812,27 @@ async function loadKmlFile(file, targetCRS) {
                 }
 
                 const poly = L.polygon(coords, {
-                    color: style.color || '#3388ff',
-                    weight: style.weight || 3,
-                    fillColor: style.fillColor || '#3388ff',
-                    fillOpacity: style.fillOpacity || 0.5,
+                    color: style.line.color || '#3388ff',
+                    weight: style.line.weight || 3,
+                    fillColor: style.poly.fillColor || '#3388ff',
+                    fillOpacity: style.poly.fillOpacity || 0.5,
                     interactive: false
                 }).addTo(layerGroup);
 
-                addLabelToLayer(name, 'Polygon', coords, layerGroup);
+                if (name && name.trim() !== '') {
+                    addLabelToLayer(name, 'Polygon', coords, layerGroup);
+                }
 
                 // Логирование информации о полигоне
                 if (LOG_TEMPORARY_STYLES) {
                     console.log(`Single Polygon #${++elementCount}:`);
-                    console.log(`- Raw fill color: ${style.poly?.rawColor || 'not set'}`); 
-                    console.log(`- Parsed fill color: ${style.poly?.fillColor || 'default'}`);
-                    console.log(`- Fill opacity: ${style.poly?.fillOpacity || 'default'}`);
-                    console.log(`- Raw border color: ${style.line?.rawColor || 'not set'}`);
-                    console.log(`- Parsed border color: ${style.line?.color || 'default'}`);
-                    console.log(`- Border weight: ${style.line?.weight || 'default'}`);
-                    console.log(`- Border opacity: ${style.line?.opacity || 'default'}`);
+                    console.log('- Coordinates count:', coords.length);
+                    console.log('- Applied styles:', {
+                        color: style.line.color || '#3388ff',
+                        weight: style.line.weight || 3,
+                        fillColor: style.poly.fillColor || '#3388ff',
+                        fillOpacity: style.poly.fillOpacity || 0.5
+                    });
                 }
 
                 if (poly.getBounds().isValid()) {
@@ -852,21 +850,25 @@ async function loadKmlFile(file, targetCRS) {
                 }
 
                 const polyline = L.polyline(coords, {
-                    color: style.color || '#3388ff',
-                    weight: style.weight || 3,
-                    opacity: style.opacity || 1,
+                    color: style.line.color || '#3388ff',
+                    weight: style.line.weight || 3,
+                    opacity: style.line.opacity || 1,
                     interactive: false
                 }).addTo(layerGroup);
                 
-                addLabelToLayer(name, 'LineString', coords, layerGroup);
+                if (name && name.trim() !== '') {
+                    addLabelToLayer(name, 'LineString', coords, layerGroup);
+                }
 
                 // Логирование информации о линии
                 if (LOG_TEMPORARY_STYLES) {
                     console.log(`Single LineString #${++elementCount}:`);
-                    console.log(`- Raw color: ${style.line?.rawColor || 'not set'}`);
-                    console.log(`- Parsed color: ${style.line?.color || 'default'}`);
-                    console.log(`- Weight: ${style.line?.weight || 'default'}`);
-                    console.log(`- Opacity: ${style.line?.opacity || 'default'}`);
+                    console.log('- Coordinates count:', coords.length);
+                    console.log('- Applied styles:', {
+                        color: style.line.color || '#3388ff',
+                        weight: style.line.weight || 3,
+                        opacity: style.line.opacity || 1
+                    });
                 }
 
                 if (polyline.getBounds().isValid()) {
@@ -882,6 +884,7 @@ async function loadKmlFile(file, targetCRS) {
             console.groupEnd(); // Закрываем группу временного слоя
         }
 
+        // Применяем границы только если они валидны
         if (bounds.isValid()) {
             const sw = bounds.getSouthWest();
             const ne = bounds.getNorthEast();
