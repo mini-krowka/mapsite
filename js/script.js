@@ -737,12 +737,12 @@ async function loadKmlFile(file, targetCRS) {
 
                     // Создаем полигон с правильными стилями
                     const poly = L.polygon(coords, {
-                        color: style.line.color || '#3388ff',
-                        weight: style.line.weight || 3,
-                        fillColor: style.poly.fillColor || '#3388ff',
-                        fillOpacity: style.poly.fillOpacity || 0.5,
-                        interactive: false
-                    }).addTo(layerGroup);
+						color: '#ff0000', // Красная обводка для видимости
+						weight: 3,        // Толстая линия
+						fillColor: '#ff0000', // Красная заливка
+						fillOpacity: 0.7, // Высокая непрозрачность
+						interactive: false
+					}).addTo(layerGroup);
 
                     // Добавляем метку если есть название
                     if (name && name.trim() !== '') {
@@ -775,11 +775,11 @@ async function loadKmlFile(file, targetCRS) {
                     }
 
                     const polyline = L.polyline(coords, {
-                        color: style.line.color || '#3388ff',
-                        weight: style.line.weight || 3,
-                        opacity: style.line.opacity || 1,
-                        interactive: false
-                    }).addTo(layerGroup);
+						color: '#0000ff', // Синие линии
+						weight: 3,        // Толстая линия
+						opacity: 1,
+						interactive: false
+					}).addTo(layerGroup);
                     
                     if (name && name.trim() !== '') {
                         addLabelToLayer(name, 'LineString', coords, layerGroup);
