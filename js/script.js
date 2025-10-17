@@ -636,6 +636,7 @@ async function loadPermanentKmlLayers() {
 }
 
 // Функция загрузки основного KML (с сохранением оригинальных стилей)
+// Функция загрузки основного KML (с сохранением оригинальных стилей)
 async function loadKmlFile(file, targetCRS) {
     if (currentLayer) {
         map.removeLayer(currentLayer);
@@ -735,12 +736,118 @@ async function loadKmlFile(file, targetCRS) {
                 } : null);
             }
 
-            // Обработка LineString
+            // Обработка MultiGeometry
+            const multiGeometry = placemark.querySelector('MultiGeometry');
+            if (multiGeometry) {
+                // Обработка Polygon в MultiGeometry
+                multiGeometry.querySelectorAll('Polygon').forEach(polygon => {
+                    const coords = parseCoordinates(polygon.querySelector('LinearRing'), map.options.crs);
+                    if (coords.length < 3) {
+                        if (LOG_TEMPORARY_STYLES) console.log(`Polygon in MultiGeometry skipped - insufficient coordinates: ${coords.length}`);
+                        return;
+                    }
+
+                    const poly = L.polygon(coords, {
+                        color: style.color || '#3388ff',
+                        weight: style.weight || 3,
+                        fillColor: style.fillColor || '#3388ff',
+                        fillOpacity: style.fillOpacity || 0.5,
+                        interactive: false
+                    }).addTo(layerGroup);
+
+                    addLabelToLayer(name, 'Polygon', coords, layerGroup);
+
+                    // Логирование информации о полигоне
+                    if (LOG_TEMPORARY_STYLES) {
+                        console.log(`Polygon in MultiGeometry #${++elementCount}:`);
+                        console.log(`- Raw fill color: ${style.poly?.rawColor || 'not set'}`); 
+                        console.log(`- Parsed fill color: ${style.poly?.fillColor || 'default'}`);
+                        console.log(`- Fill opacity: ${style.poly?.fillOpacity || 'default'}`);
+                        console.log(`- Raw border color: ${style.line?.rawColor || 'not set'}`);
+                        console.log(`- Parsed border color: ${style.line?.color || 'default'}`);
+                        console.log(`- Border weight: ${style.line?.weight || 'default'}`);
+                        console.log(`- Border opacity: ${style.line?.opacity || 'default'}`);
+                    }
+
+                    if (poly.getBounds().isValid()) {
+                        bounds.extend(poly.getBounds());
+                    }
+                });
+
+                // Обработка LineString в MultiGeometry
+                multiGeometry.querySelectorAll('LineString').forEach(lineString => {
+                    const coords = parseCoordinates(lineString, map.options.crs);
+                    if (coords.length < 2) {
+                        if (LOG_TEMPORARY_STYLES) console.log(`LineString in MultiGeometry skipped - insufficient coordinates: ${coords.length}`);
+                        return;
+                    }
+
+                    const polyline = L.polyline(coords, {
+                        color: style.color || '#3388ff',
+                        weight: style.weight || 3,
+                        opacity: style.opacity || 1,
+                        interactive: false
+                    }).addTo(layerGroup);
+                    
+                    addLabelToLayer(name, 'LineString', coords, layerGroup);
+
+                    // Логирование информации о линии
+                    if (LOG_TEMPORARY_STYLES) {
+                        console.log(`LineString in MultiGeometry #${++elementCount}:`);
+                        console.log(`- Raw color: ${style.line?.rawColor || 'not set'}`);
+                        console.log(`- Parsed color: ${style.line?.color || 'default'}`);
+                        console.log(`- Weight: ${style.line?.weight || 'default'}`);
+                        console.log(`- Opacity: ${style.line?.opacity || 'default'}`);
+                    }
+
+                    if (polyline.getBounds().isValid()) {
+                        bounds.extend(polyline.getBounds());
+                    }
+                });
+            }
+
+            // Обработка одиночных Polygon (вне MultiGeometry)
+            const polygon = placemark.querySelector('Polygon');
+            if (polygon && !multiGeometry) {
+                const coords = parseCoordinates(polygon.querySelector('LinearRing'), map.options.crs);
+                if (coords.length < 3) {
+                    if (LOG_TEMPORARY_STYLES) console.log(`Single Polygon skipped - insufficient coordinates: ${coords.length}`);
+                    return;
+                }
+
+                const poly = L.polygon(coords, {
+                    color: style.color || '#3388ff',
+                    weight: style.weight || 3,
+                    fillColor: style.fillColor || '#3388ff',
+                    fillOpacity: style.fillOpacity || 0.5,
+                    interactive: false
+                }).addTo(layerGroup);
+
+                addLabelToLayer(name, 'Polygon', coords, layerGroup);
+
+                // Логирование информации о полигоне
+                if (LOG_TEMPORARY_STYLES) {
+                    console.log(`Single Polygon #${++elementCount}:`);
+                    console.log(`- Raw fill color: ${style.poly?.rawColor || 'not set'}`); 
+                    console.log(`- Parsed fill color: ${style.poly?.fillColor || 'default'}`);
+                    console.log(`- Fill opacity: ${style.poly?.fillOpacity || 'default'}`);
+                    console.log(`- Raw border color: ${style.line?.rawColor || 'not set'}`);
+                    console.log(`- Parsed border color: ${style.line?.color || 'default'}`);
+                    console.log(`- Border weight: ${style.line?.weight || 'default'}`);
+                    console.log(`- Border opacity: ${style.line?.opacity || 'default'}`);
+                }
+
+                if (poly.getBounds().isValid()) {
+                    bounds.extend(poly.getBounds());
+                }
+            }
+
+            // Обработка одиночных LineString (вне MultiGeometry)
             const lineString = placemark.querySelector('LineString');
-            if (lineString) {
+            if (lineString && !multiGeometry) {
                 const coords = parseCoordinates(lineString, map.options.crs);
                 if (coords.length < 2) {
-                    if (LOG_TEMPORARY_STYLES) console.groupEnd(); // Закрываем группу Placemark
+                    if (LOG_TEMPORARY_STYLES) console.log(`Single LineString skipped - insufficient coordinates: ${coords.length}`);
                     return;
                 }
 
@@ -755,7 +862,7 @@ async function loadKmlFile(file, targetCRS) {
 
                 // Логирование информации о линии
                 if (LOG_TEMPORARY_STYLES) {
-                    console.log(`LineString #${++elementCount}:`);
+                    console.log(`Single LineString #${++elementCount}:`);
                     console.log(`- Raw color: ${style.line?.rawColor || 'not set'}`);
                     console.log(`- Parsed color: ${style.line?.color || 'default'}`);
                     console.log(`- Weight: ${style.line?.weight || 'default'}`);
@@ -764,42 +871,6 @@ async function loadKmlFile(file, targetCRS) {
 
                 if (polyline.getBounds().isValid()) {
                     bounds.extend(polyline.getBounds());
-                }
-            }
-
-            // Обработка Polygon
-            const polygon = placemark.querySelector('Polygon');
-            if (polygon) {
-                const coords = parseCoordinates(polygon.querySelector('LinearRing'), map.options.crs);
-                if (coords.length < 3) {
-                    if (LOG_TEMPORARY_STYLES) console.groupEnd(); // Закрываем группу Placemark
-                    return;
-                }
-
-                const poly = L.polygon(coords, {
-                    color: style.color || '#3388ff',
-                    weight: style.weight || 3,
-                    fillColor: style.fillColor || '#3388ff',
-                    fillOpacity: style.fillOpacity || 0.5,
-					interactive: false // Отключаем интерактивность полигонов
-                }).addTo(layerGroup);
-
-                addLabelToLayer(name, 'Polygon', coords, layerGroup);
-
-                // Логирование информации о полигоне
-                if (LOG_TEMPORARY_STYLES) {
-                    console.log(`Polygon #${++elementCount}:`);
-                    console.log(`- Raw fill color: ${style.poly?.rawColor || 'not set'}`); 
-                    console.log(`- Parsed fill color: ${style.poly?.fillColor || 'default'}`);
-                    console.log(`- Fill opacity: ${style.poly?.fillOpacity || 'default'}`);
-                    console.log(`- Raw border color: ${style.line?.rawColor || 'not set'}`);
-                    console.log(`- Parsed border color: ${style.line?.color || 'default'}`);
-                    console.log(`- Border weight: ${style.line?.weight || 'default'}`);
-                    console.log(`- Border opacity: ${style.line?.opacity || 'default'}`);
-                }
-
-                if (poly.getBounds().isValid()) {
-                    bounds.extend(poly.getBounds());
                 }
             }
             
@@ -816,11 +887,11 @@ async function loadKmlFile(file, targetCRS) {
             const ne = bounds.getNorthEast();
             const isNotPoint = sw.lat !== ne.lat || sw.lng !== ne.lng;
             
-//            if (!preserveZoom && isNotPoint) {
-//                map.fitBounds(bounds);
-//            } else {
+            if (!preserveZoom && isNotPoint) {
+                map.fitBounds(bounds);
+            } else {
                 map.setView(currentCenter, currentZoom);
-//            }
+            }
         } else {
             map.setView(currentCenter, currentZoom);
         }
@@ -828,12 +899,6 @@ async function loadKmlFile(file, targetCRS) {
     } catch (error) {
         console.error("Ошибка загрузки KML:", error);
         alert(`Ошибка загрузки файла: ${file.path}\n${error.message}`);
-    }
-
-    function updateBounds(layer) {
-        if (layer.getBounds) {
-            bounds = bounds ? bounds.extend(layer.getBounds()) : layer.getBounds();
-        }
     }
 }
 
