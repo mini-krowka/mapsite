@@ -61,8 +61,7 @@ window.kmlFiles = [
     { name: "11.09.25", path: "kml/ControlZones/Control_25_09_11.kml" },
     { name: "15.09.25", path: "kml/ControlZones/Control_25_09_15.kml" },
     { name: "19.09.25", path: "kml/ControlZones/Control_25_09_19.kml" },
-    { name: "23.09.25", path: "kml/ControlZones/Control_25_09_23.kml" },
-    { name: "17.10.25", path: "kml/PermanentObjects/Progress_25_10_09.kml" }
+    { name: "23.09.25", path: "kml/ControlZones/Control_25_09_23.kml" }
    ];
 
 // Постоянные слои
@@ -78,7 +77,9 @@ window.permanentLayers = [
     //Линия максимального продвижения ВСУ в Курской области.
     { name: "AFU_advance_Kursk2024",  path: "kml/PermanentObjects/AFU_advance_Kursk2024.kml" },
     // Контур максимального продвижения в Доброполье
-    { name: "Добропольский прорыв",  path: "kml/PermanentObjects/Доброполье.kml" }
+    { name: "Добропольский прорыв",  path: "kml/PermanentObjects/Доброполье.kml" },
+	// Мультиполигон
+    { name: "Мультиполигон",         path: "kml/PermanentObjects/Progress_25_10_09.kml" }
 ];
 
 // Список городов с координатами
