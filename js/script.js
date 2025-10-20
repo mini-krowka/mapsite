@@ -599,37 +599,94 @@ function resolveStyleIdRef(ref) {
  Each created feature gets a unique featureId to avoid collisions across files.
 */
 let _featureIdCounter = 0;
+
+/**
+ * createFeaturesFromPlacemarkList(placemarks, stylesById, styleMapsById, options)
+ *
+ * options:
+ *   - url: string (источник KML, используется для детекции "multigeometry" по имени)
+ *   - forceBrightIfFilenameContains: string (опционально, substring для файла, по которому форсить яркий стиль, например 'multigeometry')
+ *   - brightStyle: object (опционально) — стиль, который применять для multigeometry
+ */
 function createFeaturesFromPlacemarkList(placemarks, stylesById, styleMapsById, options = {}) {
   const features = [];
+  options = options || {};
+
+  // шаблон яркого стиля по-умолчанию (можно переопределить через options.brightStyle)
+  const defaultBrightStyle = {
+    stroke: { r: 255, g: 64, b: 64, a: 1.0, css: 'rgba(255,64,64,1.0)' }, // яркий красный контур
+    strokeWidth: 3,
+    fill: { r: 255, g: 200, b: 200, a: 0.25, css: 'rgba(255,200,200,0.25)' },
+    // если есть иконки, можно явно задать видимый размер:
+    icon: { scale: 1.2 }
+  };
+
+  const brightStyle = options.brightStyle || defaultBrightStyle;
+  const forceFilenameSubstr = options.forceBrightIfFilenameContains || 'multigeometry';
+  const sourceUrl = options.url || '';
+
   for (const pm of placemarks) {
     const featureId = `kmlfeat_${Date.now()}_${_featureIdCounter++}`;
-    // Resolve style: styleMap has priority (normal)
+
+    // Определяем, является ли geometry MultiGeometry (по raw node)
+    let isMultiGeom = false;
+    try {
+      if (pm.raw && pm.raw.querySelector) {
+        isMultiGeom = pm.raw.querySelector('MultiGeometry') !== null;
+      } else if (pm.geom) {
+        // если geom — Node
+        isMultiGeom = (pm.geom.nodeName && pm.geom.nodeName.toLowerCase() === 'multigeometry');
+      }
+    } catch (e) {
+      isMultiGeom = false;
+    }
+
+    // detect source filename indicating multigeometry
+    const sourceIsMultiFile = !!(sourceUrl && sourceUrl.toLowerCase().includes(forceFilenameSubstr.toLowerCase()));
+
+    // Resolving style from styleUrl or styleMap (same logic как раньше)
     let style = null;
     if (pm.styleUrl) {
       const sid = resolveStyleIdRef(pm.styleUrl);
       if (sid && stylesById[sid]) style = stylesById[sid];
       else if (sid && styleMapsById[sid]) style = styleMapsById[sid].normal || styleMapsById[sid].highlight;
     }
-    // fallback to styleMapUrl if present
     if (!style && pm.styleMapUrl) {
       const sid = resolveStyleIdRef(pm.styleMapUrl);
       if (sid && styleMapsById[sid]) style = styleMapsById[sid].normal || styleMapsById[sid].highlight;
     }
-    // ensure we clone style (do not share reference)
-    const appliedStyle = style ? JSON.parse(JSON.stringify(style)) : null;
 
-    // build a simple feature object (geom parsing left to integration)
+    // Решение: только если isMultiGeom OR файл явно multigeometry -> применяем brightStyle.
+    // Иначе используем style (встроенный в файл), если он есть. Если же style отсутствует — используем null/default.
+    let appliedStyle = null;
+    if (isMultiGeom || sourceIsMultiFile) {
+      // клионируем brightStyle, чтобы не делить одну ссылку
+      appliedStyle = JSON.parse(JSON.stringify(brightStyle));
+      console.debug('[KML] Applying BRIGHT forced style to feature:', pm.name || '<no name>',
+                    ' (isMultiGeom=', isMultiGeom, ', sourceIsMultiFile=', sourceIsMultiFile, ')');
+    } else {
+      // используем встроенный стиль, если есть — клонируем, чтобы не менять исходный стиль объекта
+      appliedStyle = style ? JSON.parse(JSON.stringify(style)) : null;
+      if (appliedStyle) {
+        console.debug('[KML] Using file style for feature:', pm.name || '<no name>');
+      } else {
+        // отсутствие style: можно применить тонкий default, но пока оставим null (карта решит)
+        console.debug('[KML] No style in file for feature (will use map defaults):', pm.name || '<no name>');
+      }
+    }
+
+    // build and push feature
     features.push({
       id: featureId,
       name: pm.name,
-      geomXml: pm.geom, // Node with geometry -> parse coordinates according to your map library
+      geomXml: pm.geom,
       style: appliedStyle,
       raw: pm.raw
     });
   }
+
   return features;
 }
-
 
 // Основная функция для загрузки и парсинга KML
 async function loadKmlToLayerGroup(kmlPath, options = {}) {
