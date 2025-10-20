@@ -450,6 +450,187 @@ function parseOpacity(kmlColor) {
 
 window.permanentLayerGroups = []; // Храним группы слоёв
 
+
+async function fetchText(url) {
+  const resp = await fetch(url);
+  if (!resp.ok) throw new Error(`Failed to fetch ${url}: ${resp.status}`);
+  return await resp.text();
+}
+
+function parseXml(text) {
+  return (new DOMParser()).parseFromString(text, "application/xml");
+}
+
+/*
+ Convert a <Style> element into a JS style object.
+ Keep as many useful fields as possible: line, poly, icon.
+*/
+function parseStyleElement(styleEl) {
+  const style = {};
+  if (!styleEl) return style;
+
+  const ls = styleEl.querySelector('LineStyle');
+  if (ls) {
+    const color = ls.querySelector('color')?.textContent?.trim();
+    const width = ls.querySelector('width')?.textContent?.trim();
+    // KML color is aabbggrr — convert to rgba
+    if (color) style.stroke = kmlColorToRgba(color);
+    if (width) style.strokeWidth = parseFloat(width);
+  }
+
+  const ps = styleEl.querySelector('PolyStyle');
+  if (ps) {
+    const color = ps.querySelector('color')?.textContent?.trim();
+    const fill = ps.querySelector('fill')?.textContent?.trim();
+    const outline = ps.querySelector('outline')?.textContent?.trim();
+    if (color) style.fill = kmlColorToRgba(color);
+    if (fill !== undefined) style.fillEnabled = (fill !== '0');
+    if (outline !== undefined) style.outlineEnabled = (outline !== '0');
+  }
+
+  const is = styleEl.querySelector('IconStyle');
+  if (is) {
+    const href = is.querySelector('Icon > href')?.textContent?.trim();
+    const scale = is.querySelector('scale')?.textContent?.trim();
+    if (href) style.icon = { href };
+    if (scale) style.icon.scale = parseFloat(scale);
+    const anchor = is.querySelector('hotSpot');
+    if (anchor) {
+      // hotSpot attributes x,y,xunits,yunits
+      style.icon.hotSpot = {
+        x: anchor.getAttribute('x'),
+        y: anchor.getAttribute('y'),
+        xunits: anchor.getAttribute('xunits'),
+        yunits: anchor.getAttribute('yunits')
+      };
+    }
+  }
+
+  return style;
+}
+
+
+/*
+ Convert KML 'aabbggrr' hex to CSS rgba string or object.
+*/
+function kmlColorToRgba(kmlColor) {
+  // KML color: aabbggrr (alpha, blue, green, red) in hex
+  if (!kmlColor) return null;
+  const s = kmlColor.trim();
+  // ensure 8 chars
+  const hex = s.length === 8 ? s : s.padStart(8, '0');
+  const a = parseInt(hex.slice(0,2), 16) / 255.0;
+  const b = parseInt(hex.slice(2,4), 16);
+  const g = parseInt(hex.slice(4,6), 16);
+  const r = parseInt(hex.slice(6,8), 16);
+  return { r, g, b, a, css: `rgba(${r},${g},${b},${a.toFixed(3)})` };
+}
+
+/*
+ Parse <StyleMap> which maps a style id to normal/highlight styles.
+ Returns { normal: styleObj, highlight: styleObj }
+*/
+function parseStyleMap(styleMapEl, styleById) {
+  const pairs = {};
+  styleMapEl.querySelectorAll('Pair').forEach(pair => {
+    const key = pair.querySelector('key')?.textContent?.trim(); // "normal" or "highlight"
+    const styleUrl = pair.querySelector('StyleUrl')?.textContent?.trim();
+    if (key && styleUrl) {
+      // styleUrl might be '#id' or URL#id
+      const id = styleUrl.includes('#') ? styleUrl.split('#').pop() : styleUrl;
+      pairs[key] = styleById[id] ? styleById[id] : null;
+    }
+  });
+  return pairs;
+}
+
+
+
+/*
+ Parse KML document into a structure:
+ { stylesById: {id: styleObj}, styleMapsById: {id: {normal,highlight}}, placemarks: [{name, geometryXml, styleUrl, styleMapUrl, rawEl}] }
+*/
+function parseKmlDocument(doc) {
+  const stylesById = {};
+  const styleMapsById = {};
+
+  doc.querySelectorAll('Style').forEach(styleEl => {
+    const id = styleEl.getAttribute('id') || styleEl.getAttribute('styleId') || null;
+    if (id) stylesById[id] = parseStyleElement(styleEl);
+  });
+
+  doc.querySelectorAll('StyleMap').forEach(sm => {
+    const id = sm.getAttribute('id') || null;
+    if (!id) return;
+    styleMapsById[id] = parseStyleMap(sm, stylesById);
+  });
+
+  // Also, some <StyleUrl> may reference a Style not declared with id (rare). We rely on id.
+  const placemarks = [];
+  doc.querySelectorAll('Placemark').forEach(pm => {
+    const name = pm.querySelector('name')?.textContent?.trim() || null;
+    const styleUrl = pm.querySelector('styleUrl')?.textContent?.trim() || null;
+    const styleMapUrl = pm.querySelector('styleMap')?.textContent?.trim() || null; // not standard, but keep
+    // Extract geometry as inner XML string (you can parse coordinates later)
+    let geom = null;
+    ['Point','LineString','Polygon','MultiGeometry'].some(t => {
+      const el = pm.querySelector(t);
+      if (el) { geom = el.cloneNode(true); return true; }
+      return false;
+    });
+
+    placemarks.push({ name, styleUrl, styleMapUrl, geom, raw: pm });
+  });
+
+  return { stylesById, styleMapsById, placemarks };
+}
+
+/*
+ Helper: resolve style reference text like '#id' or '...#id' -> id
+*/
+function resolveStyleIdRef(ref) {
+  if (!ref) return null;
+  const s = ref.trim();
+  return s.includes('#') ? s.split('#').pop() : s;
+}
+
+/*
+ Create feature objects with resolved style (cloned!) ready to add to map.
+ Each created feature gets a unique featureId to avoid collisions across files.
+*/
+let _featureIdCounter = 0;
+function createFeaturesFromPlacemarkList(placemarks, stylesById, styleMapsById, options = {}) {
+  const features = [];
+  for (const pm of placemarks) {
+    const featureId = `kmlfeat_${Date.now()}_${_featureIdCounter++}`;
+    // Resolve style: styleMap has priority (normal)
+    let style = null;
+    if (pm.styleUrl) {
+      const sid = resolveStyleIdRef(pm.styleUrl);
+      if (sid && stylesById[sid]) style = stylesById[sid];
+      else if (sid && styleMapsById[sid]) style = styleMapsById[sid].normal || styleMapsById[sid].highlight;
+    }
+    // fallback to styleMapUrl if present
+    if (!style && pm.styleMapUrl) {
+      const sid = resolveStyleIdRef(pm.styleMapUrl);
+      if (sid && styleMapsById[sid]) style = styleMapsById[sid].normal || styleMapsById[sid].highlight;
+    }
+    // ensure we clone style (do not share reference)
+    const appliedStyle = style ? JSON.parse(JSON.stringify(style)) : null;
+
+    // build a simple feature object (geom parsing left to integration)
+    features.push({
+      id: featureId,
+      name: pm.name,
+      geomXml: pm.geom, // Node with geometry -> parse coordinates according to your map library
+      style: appliedStyle,
+      raw: pm.raw
+    });
+  }
+  return features;
+}
+
+
 // Основная функция для загрузки и парсинга KML
 async function loadKmlToLayerGroup(kmlPath, options = {}) {
     const {
@@ -731,86 +912,107 @@ function processLineString(lineString, name, style, layerGroup, bounds, options 
 }
 
 // Функция загрузки постоянных KML-слоев
-async function loadPermanentKmlLayers() {
-    try {
-        console.log("Начало загрузки постоянных слоев");
-        
-        if (!window.permanentLayers || !Array.isArray(window.permanentLayers)) {
-            console.error("window.permanentLayers не определен или не является массивом");
-            return;
-        }
-        
-        console.log("Найдено постоянных слоев:", window.permanentLayers.length);
+/**
+ * loadPermanentKmlLayers - backward-compatible loader
+ *
+ * Поддерживает вызовы:
+ *   loadPermanentKmlLayers()
+ *   loadPermanentKmlLayers(urlsArray)
+ *   loadPermanentKmlLayers(optionsObject)
+ *   loadPermanentKmlLayers(urlsArray, optionsObject)
+ *
+ * Если urls не передан, функция попытается взять их из:
+ *   - аргумента options.urls (если options передан как первый/второй аргумент)
+ *   - window.PERMANENT_KML_URLS (глобальная переменная, которую можно заполнить при старте)
+ *   - data-атрибутов в DOM (опционально — добавьте ваш механизм)
+ *
+ * Вернёт Promise<Array<layerGroup>> (как и новая версия).
+ */
+async function loadPermanentKmlLayers(urls, options) {
+  // support calling with only options: loadPermanentKmlLayers(options)
+  if (urls && typeof urls === 'object' && !Array.isArray(urls)) {
+    // first arg is options, no urls provided
+    options = urls;
+    urls = undefined;
+  }
 
-        // Удаляем старые постоянные слои
-        if (window.permanentLayerGroups && window.permanentLayerGroups.length) {
-            window.permanentLayerGroups.forEach(layer => map.removeLayer(layer));
-            window.permanentLayerGroups = [];
-        }
+  options = options || {};
 
-        for (const layerData of window.permanentLayers) {
-            if (!layerData.path) {
-                console.error("Отсутствует путь для постоянного слоя:", layerData);
-                continue;
-            }
-            
-            console.log("Загрузка постоянного слоя:", layerData.path);
-            
-            try {
-                const { layerGroup } = await loadKmlToLayerGroup(layerData.path, {
-                    isPermanent: true,
-                    logGroupName: `Permanent layer loaded: ${layerData.path}`
-                });
+  // If options.urls provided, use it
+  if (!urls && Array.isArray(options.urls)) {
+    urls = options.urls;
+  }
 
-                layerGroup.addTo(map);
-                window.permanentLayerGroups = window.permanentLayerGroups || [];
-                window.permanentLayerGroups.push(layerGroup);
-                
-            } catch (error) {
-                console.error(`Ошибка обработки слоя ${layerData.path}:`, error);
-            }
-        }
-    } catch (error) {
-        console.error("Ошибка загрузки постоянных KML:", error);
+  // If urls is a single string, wrap to array
+  if (typeof urls === 'string') {
+    urls = [urls];
+  }
+
+  // If still undefined, try to read from a global variable (backward compatibility)
+  if (!urls) {
+    if (typeof window !== 'undefined' && Array.isArray(window.PERMANENT_KML_URLS)) {
+      urls = window.PERMANENT_KML_URLS;
+      console.warn('loadPermanentKmlLayers: using window.PERMANENT_KML_URLS as fallback');
+    } else {
+      // Fallback: empty array (no layers). Avoid throwing to keep backward compatibility.
+      console.warn('loadPermanentKmlLayers: no urls provided and no global PERMANENT_KML_URLS found; nothing to load.');
+      urls = [];
     }
+  }
+
+  // Now urls is an array (possibly empty). Proceed to load each.
+  const groups = [];
+  for (const url of urls) {
+    try {
+      // reuse (or call) your generic loader; this assumes you have loadKmlFile implemented
+      // If your loadKmlFile signature is loadKmlFile(url, options) — pass options through.
+      const group = await loadKmlFile(url, Object.assign({}, options, { permanent: true }));
+      groups.push(group);
+      // small delay optional to avoid race conditions with shared state
+      await new Promise(r => setTimeout(r, 10));
+    } catch (err) {
+      console.error('Failed loading permanent KML', url, err);
+    }
+  }
+
+  return groups;
 }
 
+
 // Функция загрузки основного KML (с сохранением оригинальных стилей)
-async function loadKmlFile(file, targetCRS) {
-    if (currentLayer) {
-        map.removeLayer(currentLayer);
+/*
+ Generic loader for a single KML file. Returns parsed features with styles.
+ options:
+   - mapAdd: function(featureObj) { ... }  // callback to add to your map
+   - permanent: boolean
+   - layerOptions: any
+*/
+async function loadKmlFile(url, options = {}) {
+  const text = await fetchText(url);
+  const doc = parseXml(text);
+  const { stylesById, styleMapsById, placemarks } = parseKmlDocument(doc);
+  const features = createFeaturesFromPlacemarkList(placemarks, stylesById, styleMapsById, options);
+
+  // If a callback to actually add to map is supplied, do so now
+  if (typeof options.mapAdd === 'function') {
+    // create a layer group for this file (so permanent layers are distinct)
+    const layerGroup = {
+      id: options.layerId || `kml_layer_${Date.now()}`,
+      permanent: !!options.permanent,
+      features: []
+    };
+    for (const f of features) {
+      try {
+        const mapFeature = options.mapAdd(f, { layerGroup, url, options });
+        layerGroup.features.push(mapFeature);
+      } catch (err) {
+        console.error('Failed to add feature to map:', err);
+      }
     }
+    return layerGroup;
+  }
 
-    const currentCenter = map.getCenter();
-    const currentZoom = map.getZoom();
-
-    try {
-        const { layerGroup, bounds } = await loadKmlToLayerGroup(file.path, {
-            logGroupName: LOG_TEMPORARY_STYLES ? `Temporary layer loaded: ${file.path}` : null
-        });
-
-        currentLayer = layerGroup;
-        layerGroup.addTo(map);
-
-        // Применяем границы только если они валидны
-        if (bounds.isValid()) {
-            const sw = bounds.getSouthWest();
-            const ne = bounds.getNorthEast();
-            const isNotPoint = sw.lat !== ne.lat || sw.lng !== ne.lng;
-            
-            if (!preserveZoom && isNotPoint) {
-                map.fitBounds(bounds);
-            } else {
-                map.setView(currentCenter, currentZoom);
-            }
-        } else {
-            map.setView(currentCenter, currentZoom);
-        }
-        preserveZoom = true;
-    } catch (error) {
-        console.error("Ошибка загрузки KML:", error);
-        alert(`Ошибка загрузки файла: ${file.path}\n${error.message}`);
-    }
+  return { features, stylesById, styleMapsById };
 }
 
 async function reloadKmlForCRS(center, zoom) {
