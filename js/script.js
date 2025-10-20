@@ -1087,25 +1087,42 @@ async function loadPermanentKmlLayers(urls, options) {
 // ROBUST loadKmlFile — вставить в script.js, заменив старую реализацию
 async function loadKmlFile(urlOrObj, options = {}) {
   options = options || {};
-  // Normalize argument: support (url), ({url:..., other}) and Request
-  let url = urlOrObj;
-  if (typeof urlOrObj === 'object' && !(urlOrObj instanceof Request)) {
-    if (urlOrObj.url) {
-      url = urlOrObj.url;
-      // merge other fields into options
-      options = Object.assign({}, urlOrObj, options);
-      delete options.url;
-    } else if (urlOrObj.href) {
-      url = urlOrObj.href;
-      options = Object.assign({}, urlOrObj, options);
-      delete options.href;
-    }
+
+  // If caller passed an object { name, path } or { url, ... } — normalize it.
+  let rawArg = urlOrObj;
+  let url = null;
+
+  if (typeof urlOrObj === 'string' || urlOrObj instanceof String || urlOrObj instanceof URL) {
+    url = String(urlOrObj);
+  } else if (urlOrObj instanceof Request) {
+    url = urlOrObj.url;
+    // optionally copy init: options.fetchOptions = urlOrObj; (not usually needed)
+  } else if (typeof urlOrObj === 'object' && urlOrObj !== null) {
+    // try common fields
+    url = urlOrObj.url || urlOrObj.href || urlOrObj.path || urlOrObj.file || urlOrObj.src || urlOrObj.location || null;
+    // merge other properties into options (except url/path)
+    const merged = Object.assign({}, urlOrObj);
+    delete merged.url; delete merged.href; delete merged.path; delete merged.file; delete merged.src; delete merged.location;
+    options = Object.assign({}, merged, options);
   }
+
+  // If still no url, fallback to options.urls/ PERMANENT_KML_URLS handled by caller
   if (!url) {
-    console.warn('loadKmlFile: no URL provided, nothing to load.');
+    console.warn('loadKmlFile: no URL found in argument. Received:', rawArg);
     return null;
   }
-  console.debug('loadKmlFile: loading kml from', url, 'options=', options);
+
+  // Resolve relative URLs against document.baseURI (handles "kml/..." properly)
+  try {
+    // document.baseURI ensures relative paths resolved relative to current page
+    url = (new URL(url, document.baseURI)).href;
+  } catch (e) {
+    // in unlikely case URL parsing fails — fallback to string as-is
+    console.warn('loadKmlFile: URL resolution failed, using raw url string:', url, e);
+    url = String(url);
+  }
+
+  console.debug('loadKmlFile: normalized URL ->', url, '; options=', options);
 
   // Low-level fetch so we can inspect headers & detect KMZ
   let resp;
