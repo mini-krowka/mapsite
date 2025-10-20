@@ -1084,39 +1084,196 @@ async function loadPermanentKmlLayers(urls, options) {
 
 
 // Функция загрузки основного KML (с сохранением оригинальных стилей)
-/*
- Generic loader for a single KML file. Returns parsed features with styles.
- options:
-   - mapAdd: function(featureObj) { ... }  // callback to add to your map
-   - permanent: boolean
-   - layerOptions: any
-*/
-async function loadKmlFile(url, options = {}) {
-  const text = await fetchText(url);
-  const doc = parseXml(text);
-  const { stylesById, styleMapsById, placemarks } = parseKmlDocument(doc);
-  const features = createFeaturesFromPlacemarkList(placemarks, stylesById, styleMapsById, options);
-
-  // If a callback to actually add to map is supplied, do so now
-  if (typeof options.mapAdd === 'function') {
-    // create a layer group for this file (so permanent layers are distinct)
-    const layerGroup = {
-      id: options.layerId || `kml_layer_${Date.now()}`,
-      permanent: !!options.permanent,
-      features: []
-    };
-    for (const f of features) {
-      try {
-        const mapFeature = options.mapAdd(f, { layerGroup, url, options });
-        layerGroup.features.push(mapFeature);
-      } catch (err) {
-        console.error('Failed to add feature to map:', err);
-      }
+// ROBUST loadKmlFile — вставить в script.js, заменив старую реализацию
+async function loadKmlFile(urlOrObj, options = {}) {
+  options = options || {};
+  // Normalize argument: support (url), ({url:..., other}) and Request
+  let url = urlOrObj;
+  if (typeof urlOrObj === 'object' && !(urlOrObj instanceof Request)) {
+    if (urlOrObj.url) {
+      url = urlOrObj.url;
+      // merge other fields into options
+      options = Object.assign({}, urlOrObj, options);
+      delete options.url;
+    } else if (urlOrObj.href) {
+      url = urlOrObj.href;
+      options = Object.assign({}, urlOrObj, options);
+      delete options.href;
     }
-    return layerGroup;
+  }
+  if (!url) {
+    console.warn('loadKmlFile: no URL provided, nothing to load.');
+    return null;
+  }
+  console.debug('loadKmlFile: loading kml from', url, 'options=', options);
+
+  // Low-level fetch so we can inspect headers & detect KMZ
+  let resp;
+  try {
+    resp = await fetch(url, options.fetchOptions || undefined);
+  } catch (err) {
+    console.error('loadKmlFile: fetch failed for', url, err);
+    throw err;
   }
 
-  return { features, stylesById, styleMapsById };
+  if (!resp.ok) {
+    console.error('loadKmlFile: HTTP error', resp.status, resp.statusText, 'for', url);
+    throw new Error(`HTTP ${resp.status} ${resp.statusText} when loading ${url}`);
+  }
+
+  const contentType = (resp.headers.get && resp.headers.get('content-type')) || '';
+  console.debug('loadKmlFile: content-type:', contentType);
+
+  // Detect KMZ (zip) by content-type or by extension
+  const isKmz = url.toLowerCase().endsWith('.kmz') || contentType.includes('zip') || contentType.includes('kmz');
+
+  let xmlDoc = null;
+  try {
+    if (isKmz) {
+      // If you have JSZip available, try to unpack the first KML inside.
+      if (typeof JSZip !== 'undefined') {
+        const ab = await resp.arrayBuffer();
+        const zip = await JSZip.loadAsync(ab);
+        // try to find a .kml file entry
+        const kmlEntryName = Object.keys(zip.files).find(n => n.toLowerCase().endsWith('.kml'));
+        if (!kmlEntryName) {
+          console.error('loadKmlFile: KMZ contains no .kml file:', url);
+          throw new Error('KMZ contains no KML');
+        }
+        const kmlText = await zip.files[kmlEntryName].async('string');
+        console.debug('loadKmlFile: extracted kml entry:', kmlEntryName, 'length=', kmlText.length);
+        xmlDoc = parseXml(kmlText);
+      } else {
+        console.warn('loadKmlFile: KMZ detected but JSZip not available. Cannot extract KML from KMZ:', url);
+        throw new Error('KMZ handling requires JSZip');
+      }
+    } else {
+      // normal KML text
+      const text = await resp.text();
+      console.debug('loadKmlFile: fetched text length=', (text && text.length) || 0, 'start=', (text||'').slice(0,200));
+      xmlDoc = parseXml(text);
+    }
+  } catch (err) {
+    console.error('loadKmlFile: failed to obtain/parse XML from', url, err);
+    throw err;
+  }
+
+  // Check XML parsererrors
+  if (!xmlDoc || xmlDoc.querySelector('parsererror')) {
+    console.error('loadKmlFile: XML parser error for', url, xmlDoc ? xmlDoc.querySelector('parsererror') : 'no-doc');
+    throw new Error('XML parsing error for ' + url);
+  }
+
+  // Parse KML into structures (styles, placemarks, etc)
+  let parsed;
+  try {
+    parsed = parseKmlDocument(xmlDoc); // expects function present in your codebase
+  } catch (err) {
+    console.error('loadKmlFile: parseKmlDocument failed for', url, err);
+    throw err;
+  }
+
+  console.info(`loadKmlFile: parsed ${Object.keys(parsed.stylesById).length} styles, ${parsed.placemarks.length} placemarks from ${url}`);
+
+  // Create features and resolve styles; pass url in options so createFeatures can detect multigeometry etc.
+  let features = [];
+  try {
+    features = createFeaturesFromPlacemarkList(parsed.placemarks, parsed.stylesById, parsed.styleMapsById, Object.assign({}, options, { url }));
+  } catch (err) {
+    console.error('loadKmlFile: createFeaturesFromPlacemarkList error for', url, err);
+    throw err;
+  }
+
+  console.info('loadKmlFile: created', features.length, 'features for', url);
+
+  // If application provided mapAdd callback, use it to add each feature to your map
+  let layerGroup = { id: options.layerId || `kml_layer_${Date.now()}`, features: [] };
+
+  if (typeof options.mapAdd === 'function') {
+    for (const f of features) {
+      try {
+        const mapFeature = options.mapAdd(f, { url, options, parsed });
+        layerGroup.features.push(mapFeature);
+      } catch (err) {
+        console.error('loadKmlFile: options.mapAdd threw for feature', f, err);
+      }
+    }
+    console.debug('loadKmlFile: added features via options.mapAdd, count=', layerGroup.features.length);
+  } else {
+    // No mapAdd provided — try default Leaflet behaviour if L and map exist
+    if (typeof L !== 'undefined' && typeof map !== 'undefined') {
+      console.debug('loadKmlFile: no mapAdd supplied — using built-in Leaflet adder for convenience');
+      for (const f of features) {
+        try {
+          const mf = _defaultLeafletAdd(f);
+          layerGroup.features.push(mf);
+        } catch (err) {
+          console.warn('loadKmlFile: defaultLeafletAdd failed for feature', f, err);
+        }
+      }
+      console.debug('loadKmlFile: defaultLeafletAdd added', layerGroup.features.length, 'features');
+    } else {
+      console.warn('loadKmlFile: no options.mapAdd and no global Leaflet map found. Features are returned but not added to a map.');
+    }
+  }
+
+  // Optionally set properties on layerGroup (permanent)
+  layerGroup.permanent = !!options.permanent;
+
+  // Return group for caller to manipulate (add to global index etc)
+  return layerGroup;
+}
+
+// Minimal default Leaflet adder — you can expand to support polygons, multi-geometries, styles
+function _defaultLeafletAdd(featureObj) {
+  // expects featureObj.geomXml is Node with Point/LineString/Polygon
+  const geomNode = featureObj.geomXml;
+  if (!geomNode) {
+    console.warn('_defaultLeafletAdd: no geometry for feature', featureObj);
+    return null;
+  }
+  // POINT
+  const pointEl = geomNode.querySelector && geomNode.querySelector('Point');
+  if (pointEl) {
+    const coordsText = pointEl.querySelector('coordinates').textContent.trim();
+    const [lng, lat] = coordsText.split(',').map(Number);
+    const style = featureObj.style || {};
+    let marker;
+    if (style.icon && style.icon.href) {
+      const icon = L.icon({ iconUrl: style.icon.href, iconSize: style.icon.size || [24,24] });
+      marker = L.marker([lat, lng], { icon: icon }).addTo(map);
+    } else {
+      marker = L.circleMarker([lat, lng], { radius: 6, color: style.stroke ? style.stroke.css : '#3388ff' }).addTo(map);
+    }
+    if (featureObj.name) marker.bindPopup(featureObj.name);
+    return marker;
+  }
+  // LINESTRING
+  const ln = geomNode.querySelector && geomNode.querySelector('LineString');
+  if (ln) {
+    const coordsText = ln.querySelector('coordinates').textContent.trim();
+    const coords = coordsText.split(/\s+/).map(s => s.split(',').slice(0,2).map(Number).reverse());
+    const style = featureObj.style || {};
+    const polyline = L.polyline(coords, { color: style.stroke ? style.stroke.css : '#3388ff', weight: style.strokeWidth || 2 }).addTo(map);
+    if (featureObj.name) polyline.bindPopup(featureObj.name);
+    return polyline;
+  }
+  // POLYGON (outerBoundary only)
+  const poly = geomNode.querySelector && geomNode.querySelector('Polygon');
+  if (poly) {
+    const coordsEl = poly.querySelector('outerBoundaryIs coordinates') || poly.querySelector('outerBoundaryIs > LinearRing > coordinates') || poly.querySelector('coordinates');
+    if (coordsEl) {
+      const coordsText = coordsEl.textContent.trim();
+      const coords = coordsText.split(/\s+/).map(s => s.split(',').slice(0,2).map(Number).reverse());
+      const style = featureObj.style || {};
+      const polygon = L.polygon(coords, { color: style.stroke ? style.stroke.css : '#3388ff', weight: style.strokeWidth || 2,
+                                          fillColor: style.fill ? style.fill.css : undefined, fillOpacity: style.fill ? style.fill.a : 0.3 }).addTo(map);
+      if (featureObj.name) polygon.bindPopup(featureObj.name);
+      return polygon;
+    }
+  }
+  console.warn('_defaultLeafletAdd: unhandled geometry type for feature', featureObj);
+  return null;
 }
 
 async function reloadKmlForCRS(center, zoom) {
