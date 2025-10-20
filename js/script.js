@@ -620,9 +620,10 @@ function processMultiGeometry(multiGeometry, name, style, layerGroup, bounds, op
 			// opacity: style.line.opacity || 1,
 			interactive: false,
 			
-			color: '#0000ff', // Синие линии
+			color: '#ff0000', // Красная обводка для видимости
 			weight: 3,        // Толстая линия
-			opacity: 1
+			fillColor: '#ff0000', // Красная заливка
+			fillOpacity: 0.7 // Высокая непрозрачность
         };		
 		
 
@@ -645,16 +646,23 @@ function processMultiGeometry(multiGeometry, name, style, layerGroup, bounds, op
             return;
         }
 
-        const lineStyle = isPermanent ? {
-            color: '#0000ff',
-            weight: 3,
-            opacity: 1,
-            interactive: false
-        } : {
-            color: style.line.color || '#3388ff',
-            weight: style.line.weight || 3,
-            opacity: style.line.opacity || 1,
-            interactive: false
+        // const lineStyle = isPermanent ? {
+            // color: '#0000ff',
+            // weight: 3,
+            // opacity: 1,
+            // interactive: false
+        // } : {
+            // color: style.line.color || '#3388ff',
+            // weight: style.line.weight || 3,
+            // opacity: style.line.opacity || 1,
+            // interactive: false
+        // };
+        const lineStyle = {								
+			interactive: false,
+			
+			color: '#0000ff', // Синие линии
+			weight: 3,        // Толстая линия
+			opacity: 1
         };
 
         const polyline = L.polyline(coords, lineStyle).addTo(layerGroup);
