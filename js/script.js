@@ -451,11 +451,58 @@ function parseOpacity(kmlColor) {
 window.permanentLayerGroups = []; // Храним группы слоёв
 
 
-async function fetchText(url) {
-  const resp = await fetch(url);
-  if (!resp.ok) throw new Error(`Failed to fetch ${url}: ${resp.status}`);
+// replace existing fetchText with this robust version
+async function fetchText(urlOrReq) {
+  // For debugging: show what type we get
+  // console.debug('fetchText called with:', urlOrReq);
+
+  let resp;
+  try {
+    if (typeof urlOrReq === 'string' || urlOrReq instanceof String || urlOrReq instanceof URL) {
+      resp = await fetch(String(urlOrReq));
+    } else if (urlOrReq instanceof Request) {
+      resp = await fetch(urlOrReq);
+    } else if (typeof urlOrReq === 'object' && urlOrReq !== null) {
+      // allow { url: '...', init: { ... } } or { href: '...' }
+      const maybeUrl = urlOrReq.url || urlOrReq.href || urlOrReq.path || null;
+      const init = urlOrReq.init || urlOrReq.options || undefined;
+      if (maybeUrl && (typeof maybeUrl === 'string' || maybeUrl instanceof URL)) {
+        resp = await fetch(String(maybeUrl), init);
+      } else {
+        // can't figure out a URL: fail with diagnostic message
+        console.error('fetchText: invalid argument (object without url):', urlOrReq);
+        throw new Error('fetchText: invalid argument (expected URL string or {url:...})');
+      }
+    } else {
+      console.error('fetchText: unsupported argument type:', typeof urlOrReq, urlOrReq);
+      throw new Error('fetchText: unsupported argument type');
+    }
+  } catch (err) {
+    // rethrow with clearer message including original parameter
+    const repr = (typeof urlOrReq === 'string' ? urlOrReq : JSON.stringify(urlOrReq, getCircularReplacer()));
+    throw new Error(`Failed to fetch ${repr}: ${err && err.message ? err.message : err}`);
+  }
+
+  if (!resp || !resp.ok) {
+    const status = resp ? resp.status : 'no-response';
+    const repr = (typeof urlOrReq === 'string' ? urlOrReq : (urlOrReq && urlOrReq.url) ? urlOrReq.url : String(urlOrReq));
+    throw new Error(`Failed to fetch ${repr}: ${status}`);
+  }
   return await resp.text();
 }
+
+// helper to avoid JSON.stringify failing on circular refs in our error message
+function getCircularReplacer() {
+  const seen = new WeakSet();
+  return function(key, value) {
+    if (typeof value === "object" && value !== null) {
+      if (seen.has(value)) return "[Circular]";
+      seen.add(value);
+    }
+    return value;
+  };
+}
+
 
 function parseXml(text) {
   return (new DOMParser()).parseFromString(text, "application/xml");
