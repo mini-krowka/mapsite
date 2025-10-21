@@ -42,7 +42,7 @@
     </StyleMap>
     
     <Placemark>
-      <name>продвижения ВС РФ за 13 - 16 октября</name>
+      <name>продвижения ВСУ за 13 - 16 октября</name>
       <styleUrl>#poly-FFFFFF-180-77-nodesc</styleUrl>
       <MultiGeometry>
         <Polygon>
@@ -654,3 +654,4 @@
     
   </Document>
 </kml>
+
