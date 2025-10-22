@@ -645,9 +645,9 @@ function parsePlacemarksFromKmlDoc(kmlDoc)
                 console.log(`- Raw fill color: ${style.poly?.rawColor || 'not set'}`); 
                 console.log(`- Raw border color: ${style.line?.rawColor || 'not set'}`);
                 console.log('- Applied styles:', {
-                    line-color: style.line.color || '#3388ff',
-                    line-weight: style.line.weight || 3,
-                    line-opac: style.line.weight || 3,
+                    color: style.line.color || '#3388ff',
+                    weight: style.line.weight || 3,
+                    // line-opac: style.line.weight || 3,
                     fillColor: style.poly.fillColor || '#3388ff',
                     fillOpacity: style.poly.fillOpacity || 0.5
                 });
