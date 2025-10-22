@@ -731,11 +731,8 @@ async function loadKmlFile(file, targetCRS) {
         currentLayer = layerGroup;
 
         // Парсим все стили
-        const styles = {};
-        const styleMaps = {};
-
-        styles = parseStyleFromKmlDoc(kmlDoc);
-        styleMaps = parseStyleMapFromKmlDoc(kmlDoc);
+        const styles = parseStyleFromKmlDoc(kmlDoc);
+        const styleMaps = parseStyleMapFromKmlDoc(kmlDoc);
         
         // лог стилей
         if (LOG_TEMPORARY_STYLES) {
@@ -808,12 +805,10 @@ async function loadPermanentKmlLayers() {
                 
                 const layerGroup = L.layerGroup();
 
-                // Парсим все стили
-                const styles = {};
-                const styleMaps = {};
-                
-                styles = parseStyleFromKmlDoc(kmlDoc);
-                styleMaps = parseStyleMapFromKmlDoc(kmlDoc);
+                // Парсим все стили                
+                const styles = parseStyleFromKmlDoc(kmlDoc);
+                const styleMaps = parseStyleMapFromKmlDoc(kmlDoc);
+				
                 // лог стилей
                 if (LOG_TEMPORARY_STYLES) {
                     console.groupCollapsed(`Temporary layer loaded: ${file.path}`);
@@ -2193,4 +2188,5 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
+
 });
