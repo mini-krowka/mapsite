@@ -623,7 +623,7 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup)
             if (coords.length >= 3) {
                 const poly = L.polygon(coords, {
                     color: style.line.color || '#3388ff',
-                    weight: style.line.weight || 3,
+                    weight: style.line.weight || 0,
                     fillColor: style.poly.fillColor || '#3388ff',
                     fillOpacity: style.poly.fillOpacity || 0.5,
                     interactive: false // Отключаем интерактивность полигонов
@@ -2187,5 +2187,6 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
 });
+
 
 
