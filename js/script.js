@@ -629,6 +629,11 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup)
                     interactive: false // Отключаем интерактивность полигонов
                 }).addTo(layerGroup);
 
+                // Обновляем границы
+                if (poly.getBounds && poly.getBounds().isValid()) {
+                    bounds.extend(poly.getBounds());
+                }
+
                 if (name && name.trim() !== '') {
                     addLabelToLayer(name, 'Polygon', coords, layerGroup);
                 }
@@ -652,11 +657,6 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup)
                     fillOpacity: style.poly.fillOpacity || 0.5
                 });
             }
-
-            // Обновляем границы
-            if (poly.getBounds && poly.getBounds().isValid()) {
-                bounds.extend(poly.getBounds());
-            }
         }
 
         // Обработка LineString
@@ -670,6 +670,11 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup)
                     opacity: style.line.opacity || 1,
                     interactive: false
                 }).addTo(layerGroup);
+
+                // Обновляем границы
+                if (polyline.getBounds && polyline.getBounds().isValid()) {
+                    bounds.extend(polyline.getBounds());
+                }
                 
                 if (name && name.trim() !== '') {
                     addLabelToLayer(name, 'LineString', coords, layerGroup);
@@ -690,11 +695,6 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup)
                     weight: style.line.weight || 3,
                     opacity: style.line.opacity || 1
                 });
-            }
-
-            // Обновляем границы
-            if (polyline.getBounds && polyline.getBounds().isValid()) {
-                bounds.extend(polyline.getBounds());
             }
         }
                 
@@ -743,7 +743,7 @@ async function loadKmlFile(file, targetCRS) {
 
         let bounds = L.latLngBounds(); // Инициализация пустыми границами
         
-        bound = parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup);
+        bounds = parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup);
         // Применяем границы только если они валидны
         if (bounds.isValid()) {
             const sw = bounds.getSouthWest();
@@ -817,7 +817,7 @@ async function loadPermanentKmlLayers() {
                 }                           
                 let bounds = L.latLngBounds(); // Инициализация пустыми границами
                 
-                bound = parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup);
+                bounds = parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup);
                 
                 console.log(`Permanent layer loaded: ${layerData.path}`);
 
