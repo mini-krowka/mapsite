@@ -551,7 +551,7 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup)
                     color: '#ff0000', // Красная обводка для видимости
                     weight: 3,        // Толстая линия
                     fillColor: '#ff0000', // Красная заливка
-                    fillOpacity: 0.3 // Низкая непрозрачность
+                    fillOpacity: 0.2 // Низкая непрозрачность
                 }).addTo(layerGroup);
 
                 // Добавляем метку если есть название
@@ -2187,6 +2187,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
 });
+
 
 
 
