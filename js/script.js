@@ -817,7 +817,7 @@ async function loadPermanentKmlLayers() {
                 }                           
                 let bounds = L.latLngBounds(); // Инициализация пустыми границами
                 
-                bound = parsePlacemarksFromKmlDoc(kmlDoc, style, styleMaps, layerGroup);
+                bound = parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup);
                 
                 console.log(`Permanent layer loaded: ${layerData.path}`);
 
@@ -2190,3 +2190,4 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
 });
+
