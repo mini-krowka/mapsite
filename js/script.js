@@ -549,7 +549,7 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup)
                     interactive: false,
                     
                     color: '#ff0000', // Красная обводка для видимости
-                    weight: 1,        // Толстая линия
+                    weight: 0,2,        // Тонкая линия
                     fillColor: '#ff0000', // Красная заливка
                     fillOpacity: 0.3 // Низкая непрозрачность
                 }).addTo(layerGroup);
@@ -2187,6 +2187,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
 });
+
 
 
 
