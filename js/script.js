@@ -483,7 +483,7 @@ function parseStyleMapFromKmlDoc(kmlDoc)
 }
 
 // Обработка Placemarks
-function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps)
+function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup)
 {
     let bounds = L.latLngBounds(); // Инициализация пустыми границами
     let elementCount = 0;
@@ -743,7 +743,7 @@ async function loadKmlFile(file, targetCRS) {
 
         let bounds = L.latLngBounds(); // Инициализация пустыми границами
         
-        bound = parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps);
+        bound = parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup);
         // Применяем границы только если они валидны
         if (bounds.isValid()) {
             const sw = bounds.getSouthWest();
@@ -817,7 +817,7 @@ async function loadPermanentKmlLayers() {
                 }                           
                 let bounds = L.latLngBounds(); // Инициализация пустыми границами
                 
-                bound = parsePlacemarksFromKmlDoc(kmlDoc, style, styleMaps);
+                bound = parsePlacemarksFromKmlDoc(kmlDoc, style, styleMaps, layerGroup);
                 
                 console.log(`Permanent layer loaded: ${layerData.path}`);
 
