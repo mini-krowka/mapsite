@@ -811,7 +811,7 @@ async function loadPermanentKmlLayers() {
 				
                 // лог стилей
                 if (LOG_TEMPORARY_STYLES) {
-                    console.groupCollapsed(`Temporary layer loaded: ${file.path}`);
+                    console.groupCollapsed(`Permanent layer loaded: ${layerData.path}`);
                     console.log('Found styles:', styles);
                     console.log('Found styleMaps:', styleMaps);
                 }                           
@@ -819,9 +819,6 @@ async function loadPermanentKmlLayers() {
                 
                 bounds = parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup);
                 
-                console.log(`Permanent layer loaded: ${layerData.path}`);
-
-
                 layerGroup.addTo(map);
                 window.permanentLayerGroups = window.permanentLayerGroups || [];
                 window.permanentLayerGroups.push(layerGroup);
@@ -839,7 +836,7 @@ async function loadPermanentKmlLayers() {
         }
     } catch (error) {
         console.error("Ошибка загрузки KML: ${file.path} ", error);
-        alert(`Ошибка загрузки файла: ${file.path}\n${error.message}`);
+        alert(`Ошибка загрузки файла: ${layerData.path}\n${error.message}`);
     }
 }
 
@@ -2190,4 +2187,5 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
 });
+
 
