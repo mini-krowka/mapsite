@@ -61,13 +61,14 @@ window.kmlFiles = [
     { name: "11.09.25", path: "kml/ControlZones/Control_25_09_11.kml" },
     { name: "15.09.25", path: "kml/ControlZones/Control_25_09_15.kml" },
     { name: "19.09.25", path: "kml/ControlZones/Control_25_09_19.kml" },
-    { name: "23.09.25", path: "kml/ControlZones/Control_25_09_23.kml" }
+    { name: "23.09.25", path: "kml/ControlZones/Control_25_09_23.kml" },
+	{ name: "21.10.25", path: "kml/ControlZones/Control_25_10_21.kml" }
    ];
 
 // Постоянные слои
 window.permanentLayers = [
     // Текущая ЛБС
-    { name: "Current_frontline",      path: "kml/FrontLine/FrontLine_25_09_19.kml" },
+    { name: "Current_frontline",      path: "kml/FrontLine/FrontLine_25_10_21.kml" },
     // Граница ЛДНР без Ростовской области
     { name: "LDPR",                   path: "kml/PermanentObjects/LDPR_line3.kml" },
     //Конституционная граница РФ
@@ -96,6 +97,7 @@ window.cities = [
     { name: { ru: "Гуляйполе", en: "Gulyaypole" }, lat: 47.66336,  lng:  36.2587   },
     { name: { ru: "Орехов",    en: "Orekhov"    }, lat: 47.5675,   lng:  35.78845  },
 ];
+
 
 
 
