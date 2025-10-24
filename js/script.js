@@ -675,7 +675,8 @@ async function loadBoundsFromKmlFile(path)
 	try{
 		const response = await fetch(path);
 		if (!response.ok) {
-			console.error(`Ошибка загрузки KML (${path}): ${response.status}`);
+			console.error(`Ошибка загрузки KML (${path}): ${response.status}`);			
+			return L.latLngBounds(); // Всегда возвращаем объект bounds
 		}
 		const kmlText = await response.text();
 		const parser = new DOMParser();
@@ -703,6 +704,8 @@ async function loadBoundsFromKmlFile(path)
 	} catch (error) {
         console.error("Ошибка загрузки KML: ${path} ", error);
         alert(`Ошибка загрузки файла: ${path}\n${error.message}`);
+		
+        return L.latLngBounds(); // Всегда возвращаем объект bounds
     }
 }
 
@@ -716,9 +719,9 @@ async function loadKmlFile(file, targetCRS) {
     const currentZoom = map.getZoom();
 
     try {
-		const bounds = loadBoundsFromKmlFile( file.path );
+		const bounds = await loadBoundsFromKmlFile( file.path );
         // Применяем границы только если они валидны
-        if (bounds.isValid()) {
+        if (bounds && bounds.isValid && bounds.isValid()) {
             const sw = bounds.getSouthWest();
             const ne = bounds.getNorthEast();
             const isNotPoint = sw.lat !== ne.lat || sw.lng !== ne.lng;
