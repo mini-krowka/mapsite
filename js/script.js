@@ -656,7 +656,7 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup)
         // Обработка LineString
         const lineString = placemark.querySelector('LineString');
         if (lineString && !multiGeometry) {
-			const polyline = parseAndAddLineString(lineString, false);	
+			const polyline = parseAndAddLineString(lineString, true);	
 		}
                 
         if (LOG_TEMPORARY_STYLES) console.groupEnd(); // Закрываем группу Placemark
