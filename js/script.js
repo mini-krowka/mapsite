@@ -529,51 +529,66 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup)
             } : null);
         }
 
+		function parsePolygon(polygon, styleFromKml)
+		{
+			const coords = parseCoordinates(polygon.querySelector('LinearRing'), map.options.crs);
+                if (coords.length < 3) {
+                    if (LOG_TEMPORARY_STYLES) console.log(`Polygon skipped - insufficient coordinates: ${coords.length}`);
+                    return;
+                }
+
+			const polyStyle = {};
+			
+			if ( styleFromKml )
+				polyStyle = {
+                    color: style.line.color || '#3388ff',
+                    weight: style.line.weight || 0,
+                    fillColor: style.poly.fillColor || '#3388ff',
+                    fillOpacity: style.poly.fillOpacity || 0.5,
+                    interactive: false // Отключаем интерактивность полигонов
+					};
+			else
+				polyStyle = {				
+					color: '#ff0000', // Красная обводка для видимости
+					weight: 0.2,        // Тонкая линия
+					fillColor: '#ff0000', // Красная заливка
+					fillOpacity: 0.3, // Низкая непрозрачность
+					interactive: false
+				};
+
+			// Создаем полигон
+			const poly = L.polygon(coords, polyStyle).addTo(layerGroup);
+			
+			// Обновляем границы				
+			if (poly.getBounds().isValid()) {
+				bounds.extend(poly.getBounds());
+			}
+			// Добавляем метку если есть название
+			if (name && name.trim() !== '') {
+				addLabelToLayer(name, 'Polygon', coords, layerGroup);
+			}			
+
+			// Логирование информации о полигоне
+			if (LOG_TEMPORARY_STYLES) {
+				console.log(`Polygon in MultiGeometry #${++elementCount}:`);
+				console.log('- Coordinates count:', coords.length);
+				console.log('- Applied styles:', {
+					color: polyStyle.color || '#3388ff',
+					weight: polyStyle.weight || 3,
+					fillColor: polyStyle.fillColor || '#3388ff',
+					fillOpacity: polyStyle.fillOpacity || 0.5
+				});
+			}
+			
+			return poly;
+		}
+
         // Обработка MultiGeometry
         const multiGeometry = placemark.querySelector('MultiGeometry');
         if (multiGeometry) {
             // Обработка Polygon в MultiGeometry
-            multiGeometry.querySelectorAll('Polygon').forEach(polygon => {
-                const coords = parseCoordinates(polygon.querySelector('LinearRing'), map.options.crs);
-                if (coords.length < 3) {
-                    if (LOG_TEMPORARY_STYLES) console.log(`Polygon in MultiGeometry skipped - insufficient coordinates: ${coords.length}`);
-                    return;
-                }
-
-                // Создаем полигон с правильными стилями
-                const poly = L.polygon(coords, {
-                    // color: style.line.color || '#3388ff',
-                    // weight: style.line.weight || 3,
-                    // fillColor: style.poly.fillColor || '#3388ff',
-                    // fillOpacity: style.poly.fillOpacity || 0.5,
-                    interactive: false,
-                    
-                    color: '#ff0000', // Красная обводка для видимости
-                    weight: 0.2,        // Тонкая линия
-                    fillColor: '#ff0000', // Красная заливка
-                    fillOpacity: 0.3 // Низкая непрозрачность
-                }).addTo(layerGroup);
-
-                // Добавляем метку если есть название
-                if (name && name.trim() !== '') {
-                    addLabelToLayer(name, 'Polygon', coords, layerGroup);
-                }
-
-                // Логирование информации о полигоне
-                if (LOG_TEMPORARY_STYLES) {
-                    console.log(`Polygon in MultiGeometry #${++elementCount}:`);
-                    console.log('- Coordinates count:', coords.length);
-                    console.log('- Applied styles:', {
-                        color: style.line.color || '#3388ff',
-                        weight: style.line.weight || 3,
-                        fillColor: style.poly.fillColor || '#3388ff',
-                        fillOpacity: style.poly.fillOpacity || 0.5
-                    });
-                }
-
-                if (poly.getBounds().isValid()) {
-                    bounds.extend(poly.getBounds());
-                }
+            multiGeometry.querySelectorAll('Polygon').forEach(polygon => {                
+				const poly = parsePolygon(polygon, false);
             });
 
             // Обработка LineString в MultiGeometry
@@ -618,45 +633,8 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup)
 
         // Обработка Polygon
         const polygon = placemark.querySelector('Polygon');
-        if (polygon && !multiGeometry) {
-            const coords = parseCoordinates(polygon.querySelector('LinearRing'), map.options.crs);                
-            if (coords.length >= 3) {
-                const poly = L.polygon(coords, {
-                    color: style.line.color || '#3388ff',
-                    weight: style.line.weight || 0,
-                    fillColor: style.poly.fillColor || '#3388ff',
-                    fillOpacity: style.poly.fillOpacity || 0.5,
-                    interactive: false // Отключаем интерактивность полигонов
-                }).addTo(layerGroup);
-
-                // Обновляем границы
-                if (poly.getBounds && poly.getBounds().isValid()) {
-                    bounds.extend(poly.getBounds());
-                }
-
-                if (name && name.trim() !== '') {
-                    addLabelToLayer(name, 'Polygon', coords, layerGroup);
-                }
-            }
-            else {
-                if (LOG_TEMPORARY_STYLES) console.log(`Polygon skipped - insufficient coordinates: ${coords.length}`);
-                return;
-            }
-
-            // Логирование информации о полигоне
-            if (LOG_TEMPORARY_STYLES) {
-                console.log(`Polygon #${++elementCount}:`);
-                console.log('- Coordinates count:', coords.length);
-                console.log(`- Raw fill color: ${style.poly?.rawColor || 'not set'}`); 
-                console.log(`- Raw border color: ${style.line?.rawColor || 'not set'}`);
-                console.log('- Applied styles:', {
-                    color: style.line.color || '#3388ff',
-                    weight: style.line.weight || 3,
-                    // line-opac: style.line.weight || 3,
-                    fillColor: style.poly.fillColor || '#3388ff',
-                    fillOpacity: style.poly.fillOpacity || 0.5
-                });
-            }
+        if (polygon && !multiGeometry) {                
+				const poly = parsePolygon(polygon, false);
         }
 
         // Обработка LineString
