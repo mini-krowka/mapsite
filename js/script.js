@@ -670,7 +670,7 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup)
     return bounds;
 }
 
-function loadBoundsFromKmlFile(path)
+async function loadBoundsFromKmlFile(path)
 {
 	try{
 		const response = await fetch(path);
