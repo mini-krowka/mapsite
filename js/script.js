@@ -546,7 +546,7 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup)
                     fillColor: style.poly.fillColor || '#3388ff',
                     fillOpacity: style.poly.fillOpacity || 0.5,
                     interactive: false // Отключаем интерактивность полигонов
-					};
+				};
 			else
 				polyStyle = {				
 					color: '#ff0000', // Красная обводка для видимости
@@ -563,7 +563,7 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup)
 			if (poly.getBounds().isValid()) {
 				bounds.extend(poly.getBounds());
 			}
-			// Добавляем метку если есть название
+			// Добавляем метку, если есть название
 			if (name && name.trim() !== '') {
 				addLabelToLayer(name, 'Polygon', coords, layerGroup);
 			}			
@@ -582,6 +582,56 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup)
 			
 			return poly;
 		}
+		
+		function parseAndAddLineString(lineString, styleFromKml)
+		{
+			const coords = parseCoordinates(lineString, map.options.crs);
+                if (coords.length < 2) {
+                    if (LOG_TEMPORARY_STYLES) console.log(`LineString skipped - insufficient coordinates: ${coords.length}`);
+                    return;
+                }
+				
+				let lineStyle = {};				
+				
+				if ( styleFromKml )
+					lineStyle = {
+						color: style.line.color || '#3388ff',
+						weight: style.line.weight || 3,
+						opacity: style.line.opacity || 1,
+						interactive: false // Отключаем интерактивность полигонов
+					};
+				else
+					lineStyle = {	                    
+						color: '#0000ff', // Синие линии
+						weight: 3,        // Толстая линия
+						opacity: 1,
+						interactive: false
+					};
+				
+
+                const polyline = L.polyline(coords, lineStyle).addTo(layerGroup);
+
+				// Обновляем границы	
+                if (polyline.getBounds().isValid()) {
+                    bounds.extend(polyline.getBounds());
+                }
+				// Добавляем метку, если есть название                
+                if (name && name.trim() !== '') {
+                    addLabelToLayer(name, 'LineString', coords, layerGroup);
+                }
+
+                // Логирование информации о линии
+                if (LOG_TEMPORARY_STYLES) {
+                    console.log(`LineString in MultiGeometry #${++elementCount}:`);
+                    console.log('- Coordinates count:', coords.length);
+                    console.log('- Applied styles:', {
+                        color: lineStyle.color || '#3388ff',
+                        weight: lineStyle.weight || 3,
+                        opacity: lineStyle.opacity || 1
+                    });
+                }
+				return polyline;
+		}
 
         // Обработка MultiGeometry
         const multiGeometry = placemark.querySelector('MultiGeometry');
@@ -593,41 +643,7 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup)
 
             // Обработка LineString в MultiGeometry
             multiGeometry.querySelectorAll('LineString').forEach(lineString => {
-                const coords = parseCoordinates(lineString, map.options.crs);
-                if (coords.length < 2) {
-                    if (LOG_TEMPORARY_STYLES) console.log(`LineString in MultiGeometry skipped - insufficient coordinates: ${coords.length}`);
-                    return;
-                }
-
-                const polyline = L.polyline(coords, {
-                    // color: style.line.color || '#3388ff',
-                    // weight: style.line.weight || 3,
-                    // opacity: style.line.opacity || 1,
-                    interactive: false,
-                    
-                    color: '#0000ff', // Синие линии
-                    weight: 3,        // Толстая линия
-                    opacity: 1
-                }).addTo(layerGroup);
-                
-                if (name && name.trim() !== '') {
-                    addLabelToLayer(name, 'LineString', coords, layerGroup);
-                }
-
-                // Логирование информации о линии
-                if (LOG_TEMPORARY_STYLES) {
-                    console.log(`LineString in MultiGeometry #${++elementCount}:`);
-                    console.log('- Coordinates count:', coords.length);
-                    console.log('- Applied styles:', {
-                        color: style.line.color || '#3388ff',
-                        weight: style.line.weight || 3,
-                        opacity: style.line.opacity || 1
-                    });
-                }
-
-                if (polyline.getBounds().isValid()) {
-                    bounds.extend(polyline.getBounds());
-                }
+                const polyline = parseAndAddLineString(lineString, false);
             });
         }
 
@@ -640,41 +656,8 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup)
         // Обработка LineString
         const lineString = placemark.querySelector('LineString');
         if (lineString && !multiGeometry) {
-            const coords = parseCoordinates(lineString, map.options.crs);
-            if (coords.length >= 2) {
-                const polyline = L.polyline(coords, {
-                    color: style.line.color || '#3388ff',
-                    weight: style.line.weight || 3,
-                    opacity: style.line.opacity || 1,
-                    interactive: false
-                }).addTo(layerGroup);
-
-                // Обновляем границы
-                if (polyline.getBounds && polyline.getBounds().isValid()) {
-                    bounds.extend(polyline.getBounds());
-                }
-                
-                if (name && name.trim() !== '') {
-                    addLabelToLayer(name, 'LineString', coords, layerGroup);
-                }
-            }
-            else {
-                if (LOG_TEMPORARY_STYLES) console.log(`Single LineString skipped - insufficient coordinates: ${coords.length}`);
-                return;
-            }
-
-            // Логирование информации о линии
-            if (LOG_TEMPORARY_STYLES) {
-                console.log(`LineString #${++elementCount}:`);
-                console.log('- Coordinates count:', coords.length);
-                console.log(`- Raw color: ${style.line?.rawColor || 'not set'}`);
-                console.log('- Applied styles:', {
-                    color: style.line.color || '#3388ff',
-                    weight: style.line.weight || 3,
-                    opacity: style.line.opacity || 1
-                });
-            }
-        }
+			const polyline = parseAndAddLineString(lineString, false);	
+		}
                 
         if (LOG_TEMPORARY_STYLES) console.groupEnd(); // Закрываем группу Placemark
     });
