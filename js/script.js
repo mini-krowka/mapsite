@@ -529,7 +529,7 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup)
             } : null);
         }
 
-		function parsePolygon(polygon, styleFromKml)
+		function parseAndAddPolygon(polygon, styleFromKml)
 		{
 			const coords = parseCoordinates(polygon.querySelector('LinearRing'), map.options.crs);
                 if (coords.length < 3) {
@@ -537,7 +537,7 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup)
                     return;
                 }
 
-			const polyStyle = {};
+			let polyStyle = {};
 			
 			if ( styleFromKml )
 				polyStyle = {
@@ -588,7 +588,7 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup)
         if (multiGeometry) {
             // Обработка Polygon в MultiGeometry
             multiGeometry.querySelectorAll('Polygon').forEach(polygon => {                
-				const poly = parsePolygon(polygon, false);
+				const poly = parseAndAddPolygon(polygon, false);
             });
 
             // Обработка LineString в MultiGeometry
@@ -634,7 +634,7 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup)
         // Обработка Polygon
         const polygon = placemark.querySelector('Polygon');
         if (polygon && !multiGeometry) {                
-				const poly = parsePolygon(polygon, false);
+				const poly = parseAndAddPolygon(polygon, false);
         }
 
         // Обработка LineString
