@@ -12,7 +12,7 @@ copyCoordsBtn = document.getElementById('copy-coords-btn');
 let selectedDate = null; // Глобальная переменная для хранения текущей даты
 
 // Глобальный флаг для логгирования стилей временных файлов
-const LOG_TEMPORARY_STYLES = true; // Можно менять на false для отключения
+const LOG_STYLES = true; // Можно менять на false для отключения
 
 // Получаем массив доступных дат из kmlFiles
 const availableDates = kmlFiles.map(file => file.name);
@@ -511,7 +511,7 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup)
         const name = placemark.querySelector('name')?.textContent;
 
         // Логирование
-        if (LOG_TEMPORARY_STYLES)
+        if (LOG_STYLES)
         {
             console.groupCollapsed(`Placemark styles: ${placemark.querySelector('name')?.textContent || 'unnamed'}`);
             console.log('Name:', name);
@@ -533,7 +533,7 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup)
 		{
 			const coords = parseCoordinates(polygon.querySelector('LinearRing'), map.options.crs);
                 if (coords.length < 3) {
-                    if (LOG_TEMPORARY_STYLES) console.log(`Polygon skipped - insufficient coordinates: ${coords.length}`);
+                    if (LOG_STYLES) console.log(`Polygon skipped - insufficient coordinates: ${coords.length}`);
                     return;
                 }
 
@@ -569,7 +569,7 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup)
 			}			
 
 			// Логирование информации о полигоне
-			if (LOG_TEMPORARY_STYLES) {
+			if (LOG_STYLES) {
 				console.log(`Polygon in MultiGeometry #${++elementCount}:`);
 				console.log('- Coordinates count:', coords.length);
 				console.log('- Applied styles:', {
@@ -587,7 +587,7 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup)
 		{
 			const coords = parseCoordinates(lineString, map.options.crs);
                 if (coords.length < 2) {
-                    if (LOG_TEMPORARY_STYLES) console.log(`LineString skipped - insufficient coordinates: ${coords.length}`);
+                    if (LOG_STYLES) console.log(`LineString skipped - insufficient coordinates: ${coords.length}`);
                     return;
                 }
 				
@@ -621,7 +621,7 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup)
                 }
 
                 // Логирование информации о линии
-                if (LOG_TEMPORARY_STYLES) {
+                if (LOG_STYLES) {
                     console.log(`LineString in MultiGeometry #${++elementCount}:`);
                     console.log('- Coordinates count:', coords.length);
                     console.log('- Applied styles:', {
@@ -659,15 +659,51 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup)
 			const polyline = parseAndAddLineString(lineString, true);	
 		}
                 
-        if (LOG_TEMPORARY_STYLES) console.groupEnd(); // Закрываем группу Placemark
+        if (LOG_STYLES) console.groupEnd(); // Закрываем группу Placemark
     });
     
-    if (LOG_TEMPORARY_STYLES) {
+    if (LOG_STYLES) {
         console.log(`Total elements: ${elementCount}`);
         console.groupEnd(); // Закрываем группу  слоя
     }
                 
     return bounds;
+}
+
+function loadBoundsFromKmlFile(path)
+{
+	try{
+		const response = await fetch(path);
+		if (!response.ok) {
+			console.error(`Ошибка загрузки KML (${path}): ${response.status}`);
+		}
+		const kmlText = await response.text();
+		const parser = new DOMParser();
+		const kmlDoc = parser.parseFromString(kmlText, "text/xml");
+
+		const layerGroup = L.layerGroup().addTo(map);
+		currentLayer = layerGroup;
+
+		// Парсим все стили
+		const styles = parseStyleFromKmlDoc(kmlDoc);
+		const styleMaps = parseStyleMapFromKmlDoc(kmlDoc);
+		
+		// лог стилей
+		if (LOG_STYLES) {
+			console.groupCollapsed(`Temporary layer loaded: ${path}`);
+			console.log('Found styles:', styles);
+			console.log('Found styleMaps:', styleMaps);
+		}
+
+		let bounds = L.latLngBounds(); // Инициализация пустыми границами
+		
+		bounds = parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup);
+		
+		return bounds;	
+	} catch (error) {
+        console.error("Ошибка загрузки KML: ${path} ", error);
+        alert(`Ошибка загрузки файла: ${path}\n${error.message}`);
+    }
 }
 
 // Функция загрузки основного KML (с сохранением оригинальных стилей)
@@ -680,31 +716,7 @@ async function loadKmlFile(file, targetCRS) {
     const currentZoom = map.getZoom();
 
     try {
-        const response = await fetch(file.path);
-        if (!response.ok) {
-            console.error(`Ошибка загрузки KML (${file.path}): ${response.status}`);
-        }
-        const kmlText = await response.text();
-        const parser = new DOMParser();
-        const kmlDoc = parser.parseFromString(kmlText, "text/xml");
-
-        const layerGroup = L.layerGroup().addTo(map);
-        currentLayer = layerGroup;
-
-        // Парсим все стили
-        const styles = parseStyleFromKmlDoc(kmlDoc);
-        const styleMaps = parseStyleMapFromKmlDoc(kmlDoc);
-        
-        // лог стилей
-        if (LOG_TEMPORARY_STYLES) {
-            console.groupCollapsed(`Temporary layer loaded: ${file.path}`);
-            console.log('Found styles:', styles);
-            console.log('Found styleMaps:', styleMaps);
-        }
-
-        let bounds = L.latLngBounds(); // Инициализация пустыми границами
-        
-        bounds = parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup);
+		const bounds = loadBoundsFromKmlFile( file.path );
         // Применяем границы только если они валидны
         if (bounds.isValid()) {
             const sw = bounds.getSouthWest();
@@ -721,8 +733,7 @@ async function loadKmlFile(file, targetCRS) {
         }
         preserveZoom = true;
     } catch (error) {
-        console.error("Ошибка загрузки KML: ${file.path} ", error);
-        alert(`Ошибка загрузки файла: ${file.path}\n${error.message}`);
+        console.error("loadKmlFile: ${file.path} ", error);
     }
 }
 
@@ -771,7 +782,7 @@ async function loadPermanentKmlLayers() {
                 const styleMaps = parseStyleMapFromKmlDoc(kmlDoc);
 				
                 // лог стилей
-                if (LOG_TEMPORARY_STYLES) {
+                if (LOG_STYLES) {
                     console.groupCollapsed(`Permanent layer loaded: ${layerData.path}`);
                     console.log('Found styles:', styles);
                     console.log('Found styleMaps:', styleMaps);
