@@ -634,7 +634,7 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup)
         // Обработка Polygon
         const polygon = placemark.querySelector('Polygon');
         if (polygon && !multiGeometry) {                
-				const poly = parseAndAddPolygon(polygon, false);
+				const poly = parseAndAddPolygon(polygon, true);
         }
 
         // Обработка LineString
