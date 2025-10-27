@@ -767,38 +767,14 @@ async function loadPermanentKmlLayers() {
             console.log("Загрузка постоянного слоя:", layerData.path);
             
             try {
-                const response = await fetch(layerData.path);
-                if (!response.ok) {
-                    console.error(`Ошибка загрузки KML (${layerData.path}): ${response.status}`);
-                    continue;
-                }
-                
-                const kmlText = await response.text();
-                const parser = new DOMParser();
-                const kmlDoc = parser.parseFromString(kmlText, "text/xml");
-                
-                const layerGroup = L.layerGroup();
+                const layerGroup = L.layerGroup().addTo(map);
+                const bounds = await loadBoundsFromKmlFile( file.path, layerGroup );
 
-                // Парсим все стили                
-                const styles = parseStyleFromKmlDoc(kmlDoc);
-                const styleMaps = parseStyleMapFromKmlDoc(kmlDoc);
-				
-                // лог стилей
-                if (LOG_STYLES) {
-                    console.groupCollapsed(`Permanent layer loaded: ${layerData.path}`);
-                    console.log('Found styles:', styles);
-                    console.log('Found styleMaps:', styleMaps);
-                }                           
-                let bounds = L.latLngBounds(); // Инициализация пустыми границами
-                
-                bounds = parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup);
-                
-                layerGroup.addTo(map);
                 window.permanentLayerGroups = window.permanentLayerGroups || [];
                 window.permanentLayerGroups.push(layerGroup);
                 
                 // Применяем границы только если они валидны
-                if (bounds.isValid()) {
+                if (bounds && bounds.isValid && bounds.isValid()) {
                     const sw = bounds.getSouthWest();
                     const ne = bounds.getNorthEast();
                     const isNotPoint = sw.lat !== ne.lat || sw.lng !== ne.lng;        
