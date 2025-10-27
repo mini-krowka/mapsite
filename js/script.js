@@ -819,30 +819,57 @@ async function loadPermanentKmlLayers() {
             window.permanentLayerGroups = [];
         }
 
-        for (const layerData of window.permanentLayers) {
+        // Параллельная загрузка всех постоянных слоев
+        const loadPromises = window.permanentLayers.map(async (layerData) => {
             if (!layerData.path) {
                 console.error("Отсутствует путь для постоянного слоя:", layerData);
-                continue;
+                return null;
             }
             
             console.log("Загрузка постоянного слоя:", layerData.path);
             
             try {
-                const layerGroup = L.layerGroup().addTo(map);
-                // Загружаем границы и всё-всё из kml
-                const bounds = await loadBoundsFromKmlFile( layerData.path, layerGroup );
+                const layerGroup = L.layerGroup();
+                const result = await loadKmlToLayer(layerData.path, layerGroup, {
+                    isPermanent: true,
+                    preserveZoom: false,
+                    fitBounds: false
+                });
 
-                window.permanentLayerGroups = window.permanentLayerGroups || [];
-                window.permanentLayerGroups.push(layerGroup);
-                // Применяем границы
-                applyPermanentLayersBounds(bounds);
+                // Добавляем слой на карту после успешной загрузки
+                layerGroup.addTo(map);
+                return result;
             } catch (error) {
                 console.error(`Ошибка обработки слоя ${layerData.path}:`, error);
+                return null;
             }
+        });
+
+        // Ожидаем завершения всех загрузок
+        const results = await Promise.all(loadPromises);
+        
+        // Сохраняем ссылки на группы слоев
+        window.permanentLayerGroups = results
+            .filter(result => result !== null)
+            .map(result => result.layerGroup);
+
+        // Вычисляем объединенные границы всех валидных слоев
+        const validBounds = results
+            .filter(result => result !== null && result.bounds.isValid())
+            .map(result => result.bounds);
+
+        if (validBounds.length > 0) {
+            const allBounds = validBounds.reduce((combined, bounds) => {
+                return combined.extend(bounds);
+            }, L.latLngBounds());
+            
+            applyPermanentLayersBounds(allBounds);
+        } else {
+            console.warn("Ни один постоянный слой не содержит валидных границ");
         }
+        
     } catch (error) {
-        console.error("Ошибка загрузки KML: ${file.path} ", error);
-        alert(`Ошибка загрузки файла: ${layerData.path}\n${error.message}`);
+        console.error("Ошибка загрузки постоянных KML слоев:", error);
     }
 }
 
