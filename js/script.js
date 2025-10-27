@@ -768,7 +768,7 @@ async function loadPermanentKmlLayers() {
             
             try {
                 const layerGroup = L.layerGroup().addTo(map);
-                const bounds = await loadBoundsFromKmlFile( file.path, layerGroup );
+                const bounds = await loadBoundsFromKmlFile( layerData.path, layerGroup );
 
                 window.permanentLayerGroups = window.permanentLayerGroups || [];
                 window.permanentLayerGroups.push(layerGroup);
