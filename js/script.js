@@ -706,6 +706,46 @@ async function loadBoundsFromKmlFile(path, layerGroup)
     }
 }
 
+// Универсальная функция загрузки KML
+async function loadKmlToLayer(filePath, layerGroup, options = {}) {
+    const {
+        isPermanent = false,
+        preserveZoom = false,
+        fitBounds = true
+    } = options;
+
+    try {
+        const response = await fetch(filePath);
+        if (!response.ok) {
+            console.error(`Ошибка загрузки KML (${filePath}): ${response.status}`);
+            return { bounds: L.latLngBounds(), layerGroup };
+        }
+
+        const kmlText = await response.text();
+        const parser = new DOMParser();
+        const kmlDoc = parser.parseFromString(kmlText, "text/xml");
+
+        // Общая логика парсинга
+        const styles = parseStyleFromKmlDoc(kmlDoc);
+        const styleMaps = parseStyleMapFromKmlDoc(kmlDoc);
+        
+        if (LOG_STYLES) {
+            console.groupCollapsed(`${isPermanent ? 'Permanent' : 'Temporary'} layer loaded: ${filePath}`);
+            console.log('Found styles:', styles);
+            console.log('Found styleMaps:', styleMaps);
+        }
+
+        const bounds = parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup);
+        
+        if (LOG_STYLES) console.groupEnd();
+        
+        return { bounds, layerGroup };
+    } catch (error) {
+        console.error(`Ошибка загрузки KML: ${filePath}`, error);
+        return { bounds: L.latLngBounds(), layerGroup };
+    }
+}
+
 // Вспомогательная функция для применения границ
 // Для временных слоев
 function applyTemporaryLayerBounds(bounds, currentCenter, currentZoom, preserveZoom) {
@@ -737,15 +777,22 @@ async function loadKmlFile(file, targetCRS) {
         map.removeLayer(currentLayer);
     }
 
-    const currentCenter = map.getCenter();
-    const currentZoom = map.getZoom();
-
     try {
-		const layerGroup = L.layerGroup().addTo(map);
-		currentLayer = layerGroup;
         // Загружаем границы и всё-всё из kml
-		const bounds = await loadBoundsFromKmlFile( file.path, layerGroup );
+        
+        const layerGroup = L.layerGroup().addTo(map);
+        currentLayer = layerGroup;
+        
+        const { bounds } = await loadKmlToLayer(file.path, layerGroup, {
+            isPermanent: false,
+            preserveZoom: preserveZoom,
+            fitBounds: true
+        });
+        
         // Применяем границы
+
+        const currentCenter = map.getCenter();
+        const currentZoom = map.getZoom();
         applyTemporaryLayerBounds(bounds, currentCenter, currentZoom, preserveZoom);
         preserveZoom = true;
     } catch (error) {
