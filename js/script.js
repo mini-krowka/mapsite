@@ -670,20 +670,17 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup)
     return bounds;
 }
 
-async function loadBoundsFromKmlFile(path)
+async function loadBoundsFromKmlFile(path, layerGroup)
 {
 	try{
 		const response = await fetch(path);
 		if (!response.ok) {
-			console.error(`Ошибка загрузки KML (${path}): ${response.status}`);			
+			console.error(`Ошибка загрузки KML (${path}): ${response.status}`);
 			return L.latLngBounds(); // Всегда возвращаем объект bounds
 		}
 		const kmlText = await response.text();
 		const parser = new DOMParser();
 		const kmlDoc = parser.parseFromString(kmlText, "text/xml");
-
-		const layerGroup = L.layerGroup().addTo(map);
-		currentLayer = layerGroup;
 
 		// Парсим все стили
 		const styles = parseStyleFromKmlDoc(kmlDoc);
@@ -700,7 +697,7 @@ async function loadBoundsFromKmlFile(path)
 		
 		bounds = parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup);
 		
-		return bounds;	
+		return bounds;
 	} catch (error) {
         console.error("Ошибка загрузки KML: ${path} ", error);
         alert(`Ошибка загрузки файла: ${path}\n${error.message}`);
@@ -719,7 +716,9 @@ async function loadKmlFile(file, targetCRS) {
     const currentZoom = map.getZoom();
 
     try {
-		const bounds = await loadBoundsFromKmlFile( file.path );
+		const layerGroup = L.layerGroup().addTo(map);
+		currentLayer = layerGroup;
+		const bounds = await loadBoundsFromKmlFile( file.path, layerGroup );
         // Применяем границы только если они валидны
         if (bounds && bounds.isValid && bounds.isValid()) {
             const sw = bounds.getSouthWest();
