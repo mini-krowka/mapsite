@@ -706,6 +706,31 @@ async function loadBoundsFromKmlFile(path, layerGroup)
     }
 }
 
+// Вспомогательная функция для применения границ
+// Для временных слоев
+function applyTemporaryLayerBounds(bounds, currentCenter, currentZoom, preserveZoom) {
+    if (bounds && bounds.isValid && bounds.isValid()) {
+        const sw = bounds.getSouthWest();
+        const ne = bounds.getNorthEast();
+        const isNotPoint = sw.lat !== ne.lat || sw.lng !== ne.lng;
+        
+        if (!preserveZoom && isNotPoint) {
+            map.fitBounds(bounds);
+        } else {
+            map.setView(currentCenter, currentZoom);
+        }
+    } else {
+        map.setView(currentCenter, currentZoom);
+    }
+}
+// Для постоянных слоев  
+function applyPermanentLayersBounds(allBounds) {
+    if (allBounds && allBounds.isValid && allBounds.isValid()) {
+        map.fitBounds(allBounds);
+    }
+    // Если границы невалидны - ничего не делаем, оставляем текущий вид
+}
+
 // Функция загрузки основного KML (с сохранением оригинальных стилей)
 async function loadKmlFile(file, targetCRS) {
     if (currentLayer) {
@@ -718,21 +743,10 @@ async function loadKmlFile(file, targetCRS) {
     try {
 		const layerGroup = L.layerGroup().addTo(map);
 		currentLayer = layerGroup;
+        // Загружаем границы и всё-всё из kml
 		const bounds = await loadBoundsFromKmlFile( file.path, layerGroup );
-        // Применяем границы только если они валидны
-        if (bounds && bounds.isValid && bounds.isValid()) {
-            const sw = bounds.getSouthWest();
-            const ne = bounds.getNorthEast();
-            const isNotPoint = sw.lat !== ne.lat || sw.lng !== ne.lng;
-            
-            if (!preserveZoom && isNotPoint) {
-                map.fitBounds(bounds);
-            } else {
-                map.setView(currentCenter, currentZoom);
-            }
-        } else {
-            map.setView(currentCenter, currentZoom);
-        }
+        // Применяем границы
+        applyTemporaryLayerBounds(bounds, currentCenter, currentZoom, preserveZoom);
         preserveZoom = true;
     } catch (error) {
         console.error("loadKmlFile: ${file.path} ", error);
@@ -768,18 +782,13 @@ async function loadPermanentKmlLayers() {
             
             try {
                 const layerGroup = L.layerGroup().addTo(map);
+                // Загружаем границы и всё-всё из kml
                 const bounds = await loadBoundsFromKmlFile( layerData.path, layerGroup );
 
                 window.permanentLayerGroups = window.permanentLayerGroups || [];
                 window.permanentLayerGroups.push(layerGroup);
-                
-                // Применяем границы только если они валидны
-                if (bounds && bounds.isValid && bounds.isValid()) {
-                    const sw = bounds.getSouthWest();
-                    const ne = bounds.getNorthEast();
-                    const isNotPoint = sw.lat !== ne.lat || sw.lng !== ne.lng;        
-                    map.fitBounds(bounds);
-                }
+                // Применяем границы
+                applyPermanentLayersBounds(bounds);
             } catch (error) {
                 console.error(`Ошибка обработки слоя ${layerData.path}:`, error);
             }
