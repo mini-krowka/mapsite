@@ -512,7 +512,7 @@ window.kmlStyles = {
 
 // Функция для определения режима стиля по пути файла
 function getStyleModeForFile(filePath) {
-    if (filePath.includes('MultiGeometry') || filePath.includes('Progress_')) 
+    if (filePath.includes('MultiGeometry')) 
         return window.kmlStyleModes.STYLE_A;
     else if (filePath.includes('RuAF'))
         return window.kmlStyleModes.STYLE_B;
