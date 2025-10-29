@@ -43,7 +43,7 @@
     
   
     <Placemark>
-      <name>продвижения ВСУ за 25 - 28 октября</name>
+      <name> </name>
       <styleUrl>#poly-FFFFFF-180-77-nodesc</styleUrl>
       <MultiGeometry>
         <Polygon>
@@ -134,3 +134,4 @@
     
   </Document>
 </kml>
+
