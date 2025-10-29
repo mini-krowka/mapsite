@@ -450,6 +450,77 @@ function parseOpacity(kmlColor) {
 
 window.permanentLayerGroups = []; // Храним группы слоёв
 
+// Конфигурация стилей для KML-файлов
+window.kmlStyleModes = {
+    // Стиль по умолчанию - из KML файла
+    DEFAULT: 'kml',
+    
+    // Заданные стили
+    STYLE_A: 'styleA', // Для мультиполигональных файлов
+    STYLE_B: 'styleB', // Для файлов из RuAF
+    STYLE_C: 'styleC'  // Для файлов из AFU
+};
+
+// Определение стилей
+window.kmlStyles = {
+    [window.kmlStyleModes.STYLE_A]: {
+        polygon: {
+            color: '#ff0000', // Красная обводка для видимости
+            weight: 0.2, // Тонкая линия
+            fillColor: '#ff0000', // Красная заливка
+            fillOpacity: 0.3, // Низкая непрозрачность
+            interactive: false
+        },
+        polyline: {
+            color: '#0000ff', // Синие линии
+            weight: 3, // Толстая линия
+            opacity: 1,
+            interactive: false
+        }
+    },
+    [window.kmlStyleModes.STYLE_B]: {
+        polygon: {
+            color: '#00ff00',
+            weight: 2,
+            fillColor: '#00ff00',
+            fillOpacity: 0.4,
+            interactive: false
+        },
+        polyline: {
+            color: '#ff00ff',
+            weight: 4,
+            opacity: 0.8,
+            interactive: false
+        }
+    },
+    [window.kmlStyleModes.STYLE_C]: {
+        polygon: {
+            color: '#00ffff',
+            weight: 2,
+            fillColor: '#00ffff',
+            fillOpacity: 0.4,
+            interactive: false
+        },
+        polyline: {
+            color: '#00ffff',
+            weight: 4,
+            opacity: 0.8,
+            interactive: false
+        }
+    }
+};
+
+// Функция для определения режима стиля по пути файла
+function getStyleModeForFile(filePath) {
+    if (filePath.includes('MultiGeometry') || filePath.includes('Progress_')) 
+        return window.kmlStyleModes.STYLE_A;
+    else if (filePath.includes('RuAF'))
+        return window.kmlStyleModes.STYLE_B;
+    else if (filePath.includes('AFU')) 
+        return window.kmlStyleModes.STYLE_C;
+    else
+        return window.kmlStyleModes.DEFAULT;
+}
 
 // Обрабатываем обычные стили
 function parseStyleFromKmlDoc(kmlDoc)
@@ -483,7 +554,7 @@ function parseStyleMapFromKmlDoc(kmlDoc)
 }
 
 // Обработка Placemarks
-function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup)
+function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup,  styleMode = window.kmlStyleModes.DEFAULT)
 {
     let bounds = L.latLngBounds(); // Инициализация пустыми границами
     let elementCount = 0;
@@ -529,7 +600,7 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup)
             } : null);
         }
 
-		function parseAndAddPolygon(polygon, styleFromKml)
+		function parseAndAddPolygon(polygon)
 		{
 			const coords = parseCoordinates(polygon.querySelector('LinearRing'), map.options.crs);
                 if (coords.length < 3) {
@@ -539,7 +610,7 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup)
 
 			let polyStyle = {};
 			
-			if ( styleFromKml )
+			if (styleMode === window.kmlStyleModes.DEFAULT)
 				polyStyle = {
                     color: style.line.color || '#3388ff',
                     weight: style.line.weight || 0,
@@ -548,13 +619,7 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup)
                     interactive: false // Отключаем интерактивность полигонов
 				};
 			else
-				polyStyle = {				
-					color: '#ff0000', // Красная обводка для видимости
-					weight: 0.2,        // Тонкая линия
-					fillColor: '#ff0000', // Красная заливка
-					fillOpacity: 0.3, // Низкая непрозрачность
-					interactive: false
-				};
+				polyStyle = window.kmlStyles[styleMode].polygon;
 
 			// Создаем полигон
 			const poly = L.polygon(coords, polyStyle).addTo(layerGroup);
@@ -583,7 +648,7 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup)
 			return poly;
 		}
 		
-		function parseAndAddLineString(lineString, styleFromKml)
+		function parseAndAddLineString(lineString)
 		{
 			const coords = parseCoordinates(lineString, map.options.crs);
                 if (coords.length < 2) {
@@ -593,7 +658,7 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup)
 				
 				let lineStyle = {};				
 				
-				if ( styleFromKml )
+				if (styleMode === window.kmlStyleModes.DEFAULT)
 					lineStyle = {
 						color: style.line.color || '#3388ff',
 						weight: style.line.weight || 3,
@@ -601,12 +666,7 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup)
 						interactive: false // Отключаем интерактивность полигонов
 					};
 				else
-					lineStyle = {	                    
-						color: '#0000ff', // Синие линии
-						weight: 3,        // Толстая линия
-						opacity: 1,
-						interactive: false
-					};
+					lineStyle = window.kmlStyles[styleMode].polyline;
 				
 
                 const polyline = L.polyline(coords, lineStyle).addTo(layerGroup);
@@ -638,25 +698,25 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup)
         if (multiGeometry) {
             // Обработка Polygon в MultiGeometry
             multiGeometry.querySelectorAll('Polygon').forEach(polygon => {                
-				const poly = parseAndAddPolygon(polygon, false);
+				const poly = parseAndAddPolygon(polygon);
             });
 
             // Обработка LineString в MultiGeometry
             multiGeometry.querySelectorAll('LineString').forEach(lineString => {
-                const polyline = parseAndAddLineString(lineString, false);
+                const polyline = parseAndAddLineString(lineString);
             });
         }
 
         // Обработка Polygon
         const polygon = placemark.querySelector('Polygon');
         if (polygon && !multiGeometry) {                
-				const poly = parseAndAddPolygon(polygon, true);
+				const poly = parseAndAddPolygon(polygon);
         }
 
         // Обработка LineString
         const lineString = placemark.querySelector('LineString');
         if (lineString && !multiGeometry) {
-			const polyline = parseAndAddLineString(lineString, true);	
+			const polyline = parseAndAddLineString(lineString); ///////////
 		}
                 
         if (LOG_STYLES) console.groupEnd(); // Закрываем группу Placemark
@@ -670,51 +730,55 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup)
     return bounds;
 }
 
-async function loadBoundsFromKmlFile(path, layerGroup)
-{
-	try{
-		const response = await fetch(path);
-		if (!response.ok) {
-			console.error(`Ошибка загрузки KML (${path}): ${response.status}`);
-			return L.latLngBounds(); // Всегда возвращаем объект bounds
-		}
-		const kmlText = await response.text();
-		const parser = new DOMParser();
-		const kmlDoc = parser.parseFromString(kmlText, "text/xml");
+// async function loadBoundsFromKmlFile(path, layerGroup)
+// {
+	// try{
+		// const response = await fetch(path);
+		// if (!response.ok) {
+			// console.error(`Ошибка загрузки KML (${path}): ${response.status}`);
+			// return L.latLngBounds(); // Всегда возвращаем объект bounds
+		// }
+		// const kmlText = await response.text();
+		// const parser = new DOMParser();
+		// const kmlDoc = parser.parseFromString(kmlText, "text/xml");
 
-		// Парсим все стили
-		const styles = parseStyleFromKmlDoc(kmlDoc);
-		const styleMaps = parseStyleMapFromKmlDoc(kmlDoc);
+		//// Парсим все стили
+		// const styles = parseStyleFromKmlDoc(kmlDoc);
+		// const styleMaps = parseStyleMapFromKmlDoc(kmlDoc);
 		
-		// лог стилей
-		if (LOG_STYLES) {
-			console.groupCollapsed(`Temporary layer loaded: ${path}`);
-			console.log('Found styles:', styles);
-			console.log('Found styleMaps:', styleMaps);
-		}
+		////лог стилей
+		// if (LOG_STYLES) {
+			// console.groupCollapsed(`Temporary layer loaded: ${path}`);
+			// console.log('Found styles:', styles);
+			// console.log('Found styleMaps:', styleMaps);
+		// }
 
-		let bounds = L.latLngBounds(); // Инициализация пустыми границами
+		// let bounds = L.latLngBounds(); // Инициализация пустыми границами
 		
-		bounds = parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup);
+		// bounds = parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup);
 		
-		return bounds;
-	} catch (error) {
-        console.error("Ошибка загрузки KML: ${path} ", error);
-        alert(`Ошибка загрузки файла: ${path}\n${error.message}`);
+		// return bounds;
+	// } catch (error) {
+        // console.error("Ошибка загрузки KML: ${path} ", error);
+        // alert(`Ошибка загрузки файла: ${path}\n${error.message}`);
 		
-        return L.latLngBounds(); // Всегда возвращаем объект bounds
-    }
-}
+        // return L.latLngBounds(); // Всегда возвращаем объект bounds
+    // }
+// }
 
 // Универсальная функция загрузки KML
 async function loadKmlToLayer(filePath, layerGroup, options = {}) {
     const {
         isPermanent = false,
         preserveZoom = false,
-        fitBounds = true
+        fitBounds = true,
+        styleMode = null // Новый параметр
     } = options;
 
     try {
+        // Определяем режим стиля для файла (либо из параметров, либо автоматически)
+        const finalStyleMode = styleMode || getStyleModeForFile(filePath);
+        
         const response = await fetch(filePath);
         if (!response.ok) {
             console.error(`Ошибка загрузки KML (${filePath}): ${response.status}`);
@@ -731,11 +795,12 @@ async function loadKmlToLayer(filePath, layerGroup, options = {}) {
         
         if (LOG_STYLES) {
             console.groupCollapsed(`${isPermanent ? 'Permanent' : 'Temporary'} layer loaded: ${filePath}`);
+            console.log('Style mode:', styleMode);
             console.log('Found styles:', styles);
             console.log('Found styleMaps:', styleMaps);
         }
 
-        const bounds = parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup);
+        const bounds = parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup, finalStyleMode);
         
         if (LOG_STYLES) console.groupEnd();
         
@@ -830,10 +895,13 @@ async function loadPermanentKmlLayers() {
             
             try {
                 const layerGroup = L.layerGroup();
+                // Определяем режим стиля для каждого постоянного слоя
+                const styleMode = getStyleModeForFile(layerData.path);
                 const result = await loadKmlToLayer(layerData.path, layerGroup, {
                     isPermanent: true,
                     preserveZoom: false,
-                    fitBounds: false
+                    fitBounds: false,
+                    styleMode: styleMode // Передаем определенный режим стиля
                 });
 
                 // Добавляем слой на карту после успешной загрузки
