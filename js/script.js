@@ -514,9 +514,9 @@ window.kmlStyles = {
 function getStyleModeForFile(filePath) {
     if (filePath.includes('MultiGeometry')) 
         return window.kmlStyleModes.STYLE_MG;
-    else if (filePath.includes('RuAF'))
+    else if (filePath.includes('/RuAF/'))
         return window.kmlStyleModes.STYLE_RUAF;
-    else if (filePath.includes('AFU')) 
+    else if (filePath.includes('/AFU/')) 
         return window.kmlStyleModes.STYLE_AFU;
     else
         return window.kmlStyleModes.DEFAULT;
@@ -2288,6 +2288,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
 });
+
 
 
 
