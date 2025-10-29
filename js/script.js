@@ -456,14 +456,14 @@ window.kmlStyleModes = {
     DEFAULT: 'kml',
     
     // Заданные стили
-    STYLE_A: 'styleA', // Для мультиполигональных файлов
-    STYLE_B: 'styleB', // Для файлов из RuAF
-    STYLE_C: 'styleC'  // Для файлов из AFU
+    STYLE_MG:   'styleMG', // Для мультиполигональных файлов
+    STYLE_RUAF: 'styleRuAF', // Для файлов из RuAF
+    STYLE_AFU:  'styleAFU'  // Для файлов из AFU
 };
 
 // Определение стилей
 window.kmlStyles = {
-    [window.kmlStyleModes.STYLE_A]: {
+    [window.kmlStyleModes.STYLE_MG]: {
         polygon: {
             color: '#ff0000', // Красная обводка для видимости
             weight: 0.2, // Тонкая линия
@@ -478,31 +478,31 @@ window.kmlStyles = {
             interactive: false
         }
     },
-    [window.kmlStyleModes.STYLE_B]: {
+    [window.kmlStyleModes.STYLE_RUAF]: {
         polygon: {
-            color: '#00ff00',
-            weight: 2,
-            fillColor: '#00ff00',
-            fillOpacity: 0.4,
+            color: '#ff0000',
+            weight: 0.1,
+            fillColor: '#ff0000',
+            fillOpacity: 0.3,
             interactive: false
         },
         polyline: {
-            color: '#ff00ff',
+            color: '#ff0000',
             weight: 4,
             opacity: 0.8,
             interactive: false
         }
     },
-    [window.kmlStyleModes.STYLE_C]: {
+    [window.kmlStyleModes.STYLE_AFU]: {
         polygon: {
-            color: '#00ffff',
-            weight: 2,
-            fillColor: '#00ffff',
-            fillOpacity: 0.4,
+            color: '#0000ff',
+            weight: 0.1,
+            fillColor: '#0000ff',
+            fillOpacity: 0.3,
             interactive: false
         },
         polyline: {
-            color: '#00ffff',
+            color: '#0000ff',
             weight: 4,
             opacity: 0.8,
             interactive: false
@@ -513,11 +513,11 @@ window.kmlStyles = {
 // Функция для определения режима стиля по пути файла
 function getStyleModeForFile(filePath) {
     if (filePath.includes('MultiGeometry')) 
-        return window.kmlStyleModes.STYLE_A;
+        return window.kmlStyleModes.STYLE_MG;
     else if (filePath.includes('RuAF'))
-        return window.kmlStyleModes.STYLE_B;
+        return window.kmlStyleModes.STYLE_RUAF;
     else if (filePath.includes('AFU')) 
-        return window.kmlStyleModes.STYLE_C;
+        return window.kmlStyleModes.STYLE_AFU;
     else
         return window.kmlStyleModes.DEFAULT;
 }
