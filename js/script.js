@@ -816,7 +816,12 @@ function applyTemporaryLayerBounds(bounds, currentCenter, currentZoom, preserveZ
 }
 // Для постоянных слоев  
 function applyPermanentLayersBounds(allBounds) {
-    if (allBounds && allBounds.isValid && allBounds.isValid()) {
+    // Если это начальная загрузка, не применяем границы постоянных слоев
+    if (window.isInitialLoad && allBounds && allBounds.isValid && allBounds.isValid()) {
+        // Сохраняем текущий масштаб, но обновляем центр если нужно
+        const currentZoom = map.getZoom();
+        map.fitBounds(allBounds, {maxZoom: currentZoom});
+    } else if (allBounds && allBounds.isValid && allBounds.isValid()) {
         map.fitBounds(allBounds);
     }
     // Если границы невалидны - ничего не делаем, оставляем текущий вид
