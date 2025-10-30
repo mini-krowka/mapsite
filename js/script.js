@@ -1164,7 +1164,8 @@ async function init() {
     
     // Шаг 4: Загружаем данные карты
     preserveZoom = false;
-    currentIndex = kmlFiles.length - 1;
+    currentIndex = kmlFiles.length - 1;    
+    map.setView([48.257381, 37.134785], 10); // Устанавливаем правильный масштаб ПЕРЕД загрузкой KML
     await navigateTo(currentIndex);
     
     // Шаг 5: Финализируем инициализацию карты
