@@ -2,7 +2,6 @@ let currentLayer = null;
 let permanentLayer = null;
 let currentIndex = kmlFiles.length - 1;
 let preserveZoom = false;
-let isInitialLoad = true; // флаг начальной загрузки
 
 let lastSelectedCity = null;
 citiesDropdown = document.getElementById('cities-dropdown');
@@ -817,12 +816,7 @@ function applyTemporaryLayerBounds(bounds, currentCenter, currentZoom, preserveZ
 }
 // Для постоянных слоев  
 function applyPermanentLayersBounds(allBounds) {
-    // Если это начальная загрузка, не применяем границы постоянных слоев
-    if (window.isInitialLoad && allBounds && allBounds.isValid && allBounds.isValid()) {
-        // Сохраняем текущий масштаб, но обновляем центр если нужно
-        const currentZoom = map.getZoom();
-        map.fitBounds(allBounds, {maxZoom: currentZoom});
-    } else if (allBounds && allBounds.isValid && allBounds.isValid()) {
+    if (allBounds && allBounds.isValid && allBounds.isValid()) {
         map.fitBounds(allBounds);
     }
     // Если границы невалидны - ничего не делаем, оставляем текущий вид
@@ -971,13 +965,6 @@ async function navigateTo(index) {
             datePicker.setDate(selectedDate, false);
         }
         
-		
-        // Если это начальная загрузка, не позволяем KML менять масштаб
-        const originalPreserveZoom = preserveZoom;
-        if (window.isInitialLoad) {
-            preserveZoom = true;
-        }
-		
 		// Определяем текущую CRS
 		const currentCRS = map.options.crs;
         await loadKmlFile(file);
@@ -1177,16 +1164,18 @@ async function init() {
     
     // Шаг 4: Загружаем данные карты
     preserveZoom = false;
-    currentIndex = kmlFiles.length - 1;    
-    map.setView([48.257381, 37.134785], 10); // Устанавливаем правильный масштаб ПЕРЕД загрузкой KML
+    currentIndex = kmlFiles.length - 1;
     await navigateTo(currentIndex);
     
-    // Шаг 5: Финализируем инициализацию карты
-    setTimeout(() => {
-      if (map) map.invalidateSize();
-      updateCurrentCenterDisplay();
-      // replaceAttributionFlag();
-    }, 50);
+	// Шаг 5: Финализируем инициализацию карты - ПРИНУДИТЕЛЬНО устанавливаем правильный масштаб
+	setTimeout(() => {
+	  if (map) {
+		// Принудительно устанавливаем правильные координаты и масштаб
+		map.setView([48.257381, 37.134785], 10, {animate: false});
+		map.invalidateSize();
+	  }
+	  updateCurrentCenterDisplay();
+	}, 300); // Увеличиваем задержку до 300мс
 	
 	map.options.crs = L.CRS.EPSG3857;
     
@@ -1233,10 +1222,6 @@ async function init() {
 		window.osm.addTo(map); // Активируйте OSM слой
 		window.initialLayerSet = true;
 	});
-	
-	
-    // Сбрасываем флаг начальной загрузки после всего
-    window.isInitialLoad = false;
         
   } catch (error) {
     console.error('Ошибка инициализации:', error);
