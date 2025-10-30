@@ -2,6 +2,7 @@ let currentLayer = null;
 let permanentLayer = null;
 let currentIndex = kmlFiles.length - 1;
 let preserveZoom = false;
+let isInitialLoad = true; // флаг начальной загрузки
 
 let lastSelectedCity = null;
 citiesDropdown = document.getElementById('cities-dropdown');
@@ -970,6 +971,13 @@ async function navigateTo(index) {
             datePicker.setDate(selectedDate, false);
         }
         
+		
+        // Если это начальная загрузка, не позволяем KML менять масштаб
+        const originalPreserveZoom = preserveZoom;
+        if (window.isInitialLoad) {
+            preserveZoom = true;
+        }
+		
 		// Определяем текущую CRS
 		const currentCRS = map.options.crs;
         await loadKmlFile(file);
@@ -1225,6 +1233,10 @@ async function init() {
 		window.osm.addTo(map); // Активируйте OSM слой
 		window.initialLayerSet = true;
 	});
+	
+	
+    // Сбрасываем флаг начальной загрузки после всего
+    window.isInitialLoad = false;
         
   } catch (error) {
     console.error('Ошибка инициализации:', error);
