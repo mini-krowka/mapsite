@@ -510,16 +510,35 @@ window.kmlStyles = {
     }
 };
 
-// Функция для определения режима стиля по пути файла
-function getStyleModeForFile(filePath) {
-    if (filePath.includes('MultiGeometry')) 
-        return window.kmlStyleModes.STYLE_MG;
-    else if (filePath.includes('/RuAF/'))
+// Функция для определения режима стиля по пути или содержимому файла
+async function getStyleModeForFile(filePath) {
+    // Сначала проверяем путь для RuAF/AFU
+    if (filePath.includes('/RuAF/'))
         return window.kmlStyleModes.STYLE_RUAF;
     else if (filePath.includes('/AFU/')) 
         return window.kmlStyleModes.STYLE_AFU;
-    else
-        return window.kmlStyleModes.DEFAULT;
+    
+    // Для остальных файлов проверяем содержимое на мультигеометрию
+    try {
+        const response = await fetch(filePath);
+        if (!response.ok) return window.kmlStyleModes.DEFAULT;
+        
+        const kmlText = await response.text();
+        const parser = new DOMParser();
+        const kmlDoc = parser.parseFromString(kmlText, "text/xml");
+        
+        // Проверяем наличие MultiGeometry в файле
+        const hasMultiGeometry = kmlDoc.querySelector('MultiGeometry') !== null;
+        
+        if (hasMultiGeometry) {
+            return window.kmlStyleModes.STYLE_MG;
+        }
+    } catch (error) {
+        console.error(`Ошибка проверки файла на мультигеометрию: ${filePath}`, error);
+    }
+    
+    // Если ничто из этого - берём стиль из файла
+    return window.kmlStyleModes.DEFAULT;
 }
 
 // Обрабатываем обычные стили
@@ -730,42 +749,6 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup,  style
     return bounds;
 }
 
-// async function loadBoundsFromKmlFile(path, layerGroup)
-// {
-	// try{
-		// const response = await fetch(path);
-		// if (!response.ok) {
-			// console.error(`Ошибка загрузки KML (${path}): ${response.status}`);
-			// return L.latLngBounds(); // Всегда возвращаем объект bounds
-		// }
-		// const kmlText = await response.text();
-		// const parser = new DOMParser();
-		// const kmlDoc = parser.parseFromString(kmlText, "text/xml");
-
-		//// Парсим все стили
-		// const styles = parseStyleFromKmlDoc(kmlDoc);
-		// const styleMaps = parseStyleMapFromKmlDoc(kmlDoc);
-		
-		////лог стилей
-		// if (LOG_STYLES) {
-			// console.groupCollapsed(`Temporary layer loaded: ${path}`);
-			// console.log('Found styles:', styles);
-			// console.log('Found styleMaps:', styleMaps);
-		// }
-
-		// let bounds = L.latLngBounds(); // Инициализация пустыми границами
-		
-		// bounds = parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup);
-		
-		// return bounds;
-	// } catch (error) {
-        // console.error("Ошибка загрузки KML: ${path} ", error);
-        // alert(`Ошибка загрузки файла: ${path}\n${error.message}`);
-		
-        // return L.latLngBounds(); // Всегда возвращаем объект bounds
-    // }
-// }
-
 // Универсальная функция загрузки KML
 async function loadKmlToLayer(filePath, layerGroup, options = {}) {
     const {
@@ -777,7 +760,10 @@ async function loadKmlToLayer(filePath, layerGroup, options = {}) {
 
     try {
         // Определяем режим стиля для файла (либо из параметров, либо автоматически)
-        const finalStyleMode = styleMode || getStyleModeForFile(filePath);
+        let finalStyleMode = styleMode;
+        if (!finalStyleMode) {
+            finalStyleMode = await getStyleModeForFile(filePath);
+        }
         
         const response = await fetch(filePath);
         if (!response.ok) {
@@ -795,7 +781,7 @@ async function loadKmlToLayer(filePath, layerGroup, options = {}) {
         
         if (LOG_STYLES) {
             console.groupCollapsed(`${isPermanent ? 'Permanent' : 'Temporary'} layer loaded: ${filePath}`);
-            console.log('Style mode:', styleMode);
+            console.log('Style mode:', finalStyleMode);
             console.log('Found styles:', styles);
             console.log('Found styleMaps:', styleMaps);
         }
@@ -884,53 +870,51 @@ async function loadPermanentKmlLayers() {
             window.permanentLayerGroups = [];
         }
 
-        // Параллельная загрузка всех постоянных слоев
-        const loadPromises = window.permanentLayers.map(async (layerData) => {
+        // Последовательная загрузка постоянных слоев (чтобы избежать параллельных запросов)
+        window.permanentLayerGroups = [];
+        
+        for (const layerData of window.permanentLayers) {
             if (!layerData.path) {
                 console.error("Отсутствует путь для постоянного слоя:", layerData);
-                return null;
+                continue;
             }
             
             console.log("Загрузка постоянного слоя:", layerData.path);
             
             try {
                 const layerGroup = L.layerGroup();
-                // Определяем режим стиля для каждого постоянного слоя
-                const styleMode = getStyleModeForFile(layerData.path);
+                // Не передаем styleMode - будет определен автоматически
                 const result = await loadKmlToLayer(layerData.path, layerGroup, {
                     isPermanent: true,
                     preserveZoom: false,
-                    fitBounds: false,
-                    styleMode: styleMode // Передаем определенный режим стиля
+                    fitBounds: false
                 });
 
                 // Добавляем слой на карту после успешной загрузки
                 layerGroup.addTo(map);
-                return result;
+                window.permanentLayerGroups.push(layerGroup);
+                
             } catch (error) {
                 console.error(`Ошибка обработки слоя ${layerData.path}:`, error);
-                return null;
             }
-        });
-
-        // Ожидаем завершения всех загрузок
-        const results = await Promise.all(loadPromises);
-        
-        // Сохраняем ссылки на группы слоев
-        window.permanentLayerGroups = results
-            .filter(result => result !== null)
-            .map(result => result.layerGroup);
+        }
 
         // Вычисляем объединенные границы всех валидных слоев
-        const validBounds = results
-            .filter(result => result !== null && result.bounds.isValid())
-            .map(result => result.bounds);
+        const allBounds = L.latLngBounds();
+        let hasValidBounds = false;
+        
+        // Для постоянных слоев границы вычисляются по-другому
+        // так как мы не возвращаем bounds из loadKmlToLayer для постоянных слоев
+        window.permanentLayerGroups.forEach(layerGroup => {
+            layerGroup.eachLayer(layer => {
+                if (layer.getBounds && layer.getBounds().isValid()) {
+                    allBounds.extend(layer.getBounds());
+                    hasValidBounds = true;
+                }
+            });
+        });
 
-        if (validBounds.length > 0) {
-            const allBounds = validBounds.reduce((combined, bounds) => {
-                return combined.extend(bounds);
-            }, L.latLngBounds());
-            
+        if (hasValidBounds) {
             applyPermanentLayersBounds(allBounds);
         } else {
             console.warn("Ни один постоянный слой не содержит валидных границ");
