@@ -1175,7 +1175,7 @@ async function init() {
 		map.invalidateSize();
 	  }
 	  updateCurrentCenterDisplay();
-	}, 200); // Увеличиваем задержку до 300мс
+	}, 250); // Увеличиваем задержку до 300мс
 	
 	map.options.crs = L.CRS.EPSG3857;
     
