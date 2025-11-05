@@ -12,7 +12,7 @@
     </Style>
     <Folder>
       <name>Line</name>
-      <visibility>0,5</visibility>
+      <visibility>0,2</visibility>
       <description>Line and polyline features</description>
       <Placemark>
         <name> </name>
@@ -16525,4 +16525,5 @@
   </Document>
 
 </kml>
+
 
