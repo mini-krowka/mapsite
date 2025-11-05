@@ -78,7 +78,7 @@ window.kmlFiles = [
                                 "kml/ControlZones/Control_25_11_02.kml",
                                 "kml/Progress/RuAF/ProgressRuAF_25_11_02.kml",
 								"kml/FrontLine/FrontLine_25_11_02.kml",
-                                "kml/Progress/AFU/ProgressAFU_25_11_02.kml"] 
+                                "kml/Progress/AFU/ProgressAFU_25_11_02.kml"] }
    ];
 
 // Постоянные слои
