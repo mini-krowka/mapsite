@@ -836,14 +836,19 @@ async function loadKmlFile(file, targetCRS) {
         const layerGroup = L.layerGroup().addTo(map);
         currentLayer = layerGroup;
         
-        const { bounds } = await loadKmlToLayer(file.path, layerGroup, {
-            isPermanent: false,
-            preserveZoom: preserveZoom,
-            fitBounds: false    // Отключаем авто-подгонку
-        });
+        // Загружаем все KML-файлы для этой даты
+        const loadPromises = file.paths.map(path => 
+            loadKmlToLayer(path, layerGroup, {
+                isPermanent: false,
+                preserveZoom: preserveZoom,
+                fitBounds: false
+            })
+        );
+        
+        // Ждем загрузки всех файлов
+        await Promise.all(loadPromises);
         
         // Применяем границы
-
         // const currentCenter = map.getCenter();
         // const currentZoom = map.getZoom();
         // applyTemporaryLayerBounds(bounds, currentCenter, currentZoom, preserveZoom);
