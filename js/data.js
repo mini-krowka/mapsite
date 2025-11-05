@@ -73,7 +73,12 @@ window.kmlFiles = [
 	{ name: "29.10.25", paths: [
                                 "kml/ControlZones/Control_25_10_29.kml",
                                 "kml/Progress/RuAF/ProgressRuAF_25_10_29.kml",
-                                "kml/Progress/AFU/ProgressAFU_25_10_29.kml"] }
+                                "kml/Progress/AFU/ProgressAFU_25_10_29.kml"] },
+	{ name: "02.11.25", paths: [
+                                "kml/ControlZones/Control_25_11_02.kml",
+                                "kml/Progress/RuAF/ProgressRuAF_25_11_02.kml",
+								"kml/FrontLine/FrontLine_25_11_02.kml",
+                                "kml/Progress/AFU/ProgressAFU_25_11_02.kml"] 
    ];
 
 // Постоянные слои
@@ -110,6 +115,7 @@ window.cities = [
     { name: { ru: "Гуляйполе", en: "Gulyaypole" }, lat: 47.66336,  lng:  36.2587   },
     { name: { ru: "Орехов",    en: "Orekhov"    }, lat: 47.5675,   lng:  35.78845  },
 ];
+
 
 
 
