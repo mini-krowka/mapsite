@@ -69,6 +69,23 @@
 
 window.kmlFiles = [
     { name: "03.09.23", paths: ["kml/ControlZones/Control_23_09_03.kml"] },
+	{ name: "06.10.23", paths: ["kml/ControlZones/Control_23_10_06.kml"] },
+	{ name: "01.11.23", paths: ["kml/ControlZones/Control_23_11_01.kml"] },
+	{ name: "01.12.23", paths: ["kml/ControlZones/Control_23_12_01.kml"] },
+
+	{ name: "01.01.24", paths: ["kml/ControlZones/Control_24_01_01.kml"] },
+	{ name: "01.02.24", paths: ["kml/ControlZones/Control_24_02_01.kml"] },
+	{ name: "01.03.24", paths: ["kml/ControlZones/Control_24_03_01.kml"] },
+	{ name: "01.04.24", paths: ["kml/ControlZones/Control_24_04_01.kml"] },
+	{ name: "01.05.24", paths: ["kml/ControlZones/Control_24_05_01.kml"] },
+	{ name: "01.06.24", paths: ["kml/ControlZones/Control_24_06_01.kml"] },
+	{ name: "01.07.24", paths: ["kml/ControlZones/Control_24_07_01.kml"] },
+	{ name: "01.08.24", paths: ["kml/ControlZones/Control_24_08_01.kml"] },
+	{ name: "01.09.24", paths: ["kml/ControlZones/Control_24_09_01.kml"] },
+	{ name: "01.10.24", paths: ["kml/ControlZones/Control_24_10_01.kml"] },
+	{ name: "01.11.24", paths: ["kml/ControlZones/Control_24_11_01.kml"] },
+	{ name: "01.12.24", paths: ["kml/ControlZones/Control_24_12_01.kml"] },
+	
 	{ name: "17.10.25", paths: [
                                 "kml/ControlZones/Control_25_10_17.kml",
 								"kml/FrontLine/FrontLine_25_10_17.kml",
@@ -135,6 +152,7 @@ window.cities = [
     { name: { ru: "Гуляйполе", en: "Gulyaypole" }, lat: 47.66336,  lng:  36.2587   },
     { name: { ru: "Орехов",    en: "Orekhov"    }, lat: 47.5675,   lng:  35.78845  },
 ];
+
 
 
 
