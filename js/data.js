@@ -150,6 +150,31 @@ window.kmlFiles = [
 								"kml/ControlZones/Control_25_06_27.kml",
 							    "kml/FrontLine/FrontLine_25_06_27.kml"] },
 	
+	{ name: "01.07.25", paths: [
+								"kml/ControlZones/Control_25_07_01.kml",
+							    "kml/FrontLine/FrontLine_25_07_01.kml"] },
+	{ name: "05.07.25", paths: [
+								"kml/ControlZones/Control_25_07_05.kml",
+							    "kml/FrontLine/FrontLine_25_07_05.kml"] },
+	{ name: "09.07.25", paths: [
+								"kml/ControlZones/Control_25_07_09.kml",
+							    "kml/FrontLine/FrontLine_25_07_09.kml"] },
+	{ name: "13.07.25", paths: [
+								"kml/ControlZones/Control_25_07_13.kml",
+							    "kml/FrontLine/FrontLine_25_07_13.kml"] },
+	{ name: "17.07.25", paths: [
+								"kml/ControlZones/Control_25_07_17.kml",
+							    "kml/FrontLine/FrontLine_25_07_17.kml"] },
+	{ name: "21.07.25", paths: [
+								"kml/ControlZones/Control_25_07_21.kml",
+							    "kml/FrontLine/FrontLine_25_07_21.kml"] },
+	{ name: "25.07.25", paths: [
+								"kml/ControlZones/Control_25_07_25.kml",
+							    "kml/FrontLine/FrontLine_25_07_25.kml"] },
+	{ name: "29.07.25", paths: [
+								"kml/ControlZones/Control_25_07_29.kml",
+							    "kml/FrontLine/FrontLine_25_07_29.kml"] },
+	
 
 	
 	
@@ -220,6 +245,7 @@ window.cities = [
     { name: { ru: "Гуляйполе", en: "Gulyaypole" }, lat: 47.66336,  lng:  36.2587   },
     { name: { ru: "Орехов",    en: "Orekhov"    }, lat: 47.5675,   lng:  35.78845  },
 ];
+
 
 
 
