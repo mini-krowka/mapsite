@@ -85,6 +85,40 @@ window.kmlFiles = [
 	{ name: "01.10.24", paths: ["kml/ControlZones/Control_24_10_01.kml"] },
 	{ name: "01.11.24", paths: ["kml/ControlZones/Control_24_11_01.kml"] },
 	{ name: "01.12.24", paths: ["kml/ControlZones/Control_24_12_01.kml"] },
+
+	{ name: "01.01.25", paths: ["kml/ControlZones/Control_25_01_01.kml"] },
+	{ name: "01.02.25", paths: ["kml/ControlZones/Control_25_02_01.kml"] },
+	{ name: "01.03.25", paths: ["kml/ControlZones/Control_25_03_01.kml"] },
+	{ name: "01.04.25", paths: ["kml/ControlZones/Control_25_04_01.kml"] },
+
+	{ name: "01.05.25", paths: ["kml/ControlZones/Control_25_05_01.kml"] },
+	{ name: "02.05.25", paths: ["kml/ControlZones/Control_25_05_02.kml"] },
+	{ name: "06.05.25", paths: ["kml/ControlZones/Control_25_05_06.kml"] },
+	{ name: "10.05.25", paths: ["kml/ControlZones/Control_25_05_10.kml"] },
+	{ name: "14.05.25", paths: ["kml/ControlZones/Control_25_05_14.kml"] },
+	{ name: "18.05.25", paths: ["kml/ControlZones/Control_25_05_18.kml"] },
+	{ name: "22.05.25", paths: ["kml/ControlZones/Control_25_05_22.kml"] },
+	{ name: "26.05.25", paths: ["kml/ControlZones/Control_25_05_26.kml"] },
+	{ name: "30.05.25", paths: ["kml/ControlZones/Control_25_05_30.kml"] },
+
+	{ name: "01.06.25", paths: ["kml/ControlZones/Control_25_06_01.kml"] },
+	{ name: "03.06.25", paths: ["kml/ControlZones/Control_25_06_03.kml"] },
+	{ name: "07.06.25", paths: ["kml/ControlZones/Control_25_06_07.kml"] },
+	{ name: "11.06.25", paths: ["kml/ControlZones/Control_25_06_11.kml"] },
+	{ name: "15.06.25", paths: ["kml/ControlZones/Control_25_06_15.kml"] },
+	{ name: "19.06.25", paths: ["kml/ControlZones/Control_25_06_19.kml"] },
+	{ name: "23.06.25", paths: ["kml/ControlZones/Control_25_06_23.kml"] },
+	{ name: "27.06.25", paths: ["kml/ControlZones/Control_25_06_27.kml"] },
+
+	{ name: "01.07.25", paths: ["kml/ControlZones/Control_25_07_01.kml"] },
+	{ name: "05.07.25", paths: ["kml/ControlZones/Control_25_07_05.kml"] },
+	{ name: "09.07.25", paths: ["kml/ControlZones/Control_25_07_09.kml"] },
+	{ name: "13.07.25", paths: ["kml/ControlZones/Control_25_07_13.kml"] },
+	{ name: "17.07.25", paths: ["kml/ControlZones/Control_25_07_17.kml"] },
+	{ name: "21.07.25", paths: ["kml/ControlZones/Control_25_07_21.kml"] },
+	{ name: "25.07.25", paths: ["kml/ControlZones/Control_25_07_25.kml"] },
+	{ name: "29.07.25", paths: ["kml/ControlZones/Control_25_07_29.kml"] },
+	
 	
 	{ name: "17.10.25", paths: [
                                 "kml/ControlZones/Control_25_10_17.kml",
@@ -152,6 +186,7 @@ window.cities = [
     { name: { ru: "Гуляйполе", en: "Gulyaypole" }, lat: 47.66336,  lng:  36.2587   },
     { name: { ru: "Орехов",    en: "Orekhov"    }, lat: 47.5675,   lng:  35.78845  },
 ];
+
 
 
 
