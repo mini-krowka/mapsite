@@ -145,7 +145,7 @@ window.kmlFiles = [
 							    "kml/FrontLine/FrontLine_25_06_19.kml"] },
 	{ name: "23.06.25", paths: [
 								"kml/ControlZones/Control_25_06_23.kml",
-							    "kml/FrontLine/FrontLine_25_06_27.kml"] },
+							    "kml/FrontLine/FrontLine_25_06_23.kml"] },
 	{ name: "27.06.25", paths: [
 								"kml/ControlZones/Control_25_06_27.kml",
 							    "kml/FrontLine/FrontLine_25_06_27.kml"] },
@@ -200,6 +200,40 @@ window.kmlFiles = [
 								"kml/ControlZones/Control_25_08_30.kml",
 							    "kml/FrontLine/FrontLine_25_08_30.kml"] },
 
+	{ name: "03.09.25", paths: [
+								"kml/ControlZones/Control_25_09_03.kml",
+							    "kml/FrontLine/FrontLine_25_09_03.kml"] },
+	{ name: "07.09.25", paths: [
+								"kml/ControlZones/Control_25_09_07.kml",
+							    "kml/FrontLine/FrontLine_25_09_07.kml"] },
+	{ name: "11.09.25", paths: [
+								"kml/ControlZones/Control_25_09_11.kml",
+							    "kml/FrontLine/FrontLine_25_09_11.kml"] },
+	{ name: "15.09.25", paths: [
+								"kml/ControlZones/Control_25_09_15.kml",
+							    "kml/FrontLine/FrontLine_25_09_15.kml"] },
+	{ name: "19.09.25", paths: [
+								"kml/ControlZones/Control_25_09_19.kml",
+							    "kml/FrontLine/FrontLine_25_09_19.kml"] },
+	{ name: "23.09.25", paths: [
+								"kml/ControlZones/Control_25_09_23.kml",
+							    "kml/FrontLine/FrontLine_25_09_23.kml"] },
+	{ name: "27.09.25", paths: [
+								"kml/ControlZones/Control_25_09_27.kml",
+							    "kml/FrontLine/FrontLine_25_09_27.kml"] },
+
+	{ name: "01.10.25", paths: [
+								"kml/ControlZones/Control_25_10_01.kml",
+							    "kml/FrontLine/FrontLine_25_10_01.kml"] },
+	{ name: "05.10.25", paths: [
+								"kml/ControlZones/Control_25_10_05.kml",
+							    "kml/FrontLine/FrontLine_25_10_05.kml"] },
+	{ name: "09.10.25", paths: [
+								"kml/ControlZones/Control_25_10_09.kml",
+							    "kml/FrontLine/FrontLine_25_10_09.kml"] },
+	{ name: "13.10.25", paths: [
+								"kml/ControlZones/Control_25_10_13.kml",
+							    "kml/FrontLine/FrontLine_25_10_13.kml"] },
 	
 	
 	
@@ -269,6 +303,7 @@ window.cities = [
     { name: { ru: "Гуляйполе", en: "Gulyaypole" }, lat: 47.66336,  lng:  36.2587   },
     { name: { ru: "Орехов",    en: "Orekhov"    }, lat: 47.5675,   lng:  35.78845  },
 ];
+
 
 
 
