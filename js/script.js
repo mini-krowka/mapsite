@@ -1352,7 +1352,7 @@ async function init() {
   try {
     // Шаг 1: Загружаем постоянные слои
     await loadPermanentKmlLayers();
-    await initPointsLayer('kml/Current.kml');
+    await initPointsLayer('kml/Geolocations/Current.kml');
     
     // Шаг 2: Инициализируем основные компоненты UI
     initDatePicker();    
@@ -2474,6 +2474,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
 });
+
 
 
 
