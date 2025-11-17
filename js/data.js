@@ -287,7 +287,7 @@ window.kmlFiles = [
 // Постоянные слои
 window.permanentLayers = [
     // Текущая ЛБС
-    { name: "Current_frontline",      path: "kml/FrontLine/FrontLine_25_11_10.kml" },
+    { name: "Current_frontline",      path: "kml/FrontLine/FrontLine_25_11_18.kml" },
     // Граница ЛДНР без Ростовской области
     { name: "LDPR",                   path: "kml/PermanentObjects/LDPR_line3.kml" },
     //Конституционная граница РФ
@@ -327,6 +327,7 @@ window.pointsDateRange = {
     start: new Date(2025, 10, 9), // 10 ноября
     end: new Date(2025, 10, 16)   // 17 ноября
 };
+
 
 
 
