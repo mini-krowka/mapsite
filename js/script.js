@@ -774,7 +774,7 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup,  style
                     ${position ? `Позиция: ${position}<br>` : ''}
                     Координаты: ${lat.toFixed(6)}, ${lng.toFixed(6)}
                 `;
-                circle.bindPopup(popupContent);
+                marker.bindPopup(popupContent);
                 
                 // Обновляем границы
                 bounds.extend([lat, lng]);
@@ -2493,6 +2493,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
 });
+
 
 
 
