@@ -743,9 +743,6 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup,  style
                 
         
         
-        const extendedData = parseExtendedData(placemark);
-        const date = extendedData['дата'];
-        const position = extendedData['позиция'];
 
         // Обработка Point (точек)
         const point = placemark.querySelector('Point');
@@ -754,12 +751,16 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup,  style
             if (coordinates.length >= 1) {
                 const [lat, lng] = coordinates[0];
                 
+                const extendedData = parseExtendedData(placemark);
+                const date = extendedData['дата'];
+                const position = extendedData['позиция'];
+                
                 // Проверяем, попадает ли точка в диапазон дат
                 if (date && window.pointsDateRange && 
                     !isDateInRange(date, window.pointsDateRange.start, window.pointsDateRange.end)) {
                     return; // Пропускаем точку, если она не в диапазоне
                 }
-                
+        
                 // Получаем иконку для точки
                 const icon = getPointIcon(position);
                 
