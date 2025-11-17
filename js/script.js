@@ -1371,7 +1371,7 @@ async function init() {
   try {
     // Шаг 1: Загружаем постоянные слои
     await loadPermanentKmlLayers();
-    await initPointsLayer("kml/Geolocations/Сurrent.kml");
+    await initPointsLayer(window.pointsKmlPath);
     
     // Шаг 2: Инициализируем основные компоненты UI
     initDatePicker();    

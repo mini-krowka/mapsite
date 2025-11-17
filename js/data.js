@@ -309,11 +309,11 @@ window.cities = [
     { name: { ru: "Орехов",    en: "Orekhov"    }, lat: 47.5675,   lng:  35.78845  },
 ];
 
-// Добавляем глобальные переменные для управления точками
+
+// Управление точками
+window.pointsKmlPath = "kml/Geolocations/Сurrent.kml"; // Путь к файлу с точками
 window.pointLayers = [];
 window.pointsDateRange = {
     start: new Date(2025, 8, 1), // 1 сентября 2025
     end: new Date(2025, 8, 15)   // 15 сентября 2025
 };
-
-
