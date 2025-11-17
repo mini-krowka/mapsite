@@ -760,11 +760,11 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup,  style
                     return; // Пропускаем точку, если она не в диапазоне
                 }
                 
-                // Получаем стиль для точки
-                const style = getPointStyle(position);
+                // Получаем иконку для точки
+                const icon = getPointIcon(position);
                 
-                // Создаем круговой маркер
-                const circle = L.circleMarker([lat, lng], style).addTo(layerGroup);
+                // Создаем маркер с иконкой флага
+                const marker = L.marker([lat, lng], {icon: icon}).addTo(layerGroup);
                 
                 // Добавляем popup с информацией
                 const popupContent = `
@@ -1048,31 +1048,49 @@ function updatePointsDisplay() {
     }
 }
 
-// Функция для получения стиля точки на основе позиции
-function getPointStyle(position) {
-    const styles = {
-        'ВС РФ': {
-            color: '#ff0000',
-            fillColor: '#ff0000',
-            fillOpacity: 0.7,
-            radius: 6
-        },
-        'ВСУ': {
-            color: '#0000ff', 
-            fillColor: '#0000ff',
-            fillOpacity: 0.7,
-            radius: 6
-        },
-        'default': {
-            color: '#3388ff',
-            fillColor: '#3388ff',
-            fillOpacity: 0.7,
-            radius: 6
-        }
+// Функция для получения иконки точки на основе позиции
+function getPointIcon(position) {
+    const iconUrls = {
+        'ВС РФ': 'img/flags/ru.svg',
+        'ВСУ': 'img/flags/ua.svg',
+        'default': 'img/flags/ru.svg' // или другая иконка по умолчанию
     };
     
-    return styles[position] || styles.default;
+    const iconUrl = iconUrls[position] || iconUrls.default;
+    
+    return L.icon({
+        iconUrl: iconUrl,
+        iconSize: [20, 14], // размер иконки флага
+        iconAnchor: [0, 0], // точка привязки
+        popupAnchor: [0, 0] // смещение для popup
+    });
 }
+
+// Функция для получения стиля точки на основе позиции
+// function getPointStyle(position) {
+    // const styles = {
+        // 'ВС РФ': {
+            // color: '#ff0000',
+            // fillColor: '#ff0000',
+            // fillOpacity: 0.7,
+            // radius: 6
+        // },
+        // 'ВСУ': {
+            // color: '#0000ff', 
+            // fillColor: '#0000ff',
+            // fillOpacity: 0.7,
+            // radius: 6
+        // },
+        // 'default': {
+            // color: '#3388ff',
+            // fillColor: '#3388ff',
+            // fillOpacity: 0.7,
+            // radius: 6
+        // }
+    // };
+    
+    // return styles[position] || styles.default;
+// }
 
 // Функция для извлечения данных из ExtendedData
 function parseExtendedData(placemark) {
