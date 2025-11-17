@@ -751,8 +751,8 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup,  style
         const point = placemark.querySelector('Point');
         if (point) {
             const coordinates = parseCoordinates(point, map.options.crs);
-            if (coordinates.length >= 2) {
-                const [lat, lng] = coordinates;
+            if (coordinates.length >= 1) {
+                const [lat, lng] = coordinates[0];
                 
                 // Проверяем, попадает ли точка в диапазон дат
                 if (date && window.pointsDateRange && 
@@ -2474,6 +2474,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
 });
+
 
 
 
