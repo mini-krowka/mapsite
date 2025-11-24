@@ -714,86 +714,12 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup,  style
 		}
 
 
-        const extendedData = parseExtendedData(placemark);
-        const date = extendedData['дата'];
-        const position = extendedData['позиция'];
-
-
-        // Обработка MultiGeometry
-        const multiGeometry = placemark.querySelector('MultiGeometry');
-        if (multiGeometry) {
-            // Обработка Polygon в MultiGeometry
-            multiGeometry.querySelectorAll('Polygon').forEach(polygon => {                
-				const poly = parseAndAddPolygon(polygon);
-            });
-
-            // Обработка LineString в MultiGeometry
-            multiGeometry.querySelectorAll('LineString').forEach(lineString => {
-                const polyline = parseAndAddLineString(lineString);
-            });
-            
-            // Обработка Point в MultiGeometry - ДОБАВЛЕНО
-            multiGeometry.querySelectorAll('Point').forEach(point => {
-                const coordinates = parseCoordinates(point, map.options.crs);
-                if (coordinates.length >= 1) {
-                    const [lat, lng] = coordinates[0];
-                    
-                    // Проверяем, попадает ли точка в диапазон дат
-                    if (date && window.pointsDateRange && 
-                        !isDateInRange(date, window.pointsDateRange.start, window.pointsDateRange.end)) {
-                        return; // Пропускаем точку, если она не в диапазоне
-                    }
-            
-                    // Получаем иконку для точки
-                    const icon = getPointIcon(position);
-                    
-                    // Создаем маркер с иконкой флага
-                    const marker = L.marker([lat, lng], {icon: icon}).addTo(layerGroup);
-                    
-                    // Добавляем popup с информацией
-                    const popupContent = `
-                        ${name ? `<b>${name}</b><br>` : ''}
-                        ${date ? `Дата: ${date}<br>` : ''}
-                        ${position ? `Позиция: ${position}<br>` : ''}
-                        Координаты: ${lat.toFixed(6)}, ${lng.toFixed(6)}
-                    `;
-                    marker.bindPopup(popupContent);
-                    
-                    // Обновляем границы
-                    bounds.extend([lat, lng]);
-                    elementCount++;
-                    
-                    if (LOG_STYLES) {
-                        console.log(`Point in MultiGeometry added:`, { name, date, position, coordinates: [lat, lng] });
-                    }
-                }
-            });
-        }
-
-        // Обработка Polygon
-        const polygon = placemark.querySelector('Polygon');
-        if (polygon && !multiGeometry) {                
-				const poly = parseAndAddPolygon(polygon);
-        }
-
-        // Обработка LineString
-        const lineString = placemark.querySelector('LineString');
-        if (lineString && !multiGeometry) {
-			const polyline = parseAndAddLineString(lineString); ///////////
-		}
-                
-                
-                
-        
-        
-
-        // Обработка Point (точек)
-        const point = placemark.querySelector('Point');
-        if (point && !multiGeometry) {
+        function parseAndAddPoint(point, date, position)
+        {
             const coordinates = parseCoordinates(point, map.options.crs);
             if (coordinates.length >= 1) {
                 const [lat, lng] = coordinates[0];
-                                
+                
                 // Проверяем, попадает ли точка в диапазон дат
                 if (date && window.pointsDateRange && 
                     !isDateInRange(date, window.pointsDateRange.start, window.pointsDateRange.end)) {
@@ -820,12 +746,53 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup,  style
                 elementCount++;
                 
                 if (LOG_STYLES) {
-                    console.log(`Point added:`, { name, date, position, coordinates: [lat, lng] });
+                    console.log(`Point in MultiGeometry added:`, { name, date, position, coordinates: [lat, lng] });
                 }
             }
         }
+
+        // Обработка MultiGeometry
+        const multiGeometry = placemark.querySelector('MultiGeometry');
+        if (multiGeometry) {
+            // Обработка Polygon в MultiGeometry
+            multiGeometry.querySelectorAll('Polygon').forEach(polygon => {                
+				const poly = parseAndAddPolygon(polygon);
+            });
+
+            // Обработка LineString в MultiGeometry
+            multiGeometry.querySelectorAll('LineString').forEach(lineString => {
+                const polyline = parseAndAddLineString(lineString);
+            });
+            
+            // Обработка Point в MultiGeometry - ДОБАВЛЕНО
+            multiGeometry.querySelectorAll('Point').forEach(point => {
+                const extendedData = parseExtendedData(placemark);
+                const date = extendedData['дата'];
+                const position = extendedData['позиция'];
+                const pnt = parseAndAddPoint(point, date, position);
+            });
+        }
+
+        // Обработка Polygon
+        const polygon = placemark.querySelector('Polygon');
+        if (polygon && !multiGeometry) {                
+				const poly = parseAndAddPolygon(polygon);
+        }
+
+        // Обработка LineString
+        const lineString = placemark.querySelector('LineString');
+        if (lineString && !multiGeometry) {
+			const polyline = parseAndAddLineString(lineString);
+		}
         
-        
+        // Обработка Point
+        const point = placemark.querySelector('Point');
+        if (point && !multiGeometry) {
+            const extendedData = parseExtendedData(placemark);
+            const date = extendedData['дата'];
+            const position = extendedData['позиция'];
+            const pnt = parseAndAddPoint(point, date, position);
+        }
         
         if (LOG_STYLES) console.groupEnd(); // Закрываем группу Placemark
     });
