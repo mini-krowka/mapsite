@@ -713,6 +713,12 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup,  style
 				return polyline;
 		}
 
+
+        const extendedData = parseExtendedData(placemark);
+        const date = extendedData['дата'];
+        const position = extendedData['позиция'];
+
+
         // Обработка MultiGeometry
         const multiGeometry = placemark.querySelector('MultiGeometry');
         if (multiGeometry) {
@@ -724,6 +730,43 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup,  style
             // Обработка LineString в MultiGeometry
             multiGeometry.querySelectorAll('LineString').forEach(lineString => {
                 const polyline = parseAndAddLineString(lineString);
+            });
+            
+            // Обработка Point в MultiGeometry - ДОБАВЛЕНО
+            multiGeometry.querySelectorAll('Point').forEach(point => {
+                const coordinates = parseCoordinates(point, map.options.crs);
+                if (coordinates.length >= 1) {
+                    const [lat, lng] = coordinates[0];
+                    
+                    // Проверяем, попадает ли точка в диапазон дат
+                    if (date && window.pointsDateRange && 
+                        !isDateInRange(date, window.pointsDateRange.start, window.pointsDateRange.end)) {
+                        return; // Пропускаем точку, если она не в диапазоне
+                    }
+            
+                    // Получаем иконку для точки
+                    const icon = getPointIcon(position);
+                    
+                    // Создаем маркер с иконкой флага
+                    const marker = L.marker([lat, lng], {icon: icon}).addTo(layerGroup);
+                    
+                    // Добавляем popup с информацией
+                    const popupContent = `
+                        ${name ? `<b>${name}</b><br>` : ''}
+                        ${date ? `Дата: ${date}<br>` : ''}
+                        ${position ? `Позиция: ${position}<br>` : ''}
+                        Координаты: ${lat.toFixed(6)}, ${lng.toFixed(6)}
+                    `;
+                    marker.bindPopup(popupContent);
+                    
+                    // Обновляем границы
+                    bounds.extend([lat, lng]);
+                    elementCount++;
+                    
+                    if (LOG_STYLES) {
+                        console.log(`Point in MultiGeometry added:`, { name, date, position, coordinates: [lat, lng] });
+                    }
+                }
             });
         }
 
@@ -746,15 +789,11 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup,  style
 
         // Обработка Point (точек)
         const point = placemark.querySelector('Point');
-        if (point) {
+        if (point && !multiGeometry) {
             const coordinates = parseCoordinates(point, map.options.crs);
             if (coordinates.length >= 1) {
                 const [lat, lng] = coordinates[0];
-                
-                const extendedData = parseExtendedData(placemark);
-                const date = extendedData['дата'];
-                const position = extendedData['позиция'];
-                
+                                
                 // Проверяем, попадает ли точка в диапазон дат
                 if (date && window.pointsDateRange && 
                     !isDateInRange(date, window.pointsDateRange.start, window.pointsDateRange.end)) {
