@@ -782,26 +782,22 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup,  style
         function formatNameWithLinks(name) {
             if (!name) return '';
             
-            // Регулярное выражение для поиска URL
-            const urlRegex = /(https?:\/\/[^\s]+)/g;
+            // Простая замена паттернов на гиперссылки
+            let formatted = name;
             
-            // Заменяем URL на кликабельные ссылки
-            return name.replace(urlRegex, function(url) {
-                // Для ссылок с "21+" в тексте используем специальный текст
-                if (url.includes('21+') || url.includes('adult') || url.includes('18+')) {
-                    return `<a href="${url}" target="_blank" style="color: #007bff; text-decoration: none;">Источник 21+</a>`;
-                }
-                
-                // Для обычных ссылок показываем домен
-                try {
-                    const domain = new URL(url).hostname;
-                    const displayText = domain.replace('www.', '').split('.')[0];
-                    return `<a href="${url}" target="_blank" style="color: #007bff; text-decoration: none;">Источник ${displayText}</a>`;
-                } catch (e) {
-                    // Если не удалось распарсить URL, показываем как есть
-                    return `<a href="${url}" target="_blank" style="color: #007bff; text-decoration: none;">Источник</a>`;
-                }
-            });
+            // Заменяем "Источник url" на "Источник"
+            formatted = formatted.replace(/Источник\s+(https?:\/\/[^\s]+)/g, 
+                '<a href="$1" target="_blank" style="color: #007bff; text-decoration: none;">Источник</a>');
+            
+            // Заменяем "Источник 21+ url" на "Источник 21+"
+            formatted = formatted.replace(/Источник\s+21\+\s+(https?:\/\/[^\s]+)/g, 
+                '<a href="$1" target="_blank" style="color: #007bff; text-decoration: none;">Источник 21+</a>');
+            
+            // Заменяем "Геопривязка url #ru" на "Геопривязка #ru"
+            formatted = formatted.replace(/Геопривязка\s+(https?:\/\/[^\s]+)\s+#ru/g, 
+                '<a href="$1" target="_blank" style="color: #007bff; text-decoration: none;">Геопривязка #ru</a>');
+            
+            return formatted;
         }
 
         // Обработка MultiGeometry
