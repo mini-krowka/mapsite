@@ -715,7 +715,7 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup,  style
 
 
         function parseAndAddPoint(pointElement, date, position)
-		{
+        {
             const coordinates = parseCoordinates(pointElement, map.options.crs);
             if (coordinates.length < 1) {
                 if (LOG_STYLES) console.log(`Point skipped - insufficient coordinates: ${coordinates.length}`);
@@ -736,26 +736,72 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup,  style
             // Создаем маркер с иконкой флага
             const marker = L.marker([lat, lng], {icon: icon}).addTo(layerGroup);
             
+            // Форматируем название - заменяем ссылки на кликабельные
+            const formattedName = formatNameWithLinks(name);
+            
             // Добавляем popup с информацией с красивым форматированием
+            const coordsString = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
             const popupContent = `
-                ${name ? `<div class="popup-title" style="white-space: pre-wrap; font-weight: bold; margin-bottom: 8px;">${name}</div>` : ''}
+                ${formattedName ? `<div class="popup-title" style="white-space: pre-wrap; font-weight: bold; margin-bottom: 8px;">${formattedName}</div>` : ''}
                 <div class="popup-details" style="font-size: 14px; line-height: 1.4;">
                     ${date ? `<div><strong>Дата:</strong> ${date}</div>` : ''}
                     ${position ? `<div><strong>Позиция:</strong> ${position}</div>` : ''}
-                    <div><strong>Координаты:</strong> ${lat.toFixed(6)}, ${lng.toFixed(6)}</div>
+                    <div style="display: flex; align-items: center; gap: 8px; margin-top: 4px;">
+                        <strong>Координаты:</strong> 
+                        <span style="font-family: monospace;">${coordsString}</span>
+                        <button class="copy-coords-popup-btn" data-coords="${coordsString}" 
+                                style="cursor: pointer; background: #007bff; color: white; border: none; border-radius: 3px; padding: 2px 6px; font-size: 12px;">
+                            Копировать
+                        </button>
+                    </div>
                 </div>
             `;
+            
             marker.bindPopup(popupContent);
             
-            // Обновляем границы
-            bounds.extend([lat, lng]);
-            elementCount++;
-
+            // Добавляем обработчик для кнопки копирования в popup
+            marker.on('popupopen', function() {
+                const copyBtn = document.querySelector('.copy-coords-popup-btn');
+                if (copyBtn) {
+                    copyBtn.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        const coords = this.getAttribute('data-coords');
+                        copyToClipboard(coords, this);
+                    });
+                }
+            });
+            
             if (LOG_STYLES) {
                 console.log(`Point added:`, { name, date, position, coordinates: [lat, lng] });
             }
             
             return marker;
+        }
+
+        // Функция для форматирования названия с заменой ссылок на кликабельные
+        function formatNameWithLinks(name) {
+            if (!name) return '';
+            
+            // Регулярное выражение для поиска URL
+            const urlRegex = /(https?:\/\/[^\s]+)/g;
+            
+            // Заменяем URL на кликабельные ссылки
+            return name.replace(urlRegex, function(url) {
+                // Для ссылок с "21+" в тексте используем специальный текст
+                if (url.includes('21+') || url.includes('adult') || url.includes('18+')) {
+                    return `<a href="${url}" target="_blank" style="color: #007bff; text-decoration: none;">Источник 21+</a>`;
+                }
+                
+                // Для обычных ссылок показываем домен
+                try {
+                    const domain = new URL(url).hostname;
+                    const displayText = domain.replace('www.', '').split('.')[0];
+                    return `<a href="${url}" target="_blank" style="color: #007bff; text-decoration: none;">Источник ${displayText}</a>`;
+                } catch (e) {
+                    // Если не удалось распарсить URL, показываем как есть
+                    return `<a href="${url}" target="_blank" style="color: #007bff; text-decoration: none;">Источник</a>`;
+                }
+            });
         }
 
         // Обработка MultiGeometry
