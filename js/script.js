@@ -779,35 +779,31 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup,  style
         }
 
         // Функция для форматирования названия с заменой ссылок на кликабельные
-        function formatNameWithLinks(name)
-        {
-            if (!name) return '';
-            
-            // Простая замена паттернов на гиперссылки
-            let formatted = name;
-            
-            // Заменяем "Источник url" на "Источник"
-            formatted = formatted.replace(/Источник\s+(https?:\/\/[^\s]+)/g, 
-                '<a href="$1" target="_blank" style="color: #007bff; text-decoration: none;">Источник</a>');
-            
-            // Заменяем "Источник 21+ url" на "Источник 21+"
-            formatted = formatted.replace(/Источник\s+21\+\s+(https?:\/\/[^\s]+)/g, 
-                '<a href="$1" target="_blank" style="color: #007bff; text-decoration: none;">Источник 21+</a>');
-            
-            // Заменяем "Геопривязка url #ru" на "Геопривязка #ru"
-            formatted = formatted.replace(/Геопривязка\s+(https?:\/\/[^\s]+)\s+#ru/g, 
-                '<a href="$1" target="_blank" style="color: #007bff; text-decoration: none;">Геопривязка #ru</a>');
-            
-            // Заменяем "Геопривязка url" на "Геопривязка"
-            formatted = formatted.replace(/Геопривязка\s+(https?:\/\/[^\s]+)/g, 
-                '<a href="$1" target="_blank" style="color: #007bff; text-decoration: none;">Геопривязка</a>');
-            
-            // Заменяем "Согласно url" на "Согласно..."
-            formatted = formatted.replace(/Согласно\s+(https?:\/\/[^\s]+)/g, 
-                '<a href="$1" target="_blank" style="color: #007bff; text-decoration: none;">Согласно...</a>');
-            
-            return formatted;
-        }
+        function formatNameWithLinks(name) 
+		{
+		    if (!name) return '';
+		    
+		    // Простая замена паттернов на гиперссылки
+		    let formatted = name;
+		    
+		    // Заменяем "Источник url" на "Источник" (только слово "Источник" становится ссылкой)
+		    formatted = formatted.replace(/Источник\s+(https?:\/\/[^\s]+)/g, 
+		        '<a href="$1" target="_blank" style="color: #007bff; text-decoration: none;">Источник</a>');
+		    
+		    // Заменяем "Источник 21+ url" на "Источник 21+" (только слова "Источник 21+" становятся ссылкой)
+		    formatted = formatted.replace(/Источник\s+21\+\s+(https?:\/\/[^\s]+)/g, 
+		        '<a href="$1" target="_blank" style="color: #007bff; text-decoration: none;">Источник 21+</a>');
+		    
+		    // Заменяем "Геопривязка url" на "Геопривязка" (только слово "Геопривязка" становится ссылкой)
+		    formatted = formatted.replace(/Геопривязка\s+(https?:\/\/[^\s]+)/g, 
+		        '<a href="$1" target="_blank" style="color: #007bff; text-decoration: none;">Геопривязка</a>');
+		    
+		    // Заменяем "Согласно url" на "Согласно..." (только слово "Согласно" становится ссылкой)
+		    formatted = formatted.replace(/Согласно\s+(https?:\/\/[^\s]+)/g, 
+		        '<a href="$1" target="_blank" style="color: #007bff; text-decoration: none;">Согласно...</a>');
+		    
+		    return formatted;
+		}
 
         // Обработка MultiGeometry
         const multiGeometry = placemark.querySelector('MultiGeometry');
@@ -2557,6 +2553,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
 });
+
 
 
 
