@@ -714,41 +714,48 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup,  style
 		}
 
 
-        function parseAndAddPoint(point, date, position)
-        {
-            const coordinates = parseCoordinates(point, map.options.crs);
-            if (coordinates.length >= 1) {
-                const [lat, lng] = coordinates[0];
-                
-                // Проверяем, попадает ли точка в диапазон дат
-                if (date && window.pointsDateRange && 
-                    !isDateInRange(date, window.pointsDateRange.start, window.pointsDateRange.end)) {
-                    return; // Пропускаем точку, если она не в диапазоне
-                }
-        
-                // Получаем иконку для точки
-                const icon = getPointIcon(position);
-                
-                // Создаем маркер с иконкой флага
-                const marker = L.marker([lat, lng], {icon: icon}).addTo(layerGroup);
-                
-                // Добавляем popup с информацией
-                const popupContent = `
-                    ${name ? `<b>${name}</b><br>` : ''}
-                    ${date ? `Дата: ${date}<br>` : ''}
-                    ${position ? `Позиция: ${position}<br>` : ''}
-                    Координаты: ${lat.toFixed(6)}, ${lng.toFixed(6)}
-                `;
-                marker.bindPopup(popupContent);
-                
-                // Обновляем границы
-                bounds.extend([lat, lng]);
-                elementCount++;
-                
-                if (LOG_STYLES) {
-                    console.log(`Point in MultiGeometry added:`, { name, date, position, coordinates: [lat, lng] });
-                }
+        function parseAndAddPoint(pointElement, date, position)
+		{
+            const coordinates = parseCoordinates(pointElement, map.options.crs);
+            if (coordinates.length < 1) {
+                if (LOG_STYLES) console.log(`Point skipped - insufficient coordinates: ${coordinates.length}`);
+                return null;
             }
+
+            const [lat, lng] = coordinates[0];
+            
+            // Проверяем, попадает ли точка в диапазон дат
+            if (date && window.pointsDateRange && 
+                !isDateInRange(date, window.pointsDateRange.start, window.pointsDateRange.end)) {
+                return null; // Пропускаем точку, если она не в диапазоне
+            }
+
+            // Получаем иконку для точки
+            const icon = getPointIcon(position);
+            
+            // Создаем маркер с иконкой флага
+            const marker = L.marker([lat, lng], {icon: icon}).addTo(layerGroup);
+            
+            // Добавляем popup с информацией с красивым форматированием
+            const popupContent = `
+                ${name ? `<div class="popup-title" style="white-space: pre-wrap; font-weight: bold; margin-bottom: 8px;">${name}</div>` : ''}
+                <div class="popup-details" style="font-size: 14px; line-height: 1.4;">
+                    ${date ? `<div><strong>Дата:</strong> ${date}</div>` : ''}
+                    ${position ? `<div><strong>Позиция:</strong> ${position}</div>` : ''}
+                    <div><strong>Координаты:</strong> ${lat.toFixed(6)}, ${lng.toFixed(6)}</div>
+                </div>
+            `;
+            marker.bindPopup(popupContent);
+            
+            // Обновляем границы
+            bounds.extend([lat, lng]);
+            elementCount++;
+
+            if (LOG_STYLES) {
+                console.log(`Point added:`, { name, date, position, coordinates: [lat, lng] });
+            }
+            
+            return marker;
         }
 
         // Обработка MultiGeometry
