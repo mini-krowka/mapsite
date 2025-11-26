@@ -751,7 +751,7 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup,  style
                         <span style="font-family: monospace;">${coordsString}</span>
                         <button class="copy-coords-popup-btn" data-coords="${coordsString}" 
                                 style="cursor: pointer; background: #007bff; color: white; border: none; border-radius: 3px; padding: 2px 6px; font-size: 12px;">
-                            Копировать
+                            ⎘
                         </button>
                     </div>
                 </div>
@@ -2552,6 +2552,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
 });
+
 
 
 
