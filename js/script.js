@@ -779,7 +779,8 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup,  style
         }
 
         // Функция для форматирования названия с заменой ссылок на кликабельные
-        function formatNameWithLinks(name) {
+        function formatNameWithLinks(name)
+        {
             if (!name) return '';
             
             // Простая замена паттернов на гиперссылки
@@ -796,6 +797,14 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup,  style
             // Заменяем "Геопривязка url #ru" на "Геопривязка #ru"
             formatted = formatted.replace(/Геопривязка\s+(https?:\/\/[^\s]+)\s+#ru/g, 
                 '<a href="$1" target="_blank" style="color: #007bff; text-decoration: none;">Геопривязка #ru</a>');
+            
+            // Заменяем "Геопривязка url" на "Геопривязка"
+            formatted = formatted.replace(/Геопривязка\s+(https?:\/\/[^\s]+)/g, 
+                '<a href="$1" target="_blank" style="color: #007bff; text-decoration: none;">Геопривязка</a>');
+            
+            // Заменяем "Согласно url" на "Согласно..."
+            formatted = formatted.replace(/Согласно\s+(https?:\/\/[^\s]+)/g, 
+                '<a href="$1" target="_blank" style="color: #007bff; text-decoration: none;">Согласно...</a>');
             
             return formatted;
         }
