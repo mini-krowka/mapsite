@@ -714,8 +714,7 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup,  style
 		}
 
 
-        function parseAndAddPoint(pointElement, date, position)
-        {
+        function parseAndAddPoint(pointElement, date, position, descriptionUrl) {
             const coordinates = parseCoordinates(pointElement, map.options.crs);
             if (coordinates.length < 1) {
                 if (LOG_STYLES) console.log(`Point skipped - insufficient coordinates: ${coordinates.length}`);
@@ -746,6 +745,7 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup,  style
                 <div class="popup-details" style="font-size: 14px; line-height: 1.4;">
                     ${date ? `<div><strong>Дата:</strong> ${date}</div>` : ''}
                     ${position ? `<div><strong>Позиция:</strong> ${position}</div>` : ''}
+                    ${descriptionUrl ? `<div style="margin-top: 6px;"><a href="${descriptionUrl}" target="_blank" style="color: #007bff; text-decoration: none; font-weight: bold;">📝 TG-пост</a></div>` : ''}
                     <div style="display: flex; align-items: center; gap: 8px; margin-top: 4px;">
                         <strong>Координаты:</strong> 
                         <span style="font-family: monospace;">${coordsString}</span>
@@ -772,7 +772,7 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup,  style
             });
             
             if (LOG_STYLES) {
-                console.log(`Point added:`, { name, date, position, coordinates: [lat, lng] });
+                console.log(`Point added:`, { name, date, position, descriptionUrl, coordinates: [lat, lng] });
             }
             
             return marker;
@@ -818,12 +818,13 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup,  style
                 const polyline = parseAndAddLineString(lineString);
             });
             
-            // Обработка Point в MultiGeometry - ДОБАВЛЕНО
+            // Обработка Point в MultiGeometry
             multiGeometry.querySelectorAll('Point').forEach(point => {
                 const extendedData = parseExtendedData(placemark);
                 const date = extendedData['дата'];
                 const position = extendedData['позиция'];
-                const pnt = parseAndAddPoint(point, date, position);
+                const descriptionUrl = extendedData['описание'];
+                const pnt = parseAndAddPoint(point, date, position, descriptionUrl);
             });
         }
 
