@@ -745,7 +745,6 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup,  style
                 <div class="popup-details" style="font-size: 14px; line-height: 1.4;">
                     ${date ? `<div><strong>Дата:</strong> ${date}</div>` : ''}
                     ${position ? `<div><strong>Позиция:</strong> ${position}</div>` : ''}
-                    ${descriptionUrl ? `<div style="margin-top: 6px;"><a href="${descriptionUrl}" target="_blank" style="color: #007bff; text-decoration: none; font-weight: bold;">📝 TG-пост</a></div>` : ''}
                     <div style="display: flex; align-items: center; gap: 8px; margin-top: 4px;">
                         <strong>Координаты:</strong> 
                         <span style="font-family: monospace;">${coordsString}</span>
@@ -754,6 +753,7 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup,  style
                             ⎘
                         </button>
                     </div>
+                    ${descriptionUrl ? `<div style="margin-top: 6px;"><a href="${descriptionUrl}" target="_blank" style="color: #007bff; text-decoration: none; font-weight: bold;">📝 Подробная информация</a></div>` : ''}
                 </div>
             `;
             
