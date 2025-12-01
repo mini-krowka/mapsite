@@ -846,6 +846,7 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup,  style
             const extendedData = parseExtendedData(placemark);
             const date = extendedData['дата'];
             const position = extendedData['позиция'];
+            const descriptionUrl = extendedData['описание'];
             const pnt = parseAndAddPoint(point, date, position);
         }
         
