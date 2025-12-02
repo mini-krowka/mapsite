@@ -307,7 +307,7 @@ window.permanentLayers = [
     //Линия максимального продвижения ВСУ в Курской области.
     { name: "AFU_advance_Kursk2024",  path: "kml/PermanentObjects/AFU_advance_Kursk2024.kml" },
     // Контур максимального продвижения в Доброполье
-    { name: "Добропольский прорыв",  path: "kml/PermanentObjects/Доброполье.kml" }
+    { name: "Добропольский прорыв",  path: "kml/PermanentObjects/Доброполье.kml" },
 	// Мультиполигон
     { name: "Мультиполигон",         path: "kml/PermanentObjects/Progress_25_10_09.kml" }
 	// { name: "стиль1", path: "kml/Progress/RuAF/ProgressRuAF_25_10_29.kml" },
@@ -337,6 +337,7 @@ window.pointsDateRange = {
     start: new Date(2025, 10, 26), // ранняя дата
     end: new Date(2025, 11, 02)   // поздняя дата
 };
+
 
 
 
