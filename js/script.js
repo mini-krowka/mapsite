@@ -467,14 +467,14 @@ window.kmlStyles = {
     [window.kmlStyleModes.STYLE_MG]: {
         polygon: {
             color: '#999999', // Красная обводка для видимости
-            weight: 0.5, // Тонкая линия
+            weight: 2, // Тонкая линия
             fillColor: '#999999', // Красная заливка
-            fillOpacity: 0.9, // Низкая непрозрачность
+            fillOpacity: 0.3, // Низкая непрозрачность
             interactive: false
         },
         polyline: {
             color: '#999999', // Синие линии
-            weight: 2, // Толстая линия
+            weight: 4, // Толстая линия
             opacity: 1,
             interactive: false
         }
@@ -2557,6 +2557,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
 });
+
 
 
 
