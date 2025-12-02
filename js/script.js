@@ -474,7 +474,7 @@ window.kmlStyles = {
         },
         polyline: {
             color: '#ffffff', // Синие линии
-            weight: 1,5, // Толстая линия
+            weight: 1.5, // Толстая линия
             opacity: 1,
             interactive: false
         }
@@ -2557,6 +2557,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
 });
+
 
 
 
