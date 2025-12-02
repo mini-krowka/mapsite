@@ -1118,7 +1118,7 @@ function getPointIcon(position) {
         'ВС РФ*': 'img/flags/ru.svg',
         'ВСУ': 'img/flags/ua.svg',
         'ВСУ*': 'img/flags/ua.svg',
-        'default': 'img/flags/ru.svg' // или другая иконка по умолчанию
+        'default': 'img/exclamation.svg' // иконка по умолчанию
     };
     
     const iconUrl = iconUrls[position] || iconUrls.default;
