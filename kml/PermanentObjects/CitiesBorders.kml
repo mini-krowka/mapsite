@@ -775,7 +775,7 @@
     </Placemark>
     <Placemark>
       <!-- Красноармейск -->
-      <name>Красноармейск</name>
+      <name> </name>
       <styleUrl>#line-BDBDBD-1000-nodesc</styleUrl>
       <MultiGeometry>
         <LineString>
@@ -1767,6 +1767,7 @@
     </Placemark>
 </Document>
 </kml>
+
 
 
 
