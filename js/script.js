@@ -1499,6 +1499,10 @@ async function init() {
 		}
 	}, 300);
 	
+    // Инициализация поиска по названию
+    initSearchFunctionality();
+    
+    
 	window.initialLayerSet = false;
 	map.on('load', function() {
 		window.osm.addTo(map); // Активируйте OSM слой
