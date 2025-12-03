@@ -76,7 +76,7 @@
       </Pair>
     </StyleMap>
 
-Placemark>
+<Placemark>
       <name>Купянск</name>
       <styleUrl>#line-BDBDBD-1000-nodesc</styleUrl>
       <MultiGeometry>
@@ -856,6 +856,7 @@ Placemark>
 
 </Document>
 </kml>
+
 
 
 
