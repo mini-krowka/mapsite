@@ -2980,7 +2980,8 @@
     </Placemark>
 
 <Placemark>
-      <name>Красный Лиман</name>
+      <!-- Красный Лиман -->
+      <name> </name>
       <description>Красный Лиман</description>
       <styleUrl>#line-BDBDBD-1200</styleUrl>
       <MultiGeometry>
@@ -3519,7 +3520,8 @@
     </Placemark>
 
 <Placemark>
-      <name>Волчанск</name>
+      <!-- Волчанск -->
+      <name> </name>
       <styleUrl>#line-BDBDBD-1200-nodesc</styleUrl>
       <MultiGeometry>
         <LineString>
@@ -4089,7 +4091,8 @@
     </Placemark>
 
 <Placemark>
-      <name>Купянск</name>
+      <!-- Купянск -->
+      <name> </name>
       <styleUrl>#line-BDBDBD-1000-nodesc</styleUrl>
       <MultiGeometry>
         <LineString>
@@ -4868,6 +4871,7 @@
 
 </Document>
 </kml>
+
 
 
 
