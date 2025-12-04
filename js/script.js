@@ -469,7 +469,7 @@ window.kmlStyles = {
             color: '#ffffff', // Обводка для видимости
             weight: 1, // Толщина линии
             fillColor: '#999999', //Заливка
-            fillOpacity: 0.3, //  Непрозрачность
+            fillOpacity: 0.25, //  Непрозрачность
             interactive: false
         },
         polyline: {
@@ -2561,6 +2561,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
 });
+
 
 
 
