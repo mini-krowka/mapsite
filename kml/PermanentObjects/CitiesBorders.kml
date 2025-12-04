@@ -77,7 +77,8 @@
     </StyleMap>
 
 <Placemark>
-      <name>Орехов</name>
+      <!-- Орехов -->
+      <name> </name>
       <styleUrl>#line-BDBDBD-1000-nodesc</styleUrl>
       <MultiGeometry>
         <LineString>
@@ -310,7 +311,8 @@
     </Placemark>
 
 <Placemark>
-      <name>Гуляйполе</name>
+      <!-- Гуляйполе -->
+      <name> </name>
       <styleUrl>#line-BDBDBD-1000-nodesc</styleUrl>
       <MultiGeometry>
         <LineString>
@@ -668,7 +670,8 @@
     </Placemark>
 
 <Placemark>
-      <name>Красноармейск</name>
+      <!-- Красноармейск -->
+      <name> </name>
       <styleUrl>#line-BDBDBD-1000-nodesc</styleUrl>
       <MultiGeometry>
         <LineString>
@@ -1302,7 +1305,8 @@
     </Placemark>
 
 <Placemark>
-      <name>Димитров</name>
+      <!-- Димитров -->
+      <name> </name>
       <styleUrl>#line-BDBDBD-1000-nodesc</styleUrl>
       <MultiGeometry>
         <LineString>
@@ -1998,7 +2002,8 @@
     </Placemark>
 
 <Placemark>
-      <name>Константиновка</name>
+      <!-- Константиновка -->
+      <name> </name>
       <styleUrl>#line-BDBDBD-1200-nodesc</styleUrl>
       <MultiGeometry>
         <LineString>
@@ -2708,7 +2713,8 @@
     </Placemark>
 
 <Placemark>
-      <name>Северск</name>
+      <!-- Северск -->
+      <name> </name>
       <styleUrl>#line-BDBDBD-1000-nodesc</styleUrl>
       <MultiGeometry>
         <LineString>
@@ -4862,6 +4868,7 @@
 
 </Document>
 </kml>
+
 
 
 
