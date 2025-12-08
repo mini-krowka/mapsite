@@ -14,6 +14,8 @@ let selectedDate = null; // Глобальная переменная для х�
 // Глобальный флаг для логгирования стилей временных файлов
 const LOG_STYLES = true; // Можно менять на false для отключения
 
+let currentDateRange = 'week'; // 'week', 'month', '3months', '6months', 'year'
+
 // Получаем массив доступных дат из kmlFiles
 const availableDates = kmlFiles.map(file => file.name);
 
@@ -1236,6 +1238,136 @@ async function initPointsLayer(kmlFilePath) {
 ///////////////////////////////////////////////////////////////////////////////
 
 
+// Функция для вычисления даты начала на основе текущей даты и диапазона
+function getStartDateByRange(rangeType, baseDate = null) {
+    const date = baseDate || new Date(); // Если базовая дата не указана, используем текущую
+    const result = new Date(date);
+    
+    switch(rangeType) {
+        case 'week':
+            result.setDate(result.getDate() - 7);
+            break;
+        case 'month':
+            result.setMonth(result.getMonth() - 1);
+            break;
+        case '3months':
+            result.setMonth(result.getMonth() - 3);
+            break;
+        case '6months':
+            result.setMonth(result.getMonth() - 6);
+            break;
+        case 'year':
+            result.setFullYear(result.getFullYear() - 1);
+            break;
+        default:
+            result.setDate(result.getDate() - 7); // По умолчанию 1 неделя
+    }
+    
+    return result;
+}
+
+// Функция для инициализации кнопок фильтров
+function initFilterButtons() {
+    const dateRangeBtn = document.getElementById('date-range-btn');
+    const dateRangeDropdown = document.getElementById('date-range-dropdown');
+    const rangeOptions = document.querySelectorAll('.range-option');
+    
+    if (!dateRangeBtn || !dateRangeDropdown) return;
+    
+    // Обработчик клика на кнопку фильтра дат
+    dateRangeBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        dateRangeDropdown.classList.toggle('show');
+    });
+    
+    // Обработчик клика на опции диапазона
+    rangeOptions.forEach(option => {
+        option.addEventListener('click', function() {
+            const range = this.getAttribute('data-range');
+            
+            // Убираем активный класс со всех опций
+            rangeOptions.forEach(opt => opt.classList.remove('active'));
+            // Добавляем активный класс выбранной опции
+            this.classList.add('active');
+            
+            // Сохраняем выбранный диапазон
+            currentDateRange = range;
+            
+            // Обновляем заголовок кнопки (можно добавить иконку или текст)
+            updateDateRangeButtonTitle();
+            
+            // Применяем фильтр
+            updatePointsDateFilter();
+            
+            // Закрываем выпадающий список
+            dateRangeDropdown.classList.remove('show');
+        });
+    });
+    
+    // Устанавливаем активную опцию по умолчанию
+    document.querySelector(`.range-option[data-range="${currentDateRange}"]`)?.classList.add('active');
+    
+    // Обновляем заголовок кнопки
+    updateDateRangeButtonTitle();
+    
+    // Закрытие выпадающего списка при клике вне его
+    document.addEventListener('click', function(e) {
+        if (!dateRangeBtn.contains(e.target) && !dateRangeDropdown.contains(e.target)) {
+            dateRangeDropdown.classList.remove('show');
+        }
+    });
+    
+    // Обработчики для неактивных кнопок (для отладки)
+    document.querySelectorAll('.filter-btn.disabled').forEach(btn => {
+        btn.addEventListener('click', function() {
+            console.log('Кнопка фильтра в разработке');
+            // Можно добавить временный функционал для отладки
+            alert('Эта функция находится в разработке');
+        });
+    });
+}
+
+// Функция для обновления заголовка кнопки фильтра дат
+function updateDateRangeButtonTitle() {
+    const dateRangeBtn = document.getElementById('date-range-btn');
+    if (!dateRangeBtn) return;
+    
+    const titles = {
+        'week': 'Фильтр: 1 неделя',
+        'month': 'Фильтр: 1 месяц',
+        '3months': 'Фильтр: 3 месяца',
+        '6months': 'Фильтр: 6 месяцев',
+        'year': 'Фильтр: 1 год'
+    };
+    
+    dateRangeBtn.title = titles[currentDateRange] || 'Фильтр по дате';
+}
+
+// Функция для обновления фильтра точек по дате
+async function updatePointsDateFilter() {
+    if (!window.currentPointsLayer || !window.pointsDateRange) return;
+    
+    // Получаем текущую выбранную дату
+    const currentDateStr = selectedDate || kmlFiles[kmlFiles.length - 1].name;
+    
+    // Преобразуем строку даты в объект Date
+    const currentDate = parseCustomDate(currentDateStr);
+    
+    // Вычисляем начальную дату на основе выбранного диапазона
+    const startDate = getStartDateByRange(currentDateRange, currentDate);
+    
+    // Обновляем диапазон дат
+    window.pointsDateRange.start = startDate;
+    window.pointsDateRange.end = currentDate;
+    
+    // Перезагружаем точки с новым фильтром
+    if (window.currentPointsLayer && window.currentPointsKmlPath) {
+        window.currentPointsLayer.clearLayers();
+        await loadPointsFromKml(window.currentPointsKmlPath, window.currentPointsLayer);
+    }
+}
+
+
 
 // Навигация к определенному индексу
 async function navigateTo(index) {
@@ -1252,6 +1384,19 @@ async function navigateTo(index) {
         
         // Загружаем KML без изменения масштаба
         await loadKmlFile(file);
+        
+        // Обновляем фильтр точек для новой даты
+        if (window.currentPointsLayer && window.pointsDateRange) {
+            const currentDate = parseCustomDate(selectedDate);
+            const startDate = getStartDateByRange(currentDateRange, currentDate);
+            
+            window.pointsDateRange.start = startDate;
+            window.pointsDateRange.end = currentDate;
+            
+            // Перезагружаем точки
+            window.currentPointsLayer.clearLayers();
+            await loadPointsFromKml(window.currentPointsKmlPath, window.currentPointsLayer);
+        }
         
     } catch (error) {
         console.error("Ошибка навигации:", error);
@@ -1435,6 +1580,19 @@ async function init() {
   try {
     // Шаг 1: Загружаем постоянные слои
     await loadPermanentKmlLayers();
+    
+    // и точки
+    // Инициализируем диапазон дат для точек
+    window.pointsDateRange = window.pointsDateRange || { start: null, end: null };    
+    // Устанавливаем начальный диапазон (1 неделя)
+    const currentDateStr = kmlFiles[kmlFiles.length - 1].name;
+    const currentDate = parseCustomDate(currentDateStr);
+    const startDate = getStartDateByRange('week', currentDate);
+    
+    window.pointsDateRange.start = startDate;
+    window.pointsDateRange.end = currentDate;
+    
+    // Загружаем точки с фильтром
     await initPointsLayer(window.pointsKmlPath);
     
     // Шаг 2: Инициализируем основные компоненты UI

@@ -107,18 +107,34 @@
                             </div>
                         </div>
                         
-                        <div class="search-container hideable-nav-item">                            
-                            <div class="search-input-group">
-                                <input type="text" 
-                                       id="place-search-input" 
-                                       class="search-input"
-                                       placeholder="Введите название..."
-                                       aria-label="Поиск населённого пункта">
-                                <button id="place-search-btn" class="search-btn" title="Найти">🔍</button>
-                                <button id="clear-search-btn" class="clear-search-btn" title="Очистить результаты">✕</button>
+                        <!-- <div class="search-container hideable-nav-item">                             -->
+                            <!-- <div class="search-input-group"> -->
+                                <!-- <input type="text"  -->
+                                       <!-- id="place-search-input"  -->
+                                       <!-- class="search-input" -->
+                                       <!-- placeholder="Введите название..." -->
+                                       <!-- aria-label="Поиск населённого пункта"> -->
+                                <!-- <button id="place-search-btn" class="search-btn" title="Найти">🔍</button> -->
+                                <!-- <button id="clear-search-btn" class="clear-search-btn" title="Очистить результаты">✕</button> -->
+                            <!-- </div> -->
+                            <!-- <div id="search-status" class="search-status" aria-live="polite"></div> -->
+                            <!-- <div id="search-results" class="search-results" role="region" aria-label="Результаты поиска"></div> -->
+                        <!-- </div> -->
+                        
+                        <div class="filter-buttons">
+                            <div class="filter-btn-container">
+                                <button id="date-range-btn" class="filter-btn active" title="Фильтр по дате">📅</button>
+                                <div id="date-range-dropdown" class="dropdown-content">
+                                    <div class="range-option" data-range="week">1 неделя</div>
+                                    <div class="range-option" data-range="month">1 месяц</div>
+                                    <div class="range-option" data-range="3months">3 месяца</div>
+                                    <div class="range-option" data-range="6months">6 месяцев</div>
+                                    <div class="range-option" data-range="year">1 год</div>
+                                </div>
                             </div>
-                            <div id="search-status" class="search-status" aria-live="polite"></div>
-                            <div id="search-results" class="search-results" role="region" aria-label="Результаты поиска"></div>
+                            <button class="filter-btn disabled" title="Фильтр 2">②</button>
+                            <button class="filter-btn disabled" title="Фильтр 3">③</button>
+                            <button class="filter-btn disabled" title="Фильтр 4">④</button>
                         </div>
 
                         <!-- Кнопка для открытия меню -->
