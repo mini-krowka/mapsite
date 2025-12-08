@@ -301,13 +301,18 @@ window.kmlFiles = [
         	                    "kml/ControlZones/Control_25_12_04.kml",
     	                        "kml/Progress/RuAF/ProgressRuAF_25_12_04.kml",
 								"kml/FrontLine/FrontLine_25_12_04.kml",
-                                "kml/Progress/AFU/ProgressAFU_25_12_04.kml"] }
+                                "kml/Progress/AFU/ProgressAFU_25_12_04.kml"] },
+	{name: "08.12.25", paths: [
+        	                    "kml/ControlZones/Control_25_12_08.kml",
+    	                        "kml/Progress/RuAF/ProgressRuAF_25_12_08.kml",
+								"kml/FrontLine/FrontLine_25_12_08.kml",
+                                "kml/Progress/AFU/ProgressAFU_25_12_08.kml"] }
    ];
 
 // Постоянные слои
 window.permanentLayers = [
     // Текущая ЛБС
-    { name: "Current_frontline",      path: "kml/FrontLine/FrontLine_25_12_04.kml" },
+    { name: "Current_frontline",      path: "kml/FrontLine/FrontLine_25_12_08.kml" },
 	// Текущий прогресс 
 	// { name: "Current_progress_RuAF",      path: "kml/Progress/RuAF/ProgressRuAF_Current.kml" },
 	// { name: "Current_progress_AFU",      path: "kml/Progress/AFU/ProgressAFU_Current.kml" },
@@ -347,9 +352,10 @@ window.cities = [
  window.pointsKmlPath = "kml/Geolocations/2025 год ноябрь - декабрь.kml"; // Путь к файлу с точками
  window.pointLayers = [];
  window.pointsDateRange = {
-    start: new Date(2025, 10, 30), // ранняя дата
+    start: new Date(2025, 11, 04), // ранняя дата
     end: new Date(2025, 11, 31)   // поздняя дата
  };
+
 
 
 
