@@ -1268,16 +1268,26 @@ function getStartDateByRange(rangeType, baseDate = null) {
 
 // Функция для инициализации кнопок фильтров
 function initFilterButtons() {
+    console.log('Инициализация фильтров...');
+    
     const dateRangeBtn = document.getElementById('date-range-btn');
     const dateRangeDropdown = document.getElementById('date-range-dropdown');
     const rangeOptions = document.querySelectorAll('.range-option');
     
-    if (!dateRangeBtn || !dateRangeDropdown) return;
+    if (!dateRangeBtn || !dateRangeDropdown) {
+        console.error('Не найдены элементы фильтра:', {dateRangeBtn, dateRangeDropdown});
+        return;
+    }
+    
+    console.log('Элементы фильтра найдены');
     
     // Обработчик клика на кнопку фильтра дат
     dateRangeBtn.addEventListener('click', function(e) {
+        console.log('Кнопка фильтра нажата');
         e.stopPropagation();
+        e.preventDefault();
         dateRangeDropdown.classList.toggle('show');
+        console.log('Класс show:', dateRangeDropdown.classList.contains('show'));
     });
     
     // Обработчик клика на опции диапазона
@@ -1325,6 +1335,12 @@ function initFilterButtons() {
             alert('Эта функция находится в разработке');
         });
     });
+    
+    // Инициализация состояния кнопки
+    updateDateRangeButtonTitle();
+    
+    // Применяем начальный фильтр
+    updatePointsDateFilter();
 }
 
 // Функция для обновления заголовка кнопки фильтра дат
@@ -1594,6 +1610,9 @@ async function init() {
     
     // Загружаем точки с фильтром
     await initPointsLayer(window.pointsKmlPath);
+    
+    // Инициализация кнопок фильтров
+    initFilterButtons();
     
     // Шаг 2: Инициализируем основные компоненты UI
     initDatePicker();    
