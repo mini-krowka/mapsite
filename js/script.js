@@ -1130,7 +1130,7 @@ function isDateInRange(pointDate, startDate, endDate) {
 }
 
 // Функция для обновления отображаемых точек (можно вызывать при изменении диапазона дат)
-function updatePointsDisplay() {
+async function updatePointsDisplay() {  // Добавьте async здесь
     if (window.currentPointsLayer) {
         // Очищаем текущий слой
         window.currentPointsLayer.clearLayers();
@@ -1383,27 +1383,27 @@ function initFilterButtons() {
     
     // Обработчик клика на опции диапазона
     rangeOptions.forEach(option => {
-        option.addEventListener('click', function() {
-            const range = this.getAttribute('data-range');
-            
-            // Убираем активный класс со всех опций
-            rangeOptions.forEach(opt => opt.classList.remove('active'));
-            // Добавляем активный класс выбранной опции
-            this.classList.add('active');
-            
-            // Сохраняем выбранный диапазон
-            currentDateRange = range;
-            
-            // Обновляем заголовок кнопки (можно добавить иконку или текст)
-            updateDateRangeButtonTitle();
-            
-            // Применяем фильтр
-            updatePointsDateFilter();
-            
-            // Закрываем выпадающий список
-            dateRangeDropdown.classList.remove('show');
-        });
-    });
+		option.addEventListener('click', async function() {  // Добавьте async здесь
+			const range = this.getAttribute('data-range');
+			
+			// Убираем активный класс со всех опций
+			rangeOptions.forEach(opt => opt.classList.remove('active'));
+			// Добавляем активный класс выбранной опции
+			this.classList.add('active');
+			
+			// Сохраняем выбранный диапазон
+			currentDateRange = range;
+			
+			// Обновляем заголовок кнопки
+			updateDateRangeButtonTitle();
+			
+			// Применяем фильтр
+			await updatePointsDateFilter();  // Добавьте await
+			
+			// Закрываем выпадающий список
+			dateRangeDropdown.classList.remove('show');
+		});
+	});
     
     // Устанавливаем активную опцию по умолчанию
     document.querySelector(`.range-option[data-range="${currentDateRange}"]`)?.classList.add('active');
@@ -1451,7 +1451,7 @@ function updateDateRangeButtonTitle() {
 }
 
 // Функция для обновления фильтра точек по дате
-async function updatePointsDateFilter() {
+async function updatePointsDateFilter() {  
     if (!window.currentPointsLayer || !window.pointsDateRange) return;
     
     // Получаем текущую выбранную дату
@@ -1468,9 +1468,9 @@ async function updatePointsDateFilter() {
     window.pointsDateRange.end = currentDate;
     
     // Перезагружаем точки с новым фильтром
-    if (window.currentPointsLayer && window.currentPointsKmlPath) {
+    if (window.currentPointsLayer) {
         window.currentPointsLayer.clearLayers();
-        await loadPointsFromKml(window.currentPointsKmlPath, window.currentPointsLayer);
+        await loadPointsFromAllKmlFiles(window.currentPointsLayer);  // Добавьте await
     }
 }
 
@@ -1493,17 +1493,9 @@ async function navigateTo(index) {
         await loadKmlFile(file);
         
         // Обновляем фильтр точек для новой даты
-        if (window.currentPointsLayer && window.pointsDateRange) {
-            const currentDate = parseCustomDate(selectedDate);
-            const startDate = getStartDateByRange(currentDateRange, currentDate);
-            
-            window.pointsDateRange.start = startDate;
-            window.pointsDateRange.end = currentDate;
-            
-            // Перезагружаем точки из всех файлов
-            window.currentPointsLayer.clearLayers();
-            await loadPointsFromAllKmlFiles(window.currentPointsLayer);
-        }
+        await updatePointsDateFilter();  // Добавьте await здесь
+        // или можно просто вызвать без await, если не нужно ждать завершения:
+        // updatePointsDateFilter();
         
     } catch (error) {
         console.error("Ошибка навигации:", error);
