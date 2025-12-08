@@ -726,10 +726,13 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup,  style
             const [lat, lng] = coordinates[0];
             
             // Проверяем, попадает ли точка в диапазон дат
-            if (date && window.pointsDateRange && 
-                !isDateInRange(date, window.pointsDateRange.start, window.pointsDateRange.end)) {
-                return null; // Пропускаем точку, если она не в диапазоне
-            }
+			if (date && window.pointsDateRange) {
+				// Преобразуем дату из формата DD.MM.YYYY в объект Date
+				const pointDate = parseDateFromString(date);
+				if (pointDate && !isDateInRange(pointDate, window.pointsDateRange.start, window.pointsDateRange.end)) {
+					return null; // Пропускаем точку, если она не в диапазоне
+				}
+			}
 
             // Получаем иконку для точки
             const icon = getPointIcon(position);
@@ -1085,31 +1088,54 @@ function setPointsDateRange(startDate, endDate) {
     }
 }
 
-// Функция для проверки, попадает ли дата в диапазон
-function isDateInRange(dateString, startDate, endDate) {
+// Функция для парсинга даты из строки (поддерживает разные форматы)
+function parseDateFromString(dateString) {
+    if (!dateString) return null;
+    
     try {
-        const parts = dateString.split('.');
-        if (parts.length !== 3) return false;
+        // Поддерживаем форматы: DD.MM.YYYY, DD.MM.YY, DD-MM-YYYY, DD/MM/YYYY
+        const normalizedDate = dateString.replace(/[-\/]/g, '.');
+        const parts = normalizedDate.split('.');
         
-        const year = parseInt(parts[0]);
-        const month = parseInt(parts[1]) - 1;
-        const day = parseInt(parts[2]);
+        if (parts.length !== 3) return null;
         
-        const pointDate = new Date(year, month, day);
-        return pointDate >= startDate && pointDate <= endDate;
+        let day = parseInt(parts[0], 10);
+        let month = parseInt(parts[1], 10) - 1; // Месяцы в JS: 0-11
+        let year = parseInt(parts[2], 10);
+        
+        // Если год двухзначный, преобразуем в четырехзначный
+        if (year < 100) {
+            year = 2000 + year;
+        }
+        
+        return new Date(year, month, day);
     } catch (error) {
         console.error('Ошибка парсинга даты:', dateString, error);
-        return false;
+        return null;
     }
+}
+
+// Обновленная функция для проверки, попадает ли дата в диапазон
+function isDateInRange(pointDate, startDate, endDate) {
+    if (!pointDate || !startDate || !endDate) return true;
+    
+    // Если дата точки - это строка, преобразуем ее
+    if (typeof pointDate === 'string') {
+        pointDate = parseDateFromString(pointDate);
+    }
+    
+    if (!pointDate) return true;
+    
+    return pointDate >= startDate && pointDate <= endDate;
 }
 
 // Функция для обновления отображаемых точек (можно вызывать при изменении диапазона дат)
 function updatePointsDisplay() {
-    if (window.currentPointsLayer && window.currentPointsKmlPath) {
+    if (window.currentPointsLayer) {
         // Очищаем текущий слой
         window.currentPointsLayer.clearLayers();
-        // Перезагружаем точки с новым фильтром дат
-        loadPointsFromKml(window.currentPointsKmlPath, window.currentPointsLayer);
+        // Перезагружаем точки из всех файлов с новым фильтром дат
+        await loadPointsFromAllKmlFiles(window.currentPointsLayer);
     }
 }
 
@@ -1215,6 +1241,71 @@ async function loadPointsFromKml(filePath, layerGroup) {
     }
 }
 
+// Функция для загрузки KML с точками из одного файла
+async function loadPointsFromSingleKml(filePath, layerGroup) {
+    try {
+        const response = await fetch(filePath);
+        if (!response.ok) {
+            console.error(`Ошибка загрузки KML с точками (${filePath}): ${response.status}`);
+            return null;
+        }
+
+        const kmlText = await response.text();
+        const parser = new DOMParser();
+        const kmlDoc = parser.parseFromString(kmlText, "text/xml");
+
+        if (LOG_STYLES) {
+            console.groupCollapsed(`Points layer loaded: ${filePath}`);
+        }
+
+        // Загружаем только точки
+        const bounds = parsePlacemarksFromKmlDoc(kmlDoc, {}, {}, layerGroup, window.kmlStyleModes.DEFAULT, { 
+            pointsOnly: true 
+        });
+        
+        if (LOG_STYLES) {
+            console.log(`Points loaded from ${filePath}: ${layerGroup.getLayers().length}`);
+            console.groupEnd();
+        }
+        
+        return bounds;
+    } catch (error) {
+        console.error(`Ошибка загрузки KML с точками: ${filePath}`, error);
+        return null;
+    }
+}
+
+// Новая функция для загрузки точек из всех файлов
+async function loadPointsFromAllKmlFiles(layerGroup) {
+    if (!window.pointsKmlPaths || !window.pointsKmlPaths.length) {
+        console.error("Массив путей к файлам точек не определен или пуст");
+        return null;
+    }
+
+    let allBounds = L.latLngBounds();
+    let hasValidBounds = false;
+    
+    // Очищаем слой перед загрузкой новых точек
+    layerGroup.clearLayers();
+    
+    for (const filePath of window.pointsKmlPaths) {
+        try {
+            const bounds = await loadPointsFromSingleKml(filePath, layerGroup);
+            if (bounds && bounds.isValid && bounds.isValid()) {
+                allBounds.extend(bounds);
+                hasValidBounds = true;
+            }
+        } catch (error) {
+            console.error(`Ошибка при загрузке точек из файла ${filePath}:`, error);
+        }
+    }
+    
+    // Сохраняем ссылки для последующего обновления
+    window.currentPointsLayer = layerGroup;
+    
+    return hasValidBounds ? allBounds : null;
+}
+
 // Функция для инициализации слоя с точками
 async function initPointsLayer(kmlFilePath) {
     // Удаляем старый слой точек, если он существует
@@ -1226,8 +1317,8 @@ async function initPointsLayer(kmlFilePath) {
     const pointsLayerGroup = L.layerGroup();
     pointsLayerGroup.addTo(map);
     
-    // Загружаем точки из KML
-    await loadPointsFromKml(kmlFilePath, pointsLayerGroup);
+    // Загружаем точки из всех KML файлов
+    await loadPointsFromAllKmlFiles(pointsLayerGroup);
     
     return pointsLayerGroup;
 }
@@ -1409,9 +1500,9 @@ async function navigateTo(index) {
             window.pointsDateRange.start = startDate;
             window.pointsDateRange.end = currentDate;
             
-            // Перезагружаем точки
+            // Перезагружаем точки из всех файлов
             window.currentPointsLayer.clearLayers();
-            await loadPointsFromKml(window.currentPointsKmlPath, window.currentPointsLayer);
+            await loadPointsFromAllKmlFiles(window.currentPointsLayer);
         }
         
     } catch (error) {
@@ -1608,8 +1699,8 @@ async function init() {
     window.pointsDateRange.start = startDate;
     window.pointsDateRange.end = currentDate;
     
-    // Загружаем точки с фильтром
-    await initPointsLayer(window.pointsKmlPath);
+    // Загружаем точки из всех файлов с фильтром
+    await initPointsLayer();
     
     // Инициализация кнопок фильтров
     initFilterButtons();
