@@ -1246,7 +1246,8 @@ async function initPointsLayer(kmlFilePaths) {
 
 // Функция для вычисления даты начала на основе текущей даты и диапазона
 function getStartDateByRange(rangeType, baseDate = null) {
-    const date = baseDate || new Date(); // Если базовая дата не указана, используем текущую
+    // const date = baseDate || new Date(); // Если базовая дата не указана, используем текущую
+    const date = new Date(); // используем текущую
     const result = new Date(date);
     
     switch(rangeType) {
