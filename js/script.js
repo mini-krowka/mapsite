@@ -1246,8 +1246,8 @@ async function initPointsLayer(kmlFilePaths) {
 
 // Функция для вычисления даты начала на основе текущей даты и диапазона
 function getStartDateByRange(rangeType, baseDate = null) {
-    // const date = baseDate || new Date(); // Если базовая дата не указана, используем текущую
-    const date = new Date(); // используем текущую
+    // Используем переданную дату или текущую дату
+    const date = baseDate || parseCustomDate(selectedDate) || new Date();
     const result = new Date(date);
     
     switch(rangeType) {
@@ -1370,13 +1370,10 @@ function updateDateRangeButtonTitle() {
 async function updatePointsDateFilter() {
     if (!window.currentPointsLayer || !window.pointsDateRange || !window.currentPointsKmlPaths) return;
     
-    // Получаем текущую выбранную дату
-    const currentDateStr = selectedDate || kmlFiles[kmlFiles.length - 1].name;
+    // Получаем выбранную дату из календаря
+    const currentDate = parseCustomDate(selectedDate);
     
-    // Преобразуем строку даты в объект Date
-    const currentDate = parseCustomDate(currentDateStr);
-    
-    // Вычисляем начальную дату на основе выбранного диапазона
+    // Вычисляем начальную дату на основе выбранного диапазона и выбранной даты
     const startDate = getStartDateByRange(currentDateRange, currentDate);
     
     // Обновляем диапазон дат
@@ -1614,8 +1611,7 @@ async function init() {
     // Инициализируем диапазон дат для точек
     window.pointsDateRange = window.pointsDateRange || { start: null, end: null };    
     // Устанавливаем начальный диапазон (1 неделя)
-    const currentDateStr = kmlFiles[kmlFiles.length - 1].name;
-    const currentDate = parseCustomDate(currentDateStr);
+    const currentDate = parseCustomDate(selectedDate);
     const startDate = getStartDateByRange('week', currentDate);
     
     window.pointsDateRange.start = startDate;
