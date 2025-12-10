@@ -1639,7 +1639,7 @@ async function init() {
     window.pointsDateRange.end = currentDate;
     
     // Загружаем точки с фильтром
-    await initPointsLayer(window.pointsKmlPath);
+    await initPointsLayer(window.pointsKmlPaths);
     
     // Шаг 5: Инициализация кнопок фильтров
     initFilterButtons();
@@ -2766,6 +2766,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
 });
+
 
 
 
