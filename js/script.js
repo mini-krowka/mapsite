@@ -21,8 +21,23 @@ const availableDates = kmlFiles.map(file => file.name);
 
 // Функция для преобразования даты из формата DD.MM.YY в объект Date
 function parseCustomDate(dateStr) {
-    const [day, month, year] = dateStr.split('.').map(Number);
-    return new Date(2000 + year, month - 1, day);
+    if (!dateStr) {
+        console.warn('parseCustomDate: dateStr is null or undefined, returning current date');
+        return new Date();
+    }
+    
+    try {
+        const [day, month, year] = dateStr.split('.').map(Number);
+        // Добавляем проверку на валидность чисел
+        if (isNaN(day) || isNaN(month) || isNaN(year)) {
+            console.warn('parseCustomDate: invalid date format, returning current date');
+            return new Date();
+        }
+        return new Date(2000 + year, month - 1, day);
+    } catch (error) {
+        console.error('parseCustomDate: error parsing date', error);
+        return new Date();
+    }
 }
 
 // Инициализация календаря с ограничением доступных дат
@@ -1607,10 +1622,16 @@ async function init() {
     // Шаг 1: Загружаем постоянные слои
     await loadPermanentKmlLayers();
     
-    // и точки
+    // Шаг 2: Инициализируем selectedDate последней доступной датой
+    selectedDate = kmlFiles[kmlFiles.length - 1].name;
+    
+    // Шаг 3: Инициализируем календарь с выбранной датой
+    initDatePicker();
+    
+    // Шаг 4: Инициализируем точки
     // Инициализируем диапазон дат для точек
     window.pointsDateRange = window.pointsDateRange || { start: null, end: null };    
-    // Устанавливаем начальный диапазон (1 неделя)
+    // Устанавливаем начальный диапазон (1 неделя) на основе выбранной даты
     const currentDate = parseCustomDate(selectedDate);
     const startDate = getStartDateByRange('week', currentDate);
     
@@ -1618,28 +1639,26 @@ async function init() {
     window.pointsDateRange.end = currentDate;
     
     // Загружаем точки с фильтром
-    await initPointsLayer(window.pointsKmlPaths);
+    await initPointsLayer(window.pointsKmlPath);
     
-    // Инициализация кнопок фильтров
+    // Шаг 5: Инициализация кнопок фильтров
     initFilterButtons();
     
-    // Шаг 2: Инициализируем основные компоненты UI
-    initDatePicker();    
-    selectedDate = kmlFiles[kmlFiles.length - 1].name; // Инициализируем selectedDate последней доступной датой
+    // Шаг 6: Инициализируем другие UI компоненты
     populateCitiesDropdown();
     document.querySelector('.date-navigator-wrapper').style.display = 'block';
         
-    // Шаг 3: Ждем когда все элементы интерфейса будут доступны
+    // Шаг 7: Ждем когда все элементы интерфейса будут доступны
     await waitForUIElements();
     
-    // Шаг 4: Загружаем данные карты
+    // Шаг 8: Загружаем данные карты
     preserveZoom = true;
     currentIndex = kmlFiles.length - 1;
     // Явно устанавливаем вид только один раз
     map.setView([48.257381, 37.134785], 10);
     await navigateTo(currentIndex);
     
-    // Шаг 5: Финализируем инициализацию карты
+    // Шаг 9: Финализируем инициализацию карты
     setTimeout(() => {
       if (map) map.invalidateSize();
       updateCurrentCenterDisplay();
