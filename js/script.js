@@ -40,11 +40,43 @@ function parseCustomDate(dateStr) {
     }
 }
 
+// Функция для получения текущей даты в формате DD.MM.YY
+function getCurrentDateFormatted() {
+    const now = new Date();
+    const day = String(now.getDate()).padStart(2, '0');
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const year = String(now.getFullYear()).slice(-2);
+    return `${day}.${month}.${year}`;
+}
+
+// Функция для нахождения ближайшей доступной даты к указанной
+function findNearestAvailableDate(targetDateStr) {
+    if (!targetDateStr || availableDates.length === 0) {
+        return kmlFiles[kmlFiles.length - 1]?.name || null;
+    }
+    
+    const targetDate = parseCustomDate(targetDateStr);
+    let nearestDate = null;
+    let minDiff = Infinity;
+    
+    for (const dateStr of availableDates) {
+        const date = parseCustomDate(dateStr);
+        const diff = Math.abs(targetDate - date);
+        
+        if (diff < minDiff) {
+            minDiff = diff;
+            nearestDate = dateStr;
+        }
+    }
+    
+    return nearestDate || kmlFiles[kmlFiles.length - 1]?.name;
+}
+
 // Инициализация календаря - теперь позволяет выбирать любую дату
 let datePicker;
 function initDatePicker() {
-    // Используем сохраненную дату или последнюю доступную
-    const defaultDate = selectedDate || kmlFiles[kmlFiles.length - 1].name;
+    // Используем сохраненную дату или текущую дату
+    const defaultDate = selectedDate || getCurrentDateFormatted();
     
     datePicker = flatpickr("#date-picker", {
         locale: currentLang === 'ru' ? 'ru' : 'default',
@@ -58,30 +90,21 @@ function initDatePicker() {
             // Обновляем selectedDate на выбранную дату
             selectedDate = dateStr;
             
-            // Ищем индекс этой даты в kmlFiles (может не быть)
-            const index = kmlFiles.findIndex(file => file.name === dateStr);
+            // Обновляем фильтр точек для новой даты
+            updatePointsDateFilterForSelectedDate();
+            
+            // Перезагружаем точки с новым фильтром
+            reloadPointsWithCurrentFilter();
+            
+            // Ищем индекс ближайшей доступной даты
+            const nearestDate = findNearestAvailableDate(dateStr);
+            const index = kmlFiles.findIndex(file => file.name === nearestDate);
             
             if (index !== -1) {
-                // Если есть KML для этой даты - загружаем его
-                navigateTo(index);
+                // Загружаем KML для ближайшей доступной даты
+                loadKmlForNearestDate(index);
             } else {
-                // Если нет KML для этой даты:
-                console.log('Для выбранной даты нет KML файла:', dateStr);
-                
-                // 1. Обновляем фильтр точек для новой даты
-                updatePointsDateFilterForSelectedDate();
-                
-                // 2. Перезагружаем точки с новым фильтром
-                if (window.currentPointsLayer && window.pointsDateRange && window.currentPointsKmlPaths) {
-                    window.currentPointsLayer.clearLayers();
-                    
-                    for (const path of window.currentPointsKmlPaths) {
-                        loadPointsFromKml(path, window.currentPointsLayer);
-                    }
-                }
-                
-                // 3. Обновляем интерфейс
-                updateButtons();
+                console.log('Не найдено ни одной доступной даты для загрузки KML');
             }
         },
         onDayCreate: function(dObj, dStr, fp, dayElem) {
@@ -112,6 +135,38 @@ function initDatePicker() {
             }
         }
     });
+}
+
+// Новая функция для загрузки KML по ближайшей доступной дате
+async function loadKmlForNearestDate(index) {
+    if (index < 0 || index >= kmlFiles.length) return;
+    
+    try {
+        currentIndex = index;
+        const file = kmlFiles[currentIndex];
+        
+        console.log(`Загрузка KML для ближайшей доступной даты: ${file.name}`);
+        
+        // Загружаем KML без изменения масштаба
+        await loadKmlFile(file);
+        
+        // Обновляем кнопки навигации
+        updateButtons();
+    } catch (error) {
+        console.error("Ошибка загрузки KML для ближайшей даты:", error);
+    }
+}
+
+// Новая функция для перезагрузки точек с текущим фильтром
+async function reloadPointsWithCurrentFilter() {
+    if (!window.currentPointsLayer || !window.pointsDateRange || !window.currentPointsKmlPaths) return;
+    
+    // Перезагружаем точки из всех файлов с текущим фильтром
+    window.currentPointsLayer.clearLayers();
+    
+    for (const path of window.currentPointsKmlPaths) {
+        await loadPointsFromKml(path, window.currentPointsLayer);
+    }
 }
 
 // Новая функция для обновления фильтра точек при изменении выбранной даты
@@ -962,12 +1017,10 @@ async function loadKmlToLayer(filePath, layerGroup, options = {}) {
         
         if (LOG_STYLES) console.groupEnd();
         
-        // return { bounds, layerGroup };
-        return {  layerGroup };
+        return { layerGroup };
     } catch (error) {
         console.error(`Ошибка загрузки KML: ${filePath}`, error);
         return { layerGroup };
-        // return { bounds: L.latLngBounds(), layerGroup };
     }
 }
 
@@ -1021,9 +1074,6 @@ async function loadKmlFile(file, targetCRS) {
         await Promise.all(loadPromises);
         
         // Применяем границы
-        // const currentCenter = map.getCenter();
-        // const currentZoom = map.getZoom();
-        // applyTemporaryLayerBounds(bounds, currentCenter, currentZoom, preserveZoom);
         preserveZoom = true;
     } catch (error) {
         console.error("loadKmlFile: ${file.path} ", error);
@@ -1077,27 +1127,6 @@ async function loadPermanentKmlLayers() {
                 console.error(`Ошибка обработки слоя ${layerData.path}:`, error);
             }
         }
-
-        //// Вычисляем объединенные границы всех валидных слоев
-        // const allBounds = L.latLngBounds();
-        // let hasValidBounds = false;
-        
-        //// Для постоянных слоев границы вычисляются по-другому
-        //// так как мы не возвращаем bounds из loadKmlToLayer для постоянных слоев
-        // window.permanentLayerGroups.forEach(layerGroup => {
-            // layerGroup.eachLayer(layer => {
-                // if (layer.getBounds && layer.getBounds().isValid()) {
-                    // allBounds.extend(layer.getBounds());
-                    // hasValidBounds = true;
-                // }
-            // });
-        // });
-
-        // if (hasValidBounds) {
-            // applyPermanentLayersBounds(allBounds);
-        // } else {
-            // console.warn("Ни один постоянный слой не содержит валидных границ");
-        // }
         
     } catch (error) {
         console.error("Ошибка загрузки постоянных KML слоев:", error);
@@ -1130,19 +1159,6 @@ async function reloadKmlForCRS(center, zoom) {
     map.invalidateSize();
 }
 
-
-
-
-// Функция для установки диапазона дат
-// function setPointsDateRange(startDate, endDate) {
-    // window.pointsDateRange.start = startDate;
-    // window.pointsDateRange.end = endDate;
-    // Перезагружаем точки при изменении диапазона
-    // if (window.currentPointsLayer) {
-        // loadPointsFromKml(window.currentPointsKmlPath, window.currentPointsLayer);
-    // }
-// }
-
 // Функция для проверки, попадает ли дата в диапазон
 function isDateInRange(dateString, startDate, endDate) {
     try {
@@ -1160,16 +1176,6 @@ function isDateInRange(dateString, startDate, endDate) {
         return false;
     }
 }
-
-// Функция для обновления отображаемых точек (можно вызывать при изменении диапазона дат)
-// function updatePointsDisplay() {
-    // if (window.currentPointsLayer && window.currentPointsKmlPath) {
-        // Очищаем текущий слой
-        // window.currentPointsLayer.clearLayers();
-        // Перезагружаем точки с новым фильтром дат
-        // loadPointsFromKml(window.currentPointsKmlPath, window.currentPointsLayer);
-    // }
-// }
 
 // Функция для получения иконки точки на основе позиции
 function getPointIcon(position) {
@@ -1190,32 +1196,6 @@ function getPointIcon(position) {
         popupAnchor: [0, 0] // смещение для popup
     });
 }
-
-// Функция для получения стиля точки на основе позиции
-// function getPointStyle(position) {
-    // const styles = {
-        // 'ВС РФ': {
-            // color: '#ff0000',
-            // fillColor: '#ff0000',
-            // fillOpacity: 0.7,
-            // radius: 6
-        // },
-        // 'ВСУ': {
-            // color: '#0000ff', 
-            // fillColor: '#0000ff',
-            // fillOpacity: 0.7,
-            // radius: 6
-        // },
-        // 'default': {
-            // color: '#3388ff',
-            // fillColor: '#3388ff',
-            // fillOpacity: 0.7,
-            // radius: 6
-        // }
-    // };
-    
-    // return styles[position] || styles.default;
-// }
 
 // Функция для извлечения данных из ExtendedData
 function parseExtendedData(placemark) {
@@ -1294,12 +1274,6 @@ async function initPointsLayer(kmlFilePaths) {
     
     return pointsLayerGroup;
 }
-
-
-
-
-///////////////////////////////////////////////////////////////////////////////
-
 
 // Функция для вычисления даты начала на основе текущей даты и диапазона
 function getStartDateByRange(rangeType, baseDate = null) {
@@ -1447,15 +1421,15 @@ async function updatePointsDateFilter() {
     }
 }
 
-
-
-// Навигация к определенному индексу
+// Навигация к определенному индексу (для кнопок навигации по KML файлам)
 async function navigateTo(index) {
     if (index < 0 || index >= kmlFiles.length) return;
     
     try {        
         currentIndex = index;
         const file = kmlFiles[currentIndex];
+        
+        // Обновляем selectedDate на дату KML файла
         selectedDate = file.name;
         
         if (datePicker) {
@@ -1545,7 +1519,6 @@ document.getElementById('cities-dropdown').addEventListener('change', async func
 });
 
 // Обработчик выбора города
-
 citiesDropdown.addEventListener('change', function() {
     const selectedCityName = this.value;
     if (!selectedCityName) return;
@@ -1646,22 +1619,22 @@ function setupCopyCoordsButton() {
     }
 }
 
-
 async function init() {
   try {
     // Шаг 1: Загружаем постоянные слои
     await loadPermanentKmlLayers();
     
-    // Шаг 2: Инициализируем selectedDate последней доступной датой
-    selectedDate = kmlFiles[kmlFiles.length - 1].name;
+    // Шаг 2: Инициализируем selectedDate текущей датой
+    selectedDate = getCurrentDateFormatted();
+    console.log('Установлена текущая дата:', selectedDate);
     
-    // Шаг 3: Инициализируем календарь с выбранной датой
+    // Шаг 3: Инициализируем календарь с текущей датой
     initDatePicker();
     
     // Шаг 4: Инициализируем точки
     // Инициализируем диапазон дат для точек
     window.pointsDateRange = window.pointsDateRange || { start: null, end: null };    
-    // Устанавливаем начальный диапазон (1 неделя) на основе выбранной даты
+    // Устанавливаем начальный диапазон (1 неделя) на основе текущей даты
     const currentDate = parseCustomDate(selectedDate);
     const startDate = getStartDateByRange('week', currentDate);
     
@@ -1681,12 +1654,24 @@ async function init() {
     // Шаг 7: Ждем когда все элементы интерфейса будут доступны
     await waitForUIElements();
     
-    // Шаг 8: Загружаем данные карты
-    preserveZoom = true;
-    currentIndex = kmlFiles.length - 1;
-    // Явно устанавливаем вид только один раз
-    map.setView([48.257381, 37.134785], 10);
-    await navigateTo(currentIndex);
+    // Шаг 8: Находим и загружаем ближайший доступный KML к текущей дате
+    const nearestDate = findNearestAvailableDate(selectedDate);
+    const nearestIndex = kmlFiles.findIndex(file => file.name === nearestDate);
+    
+    if (nearestIndex !== -1) {
+        currentIndex = nearestIndex;
+        console.log(`Загружаем KML для ближайшей доступной даты: ${nearestDate} (индекс: ${nearestIndex})`);
+        
+        // Загружаем данные карты
+        preserveZoom = true;
+        // Явно устанавливаем вид только один раз
+        map.setView([48.257381, 37.134785], 10);
+        await loadKmlForNearestDate(nearestIndex);
+    } else {
+        console.log('Не найдено доступных KML файлов для загрузки');
+        // Устанавливаем вид по умолчанию
+        map.setView([48.257381, 37.134785], 10);
+    }
     
     // Шаг 9: Финализируем инициализацию карты
     setTimeout(() => {
@@ -1703,7 +1688,6 @@ async function init() {
         }
     }, 500);
     
-    //
     // Настройка кнопки после инициализации элементов
     setTimeout(() => {
         setupCopyCoordsButton();
@@ -1771,7 +1755,6 @@ function waitForUIElements() {
     checkElements();
   });
 }
-
 
 document.addEventListener('DOMContentLoaded', init);
 
@@ -1887,7 +1870,6 @@ map.whenReady(function() {
     }, 100);
 });
 
-
 // Обработчик для поля ввода координат
 function showCoordsError(input, message) {
     // убираем старый
@@ -1994,9 +1976,6 @@ document.querySelectorAll('#coords-input, #coords-input-clone').forEach(input =>
     });
 });
 
-
-
-
 // Добавляем обработчики для кнопок очистки (крестиков)
 document.addEventListener('click', function(e) {
     if (e.target.classList.contains('clear-input-btn')) {
@@ -2039,18 +2018,6 @@ document.addEventListener('click', function(e) {
     }
 });
 
-
-
-
-
-
-// обработчик для нажатия Enter в поле ввода
-// coordsInput.addEventListener('keypress', function(e) {
-    // if (e.key === 'Enter') {
-        // this.dispatchEvent(new Event('change'));
-    // }
-// });
-
 document.querySelectorAll('.view-menu-container').forEach(container => {
     const viewMenuBtn = container.querySelector('.view-menu-btn');
     
@@ -2074,7 +2041,6 @@ document.querySelectorAll('.view-menu-container').forEach(container => {
         });
     });
 });
-
 
 //////////////////////////////////////////////////////////////////////
 
