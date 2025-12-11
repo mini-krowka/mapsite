@@ -40,7 +40,7 @@ function parseCustomDate(dateStr) {
     }
 }
 
-// Инициализация календаря с ограничением доступных дат
+// Инициализация календаря - теперь позволяет выбирать любую дату
 let datePicker;
 function initDatePicker() {
     // Используем сохраненную дату или последнюю доступную
@@ -51,20 +51,37 @@ function initDatePicker() {
         dateFormat: "d.m.y",
         allowInput: true,
         defaultDate: defaultDate, // Используем сохраненную дату
-        enable: [
-            function(date) {
-                const dateStr = `${date.getDate().toString().padStart(2, '0')}.${(date.getMonth()+1).toString().padStart(2, '0')}.${date.getFullYear().toString().slice(-2)}`;
-                return availableDates.includes(dateStr);
-            }
-        ],
+        // Убираем ограничение, чтобы можно было выбрать любую дату
         onChange: function(selectedDates, dateStr) {
+            console.log('Дата выбрана в календаре:', dateStr);
+            
+            // Обновляем selectedDate на выбранную дату
+            selectedDate = dateStr;
+            
+            // Ищем индекс этой даты в kmlFiles (может не быть)
             const index = kmlFiles.findIndex(file => file.name === dateStr);
+            
             if (index !== -1) {
-                // Обновляем selectedDate при изменении в календаре
-                selectedDate = dateStr;
-                // Вычисляем новый диапазон дат и загружаем точки
-                updatePointsDateFilterForSelectedDate();
+                // Если есть KML для этой даты - загружаем его
                 navigateTo(index);
+            } else {
+                // Если нет KML для этой даты:
+                console.log('Для выбранной даты нет KML файла:', dateStr);
+                
+                // 1. Обновляем фильтр точек для новой даты
+                updatePointsDateFilterForSelectedDate();
+                
+                // 2. Перезагружаем точки с новым фильтром
+                if (window.currentPointsLayer && window.pointsDateRange && window.currentPointsKmlPaths) {
+                    window.currentPointsLayer.clearLayers();
+                    
+                    for (const path of window.currentPointsKmlPaths) {
+                        loadPointsFromKml(path, window.currentPointsLayer);
+                    }
+                }
+                
+                // 3. Обновляем интерфейс
+                updateButtons();
             }
         },
         onDayCreate: function(dObj, dStr, fp, dayElem) {
@@ -79,12 +96,19 @@ function initDatePicker() {
             
             const dateStr = `${dayElem.dateObj.getDate().toString().padStart(2, '0')}.${(dayElem.dateObj.getMonth()+1).toString().padStart(2, '0')}.${dayElem.dateObj.getFullYear().toString().slice(-2)}`;
             
+            // Подсвечиваем даты, для которых есть KML файлы
             if (availableDates.includes(dateStr)) {
                 dayElem.classList.add('available');
                 
-                if (dateStr === kmlFiles[currentIndex].name) {
+                // Если это текущая выбранная дата и она есть в KML файлах
+                if (dateStr === selectedDate && kmlFiles[currentIndex]?.name === selectedDate) {
                     dayElem.classList.add('selected');
                 }
+            }
+            
+            // Также выделяем выбранную дату, даже если для нее нет KML
+            if (dateStr === selectedDate) {
+                dayElem.classList.add('selected');
             }
         }
     });
