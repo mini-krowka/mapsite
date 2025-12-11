@@ -60,6 +60,10 @@ function initDatePicker() {
         onChange: function(selectedDates, dateStr) {
             const index = kmlFiles.findIndex(file => file.name === dateStr);
             if (index !== -1) {
+                // Обновляем selectedDate при изменении в календаре
+                selectedDate = dateStr;
+                // Вычисляем новый диапазон дат и загружаем точки
+                updatePointsDateFilterForSelectedDate();
                 navigateTo(index);
             }
         },
@@ -86,6 +90,21 @@ function initDatePicker() {
     });
 }
 
+// Новая функция для обновления фильтра точек при изменении выбранной даты
+function updatePointsDateFilterForSelectedDate() {
+    if (!window.currentPointsLayer || !window.pointsDateRange || !window.currentPointsKmlPaths) return;
+    
+    // Получаем выбранную дату из календаря
+    const currentDate = parseCustomDate(selectedDate);
+    
+    // Вычисляем начальную дату на основе выбранного диапазона и выбранной даты
+    const startDate = getStartDateByRange(currentDateRange, currentDate);
+    
+    // Обновляем диапазон дат
+    window.pointsDateRange.start = startDate;
+    window.pointsDateRange.end = currentDate;
+}
+
 // Функция для проверки валидности координат
 function isValidCoordinate(value, isLatitude) {
     const num = parseFloat(value);
@@ -102,10 +121,10 @@ function updateCurrentCenterDisplay() {
     const center = map.getCenter();
     if (center.lat === 0 && center.lng === 0) return; // Игнорируем нулевые координаты
     
-	// обновление лейбла
+    // обновление лейбла
     currentCenterCoordsElement.textContent =
         `${center.lat.toFixed(6)}, ${center.lng.toFixed(6)}`;
-		
+        
     // Обновляем клон лейбла для дартс-меню
     const cloneCoords = document.getElementById('current-center-coords-clone');
     if (cloneCoords) {
@@ -637,82 +656,82 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup,  style
             } : null);
         }
 
-		function parseAndAddPolygon(polygon)
-		{
-			const coords = parseCoordinates(polygon.querySelector('LinearRing'), map.options.crs);
+        function parseAndAddPolygon(polygon)
+        {
+            const coords = parseCoordinates(polygon.querySelector('LinearRing'), map.options.crs);
                 if (coords.length < 3) {
                     if (LOG_STYLES) console.log(`Polygon skipped - insufficient coordinates: ${coords.length}`);
                     return;
                 }
 
-			let polyStyle = {};
-			
-			if (styleMode === window.kmlStyleModes.DEFAULT)
-				polyStyle = {
+            let polyStyle = {};
+            
+            if (styleMode === window.kmlStyleModes.DEFAULT)
+                polyStyle = {
                     color: style.line.color || '#3388ff',
                     weight: style.line.weight || 0,
                     fillColor: style.poly.fillColor || '#3388ff',
                     fillOpacity: style.poly.fillOpacity || 0.5,
                     interactive: false // Отключаем интерактивность полигонов
-				};
-			else
-				polyStyle = window.kmlStyles[styleMode].polygon;
+                };
+            else
+                polyStyle = window.kmlStyles[styleMode].polygon;
 
-			// Создаем полигон
-			const poly = L.polygon(coords, polyStyle).addTo(layerGroup);
-			
-			// Обновляем границы				
-			if (poly.getBounds().isValid()) {
-				bounds.extend(poly.getBounds());
-			}
-			// Добавляем метку, если есть название
-			if (name && name.trim() !== '') {
-				addLabelToLayer(name, 'Polygon', coords, layerGroup);
-			}			
+            // Создаем полигон
+            const poly = L.polygon(coords, polyStyle).addTo(layerGroup);
+            
+            // Обновляем границы                
+            if (poly.getBounds().isValid()) {
+                bounds.extend(poly.getBounds());
+            }
+            // Добавляем метку, если есть название
+            if (name && name.trim() !== '') {
+                addLabelToLayer(name, 'Polygon', coords, layerGroup);
+            }            
 
-			// Логирование информации о полигоне
-			if (LOG_STYLES) {
-				console.log(`Polygon in MultiGeometry #${++elementCount}:`);
-				console.log('- Coordinates count:', coords.length);
-				console.log('- Applied styles:', {
-					color: polyStyle.color || '#3388ff',
-					weight: polyStyle.weight || 3,
-					fillColor: polyStyle.fillColor || '#3388ff',
-					fillOpacity: polyStyle.fillOpacity || 0.5
-				});
-			}
-			
-			return poly;
-		}
-		
-		function parseAndAddLineString(lineString)
-		{
-			const coords = parseCoordinates(lineString, map.options.crs);
+            // Логирование информации о полигоне
+            if (LOG_STYLES) {
+                console.log(`Polygon in MultiGeometry #${++elementCount}:`);
+                console.log('- Coordinates count:', coords.length);
+                console.log('- Applied styles:', {
+                    color: polyStyle.color || '#3388ff',
+                    weight: polyStyle.weight || 3,
+                    fillColor: polyStyle.fillColor || '#3388ff',
+                    fillOpacity: polyStyle.fillOpacity || 0.5
+                });
+            }
+            
+            return poly;
+        }
+        
+        function parseAndAddLineString(lineString)
+        {
+            const coords = parseCoordinates(lineString, map.options.crs);
                 if (coords.length < 2) {
                     if (LOG_STYLES) console.log(`LineString skipped - insufficient coordinates: ${coords.length}`);
                     return;
                 }
-				
-				let lineStyle = {};				
-				
-				if (styleMode === window.kmlStyleModes.DEFAULT)
-					lineStyle = {
-						color: style.line.color || '#3388ff',
-						weight: style.line.weight || 3,
-						opacity: style.line.opacity || 1,
-						interactive: false // Отключаем интерактивность полигонов
-					};
-				else
-					lineStyle = window.kmlStyles[styleMode].polyline;
-				
+                
+                let lineStyle = {};                
+                
+                if (styleMode === window.kmlStyleModes.DEFAULT)
+                    lineStyle = {
+                        color: style.line.color || '#3388ff',
+                        weight: style.line.weight || 3,
+                        opacity: style.line.opacity || 1,
+                        interactive: false // Отключаем интерактивность полигонов
+                    };
+                else
+                    lineStyle = window.kmlStyles[styleMode].polyline;
+                
 
                 const polyline = L.polyline(coords, lineStyle).addTo(layerGroup);
 
-				// Обновляем границы	
+                // Обновляем границы    
                 if (polyline.getBounds().isValid()) {
                     bounds.extend(polyline.getBounds());
                 }
-				// Добавляем метку, если есть название                
+                // Добавляем метку, если есть название                
                 if (name && name.trim() !== '') {
                     addLabelToLayer(name, 'LineString', coords, layerGroup);
                 }
@@ -727,8 +746,8 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup,  style
                         opacity: lineStyle.opacity || 1
                     });
                 }
-				return polyline;
-		}
+                return polyline;
+        }
 
 
         function parseAndAddPoint(pointElement, date, position, descriptionUrl) {
@@ -797,37 +816,37 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup,  style
 
         // Функция для форматирования названия с заменой ссылок на кликабельные
         function formatNameWithLinks(name) 
-		{
-		    if (!name) return '';
-		    
-		    // Простая замена паттернов на гиперссылки
-		    let formatted = name;
-		    
-		    // Заменяем "Источник url" на "Источник" (только слово "Источник" становится ссылкой)
-		    formatted = formatted.replace(/Источник\s+(https?:\/\/[^\s]+)/g, 
-		        '<a href="$1" target="_blank" style="color: #007bff; text-decoration: none;">Источник</a>');
-		    
-		    // Заменяем "Источник 21+ url" на "Источник 21+" (только слова "Источник 21+" становятся ссылкой)
-		    formatted = formatted.replace(/Источник\s+21\+\s+(https?:\/\/[^\s]+)/g, 
-		        '<a href="$1" target="_blank" style="color: #007bff; text-decoration: none;">Источник 21+</a>');
-		    
-		    // Заменяем "Геопривязка url" на "Геопривязка" (только слово "Геопривязка" становится ссылкой)
-		    formatted = formatted.replace(/Геопривязка\s+(https?:\/\/[^\s]+)/g, 
-		        '<a href="$1" target="_blank" style="color: #007bff; text-decoration: none;">Геопривязка</a>');
-		    
-		    // Заменяем "Согласно url" на "Согласно..." (только слово "Согласно" становится ссылкой)
-		    formatted = formatted.replace(/Согласно\s+(https?:\/\/[^\s]+)/g, 
-		        '<a href="$1" target="_blank" style="color: #007bff; text-decoration: none;">Согласно...</a>');
-		    
-		    return formatted;
-		}
+        {
+            if (!name) return '';
+            
+            // Простая замена паттернов на гиперссылки
+            let formatted = name;
+            
+            // Заменяем "Источник url" на "Источник" (только слово "Источник" становится ссылкой)
+            formatted = formatted.replace(/Источник\s+(https?:\/\/[^\s]+)/g, 
+                '<a href="$1" target="_blank" style="color: #007bff; text-decoration: none;">Источник</a>');
+            
+            // Заменяем "Источник 21+ url" на "Источник 21+" (только слова "Источник 21+" становятся ссылкой)
+            formatted = formatted.replace(/Источник\s+21\+\s+(https?:\/\/[^\s]+)/g, 
+                '<a href="$1" target="_blank" style="color: #007bff; text-decoration: none;">Источник 21+</a>');
+            
+            // Заменяем "Геопривязка url" на "Геопривязка" (только слово "Геопривязка" становится ссылкой)
+            formatted = formatted.replace(/Геопривязка\s+(https?:\/\/[^\s]+)/g, 
+                '<a href="$1" target="_blank" style="color: #007bff; text-decoration: none;">Геопривязка</a>');
+            
+            // Заменяем "Согласно url" на "Согласно..." (только слово "Согласно" становится ссылкой)
+            formatted = formatted.replace(/Согласно\s+(https?:\/\/[^\s]+)/g, 
+                '<a href="$1" target="_blank" style="color: #007bff; text-decoration: none;">Согласно...</a>');
+            
+            return formatted;
+        }
 
         // Обработка MultiGeometry
         const multiGeometry = placemark.querySelector('MultiGeometry');
         if (multiGeometry) {
             // Обработка Polygon в MultiGeometry
             multiGeometry.querySelectorAll('Polygon').forEach(polygon => {                
-				const poly = parseAndAddPolygon(polygon);
+                const poly = parseAndAddPolygon(polygon);
             });
 
             // Обработка LineString в MultiGeometry
@@ -848,14 +867,14 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup,  style
         // Обработка Polygon
         const polygon = placemark.querySelector('Polygon');
         if (polygon && !multiGeometry) {                
-				const poly = parseAndAddPolygon(polygon);
+                const poly = parseAndAddPolygon(polygon);
         }
 
         // Обработка LineString
         const lineString = placemark.querySelector('LineString');
         if (lineString && !multiGeometry) {
-			const polyline = parseAndAddLineString(lineString);
-		}
+            const polyline = parseAndAddLineString(lineString);
+        }
         
         // Обработка Point
         const point = placemark.querySelector('Point');
@@ -1255,7 +1274,6 @@ async function initPointsLayer(kmlFilePaths) {
 
 
 
-
 ///////////////////////////////////////////////////////////////////////////////
 
 
@@ -1328,7 +1346,7 @@ function initFilterButtons() {
             // Обновляем заголовок кнопки (можно добавить иконку или текст)
             updateDateRangeButtonTitle();
             
-            // Применяем фильтр
+            // Применяем фильтр - используем выбранную дату из календаря
             updatePointsDateFilter();
             
             // Закрываем выпадающий список
@@ -1425,18 +1443,7 @@ async function navigateTo(index) {
         
         // Обновляем фильтр точек для новой даты
         if (window.currentPointsLayer && window.pointsDateRange && window.currentPointsKmlPaths) {
-            const currentDate = parseCustomDate(selectedDate);
-            const startDate = getStartDateByRange(currentDateRange, currentDate);
-            
-            window.pointsDateRange.start = startDate;
-            window.pointsDateRange.end = currentDate;
-            
-            // Перезагружаем точки из всех файлов
-            window.currentPointsLayer.clearLayers();
-            
-            for (const path of window.currentPointsKmlPaths) {
-                await loadPointsFromKml(path, window.currentPointsLayer);
-            }
+            await updatePointsDateFilter();
         }
         
     } catch (error) {
@@ -1488,7 +1495,6 @@ document.getElementById('next-btn').addEventListener('click', async () => {
 document.getElementById('last-btn').addEventListener('click', async () => {
     await navigateTo(kmlFiles.length - 1).catch(console.error);
 });
-
 
 
 
@@ -1663,8 +1669,8 @@ async function init() {
       if (map) map.invalidateSize();
       updateCurrentCenterDisplay();
     }, 50);
-	
-	map.options.crs = L.CRS.EPSG3857;
+    
+    map.options.crs = L.CRS.EPSG3857;
     
     const flagInterval = setInterval(() => {
     if (document.querySelector('.leaflet-control-attribution')) {
@@ -1672,9 +1678,9 @@ async function init() {
         clearInterval(flagInterval);
         }
     }, 500);
-	
-	//
-	// Настройка кнопки после инициализации элементов
+    
+    //
+    // Настройка кнопки после инициализации элементов
     setTimeout(() => {
         setupCopyCoordsButton();
         addCopyButtonsToInputs(); // Добавляем инициализацию кнопок копирования
@@ -1683,36 +1689,36 @@ async function init() {
     
     // Инициализация дартс-меню
     initDartMenu(); 
-	
-	// Для выпадающего списка слоёв (подложек)
-	// таймаут при инициализации карты, чтобы убедиться, что все элементы созданы
-	setTimeout(() => {
-		if (map) map.invalidateSize();
-		updateCurrentCenterDisplay();
-		
-		// Явно инициализируем обработчик после создания элементов
-		const toggleBtn = document.querySelector('.leaflet-control-layers-toggle');
-		if (toggleBtn) {
-			toggleBtn.addEventListener('click', function(e) {
-				e.preventDefault();
-				e.stopPropagation();
-				
-				const isVisible = layerControlContainer.style.display === 'block';
-				layerControlContainer.style.display = isVisible ? 'none' : 'block';
-				layerControlContainer.classList.toggle('leaflet-control-layers-expanded', !isVisible);
-			});
-		}
-	}, 300);
-	
+    
+    // Для выпадающего списка слоёв (подложек)
+    // таймаут при инициализации карты, чтобы убедиться, что все элементы созданы
+    setTimeout(() => {
+        if (map) map.invalidateSize();
+        updateCurrentCenterDisplay();
+        
+        // Явно инициализируем обработчик после создания элементов
+        const toggleBtn = document.querySelector('.leaflet-control-layers-toggle');
+        if (toggleBtn) {
+            toggleBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                const isVisible = layerControlContainer.style.display === 'block';
+                layerControlContainer.style.display = isVisible ? 'none' : 'block';
+                layerControlContainer.classList.toggle('leaflet-control-layers-expanded', !isVisible);
+            });
+        }
+    }, 300);
+    
     // Инициализация поиска по названию
     initSearchFunctionality();
     
     
-	window.initialLayerSet = false;
-	map.on('load', function() {
-		window.osm.addTo(map); // Активируйте OSM слой
-		window.initialLayerSet = true;
-	});
+    window.initialLayerSet = false;
+    map.on('load', function() {
+        window.osm.addTo(map); // Активируйте OSM слой
+        window.initialLayerSet = true;
+    });
         
   } catch (error) {
     console.error('Ошибка инициализации:', error);
@@ -1814,7 +1820,7 @@ document.addEventListener('languageChanged', function(event) {
         datePicker.destroy();
     }
         initDatePicker();
-	
+    
     populateCitiesDropdown(); // Обновляем основной список
     initDartMenu(); // Перестраиваем дартс-меню
 });
@@ -1921,12 +1927,12 @@ function setupInputWithClear(inputEl, clearBtn) {
         } else {
             clearBtn.style.display = "none";
         }
-		
-		// Также управляем видимостью кнопки копирования
-		const copyBtn = input.parentNode.querySelector('.copy-input-btn');
-		if (copyBtn) {
-			copyBtn.style.display = input.value ? 'inline-flex' : 'none';
-		}
+        
+        // Также управляем видимостью кнопки копирования
+        const copyBtn = input.parentNode.querySelector('.copy-input-btn');
+        if (copyBtn) {
+            copyBtn.style.display = input.value ? 'inline-flex' : 'none';
+        }
     }
 
     // следим за вводом, вставкой и изменениями
@@ -1963,7 +1969,6 @@ document.querySelectorAll('#coords-input, #coords-input-clone').forEach(input =>
         }
     });
 });
-
 
 
 
@@ -2015,11 +2020,10 @@ document.addEventListener('click', function(e) {
 
 
 
-
 // обработчик для нажатия Enter в поле ввода
 // coordsInput.addEventListener('keypress', function(e) {
-	// if (e.key === 'Enter') {
-		// this.dispatchEvent(new Event('change'));
+    // if (e.key === 'Enter') {
+        // this.dispatchEvent(new Event('change'));
     // }
 // });
 
@@ -2071,7 +2075,7 @@ function initDartMenu() {
     const elementsToClone = [
         'centerOn-label',
         'coords-input',
-		'copy-coords-external-btn',
+        'copy-coords-external-btn',
         'cities-dropdown',
         'currentCenter-label',
         'current-center-coords',
@@ -2103,7 +2107,7 @@ function initDartMenu() {
     navDropdown.appendChild(container);
     console.log(`[initDartMenu] В nav-dropdown добавлено ${clonedItems.length} элементов`);
 
-	setupCopyCoordsButton(); // Повторная инициализация обработчиков копирования
+    setupCopyCoordsButton(); // Повторная инициализация обработчиков копирования
 
     // Добавляем обработчики для клонированных элементов
     setupDropdownListeners();
@@ -2122,7 +2126,7 @@ function initDartMenu() {
     
     window.addEventListener('resize', handleResize);
     handleResize();
-	
+    
     // Синхронизируем состояние при инициализации
     syncDropdownState();
 }
@@ -2165,67 +2169,67 @@ function syncDropdownState() {
 
 // Обработчики для клонов в выпадающем меню
 navDropdown.querySelectorAll('input, select').forEach(clone => {
-	clone.addEventListener('change', function() {
-		// Находим соответствующий оригинальный элемент по индексу
-		const index = Array.from(navDropdown.children).indexOf(this.parentElement);
-		if (index === -1) return;
-		
-		const original = hideableItems[index];
-		if (!original) return;
-		
-		// Обновляем оригинальный элемент
-		if (this.tagName === 'INPUT') {
-			const origInput = original.querySelector('input');
-			if (origInput) {
-				origInput.value = this.value;
-				
-				// Для координат - центрируем карту
-				if (origInput.id === 'coords-input') {
-					const coords = this.value.split(',').map(coord => parseFloat(coord.trim()));
-					if (coords.length === 2 && !isNaN(coords[0]) && !isNaN(coords[1])) {
-						centerMap(coords[0], coords[1]);
-					}
-				}
-			}
-		}
-		else if (this.tagName === 'SELECT') {
-			const origSelect = original.querySelector('select');
-			if (origSelect) {
-				origSelect.value = this.value;
-				
-				// Для выпадающего списка городов
-				const city = cities.find(c => c.name[currentLang] === this.value);
-				if (city) {
-					centerMap(city.lat, city.lng);
-				}
-			}
-		}
-	});
+    clone.addEventListener('change', function() {
+        // Находим соответствующий оригинальный элемент по индексу
+        const index = Array.from(navDropdown.children).indexOf(this.parentElement);
+        if (index === -1) return;
+        
+        const original = hideableItems[index];
+        if (!original) return;
+        
+        // Обновляем оригинальный элемент
+        if (this.tagName === 'INPUT') {
+            const origInput = original.querySelector('input');
+            if (origInput) {
+                origInput.value = this.value;
+                
+                // Для координат - центрируем карту
+                if (origInput.id === 'coords-input') {
+                    const coords = this.value.split(',').map(coord => parseFloat(coord.trim()));
+                    if (coords.length === 2 && !isNaN(coords[0]) && !isNaN(coords[1])) {
+                        centerMap(coords[0], coords[1]);
+                    }
+                }
+            }
+        }
+        else if (this.tagName === 'SELECT') {
+            const origSelect = original.querySelector('select');
+            if (origSelect) {
+                origSelect.value = this.value;
+                
+                // Для выпадающего списка городов
+                const city = cities.find(c => c.name[currentLang] === this.value);
+                if (city) {
+                    centerMap(city.lat, city.lng);
+                }
+            }
+        }
+    });
 });
 
 // Обработчик для кнопки копирования в меню
 navDropdown.querySelectorAll('.copy-coords-btn').forEach(btn => {
-	btn.addEventListener('click', function() {
-		const coordsElement = this.closest('.current-center')?.querySelector('.current-coords-display');
-		if (coordsElement) {
-			const coords = coordsElement.textContent;
-			copyToClipboard(coords, this);
-		}
-	});
+    btn.addEventListener('click', function() {
+        const coordsElement = this.closest('.current-center')?.querySelector('.current-coords-display');
+        if (coordsElement) {
+            const coords = coordsElement.textContent;
+            copyToClipboard(coords, this);
+        }
+    });
 });
 
 // Закрытие меню при клике вне его
 document.addEventListener('click', function(e) {
-	if (!navDropdown.contains(e.target) && e.target !== navMenuToggle) {
-		navDropdown.classList.remove('active');
-	}
+    if (!navDropdown.contains(e.target) && e.target !== navMenuToggle) {
+        navDropdown.classList.remove('active');
+    }
 });
 
 
 // Обработчик для кнопки меню
 navMenuToggle.addEventListener('click', function(e) {
-	e.stopPropagation();
-	console.log("[navMenuToggle] Кнопка меню нажата");
+    e.stopPropagation();
+    console.log("[navMenuToggle] Кнопка меню нажата");
     // Синхронизируем состояние перед открытием
     syncDropdownState();
     // Открываем/закрываем меню
@@ -2238,7 +2242,7 @@ function copyToClipboard(text, button) {
     if (button.disabled) {
         return;
     }
-	
+    
     if (!text || text.includes('не определен') || text.includes('undefined')) {
         return;
     }
@@ -2308,8 +2312,8 @@ function setupDropdownListeners() {
             }
         });
     }
-	
-	 // Обработчик для клонированной внешней кнопки копирования
+    
+     // Обработчик для клонированной внешней кнопки копирования
     const copyExternalBtnClone = document.getElementById('copy-coords-external-btn-clone');
     if (copyExternalBtnClone) {
         copyExternalBtnClone.addEventListener('click', function() {
@@ -2437,7 +2441,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
 });
-
 
 
 
@@ -2766,39 +2769,3 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
 });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
