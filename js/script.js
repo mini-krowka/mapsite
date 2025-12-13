@@ -1491,9 +1491,48 @@ document.getElementById('next-btn').addEventListener('click', async () => {
 });
 
 document.getElementById('last-btn').addEventListener('click', async () => {
-    await navigateTo(kmlFiles.length - 1).catch(console.error);
+    await goToToday().catch(console.error);
 });
 
+// Функция для перехода к текущей дате (сегодня)
+async function goToToday() {
+    try {
+        // Получаем текущую дату
+        const today = getCurrentDateFormatted();
+        console.log('Переход к текущей дате:', today);
+        
+        // Находим ближайшую доступную дату
+        const nearestDate = findNearestAvailableDate(today);
+        const index = kmlFiles.findIndex(file => file.name === nearestDate);
+        
+        if (index !== -1) {
+            // Устанавливаем выбранную дату как текущую
+            selectedDate = today;
+            
+            // Обновляем календарь
+            if (datePicker) {
+                datePicker.setDate(today, false);
+            }
+            
+            // Навигация к найденному индексу
+            await navigateTo(index);
+            
+            // Обновляем фильтр точек для текущей даты
+            updatePointsDateFilterForSelectedDate();
+            
+            // Перезагружаем точки с новым фильтром
+            await reloadPointsWithCurrentFilter();
+            
+            console.log(`Загружена ближайшая доступная дата к сегодняшней: ${nearestDate}`);
+        } else {
+            // Если не найдена ближайшая дата, переходим к последней
+            console.log('Не найдено ближайшей даты, переходим к последней сводке');
+            await navigateTo(kmlFiles.length - 1);
+        }
+    } catch (error) {
+        console.error("Ошибка перехода к текущей дате:", error);
+    }
+}
 
 
 
