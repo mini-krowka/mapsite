@@ -1491,7 +1491,40 @@ document.getElementById('next-btn').addEventListener('click', async () => {
 });
 
 document.getElementById('last-btn').addEventListener('click', async () => {
-    await navigateTo(kmlFiles.length - 1).catch(console.error);
+    // Получаем текущую дату
+    const today = getCurrentDateFormatted();
+    
+    // Находим ближайшую доступную дату к сегодняшней
+    const nearestDate = findNearestAvailableDate(today);
+    
+    // Находим индекс ближайшей доступной даты
+    const index = kmlFiles.findIndex(file => file.name === nearestDate);
+    
+    if (index !== -1) {
+        // Обновляем selectedDate на сегодняшнюю дату
+        selectedDate = today;
+        
+        // Обновляем календарь на сегодняшнюю дату
+        if (datePicker) {
+            datePicker.setDate(today, false);
+        }
+        
+        // Загружаем KML для ближайшей доступной даты
+        await loadKmlForNearestDate(index);
+        
+        // Обновляем фильтр точек для новой даты
+        updatePointsDateFilterForSelectedDate();
+        
+        // Перезагружаем точки с новым фильтром
+        await reloadPointsWithCurrentFilter();
+        
+        // Обновляем состояние кнопок
+        updateButtons();
+    } else {
+        console.log('Не найдено доступных дат для загрузки');
+        // Если нет доступных дат, переходим на последнюю сводку
+        await navigateTo(kmlFiles.length - 1);
+    }
 });
 
 
