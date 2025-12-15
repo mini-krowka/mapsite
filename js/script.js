@@ -1463,12 +1463,18 @@ function updateButtons() {
     
     const isFirst = currentIndex === 0;
     const isLast = currentIndex === kmlFiles.length - 1;
-    const isToday = currentIndex === todayIndex;
+    
+    // Получаем сегодняшнюю дату в формате DD.MM.YY
+    const today = getCurrentDateFormatted();
+    
+    // Проверяем, выбрана ли в календаре сегодняшняя дата
+    // selectedDate - это текущая дата в календаре
+    const isToday = selectedDate === today;
     
     firstBtn.disabled = isFirst;
     prevBtn.disabled = isFirst;
     nextBtn.disabled = isLast;
-    lastBtn.disabled = isToday;
+    lastBtn.disabled = isToday; // Кнопка ">>" отключается, если в календаре уже выбрана сегодняшняя дата
     
     firstBtn.classList.toggle('disabled', isFirst);
     prevBtn.classList.toggle('disabled', isFirst);
@@ -1476,6 +1482,7 @@ function updateButtons() {
     lastBtn.classList.toggle('disabled', isToday);
     
     console.log(`First: ${firstBtn.disabled}, Prev: ${prevBtn.disabled}, Next: ${nextBtn.disabled}, Last: ${lastBtn.disabled}`);
+    console.log(`Today: ${today}, SelectedDate: ${selectedDate}, isToday: ${isToday}`);
 }
 
 // Обработчики кнопок навигации
