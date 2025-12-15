@@ -306,13 +306,19 @@ window.kmlFiles = [
         	                    "kml/ControlZones/Control_25_12_08.kml",
     	                        "kml/Progress/RuAF/ProgressRuAF_25_12_08.kml",
 								"kml/FrontLine/FrontLine_25_12_08.kml",
-                                "kml/Progress/AFU/ProgressAFU_25_12_08.kml"] }
+                                "kml/Progress/AFU/ProgressAFU_25_12_08.kml"] },
+	{name: "12.12.25", paths: [
+        	                    "kml/ControlZones/Control_25_12_12.kml",
+    	                        "kml/Progress/RuAF/ProgressRuAF_25_12_12.kml",
+								"kml/FrontLine/FrontLine_25_12_12.kml",
+                                "kml/Progress/AFU/ProgressAFU_25_12_12.kml"] }
+	
    ];
 
 // Постоянные слои
 window.permanentLayers = [
     // Текущая ЛБС
-    { name: "Current_frontline",      path: "kml/FrontLine/FrontLine_25_12_08.kml" },
+    { name: "Current_frontline",      path: "kml/FrontLine/FrontLine_25_12_12.kml" },
 	// Текущий прогресс 
 	// { name: "Current_progress_RuAF",      path: "kml/Progress/RuAF/ProgressRuAF_Current.kml" },
 	// { name: "Current_progress_AFU",      path: "kml/Progress/AFU/ProgressAFU_Current.kml" },
@@ -357,6 +363,7 @@ window.pointsDateRange = {
     start: null,
     end: null
 };
+
 
 
 
