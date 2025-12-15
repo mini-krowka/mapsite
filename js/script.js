@@ -1463,16 +1463,17 @@ function updateButtons() {
     
     const isFirst = currentIndex === 0;
     const isLast = currentIndex === kmlFiles.length - 1;
+    const isToday = currentIndex === todayIndex;
     
     firstBtn.disabled = isFirst;
     prevBtn.disabled = isFirst;
     nextBtn.disabled = isLast;
-    lastBtn.disabled = isLast;
+    lastBtn.disabled = isToday;
     
     firstBtn.classList.toggle('disabled', isFirst);
     prevBtn.classList.toggle('disabled', isFirst);
     nextBtn.classList.toggle('disabled', isLast);
-    lastBtn.classList.toggle('disabled', isLast);
+    lastBtn.classList.toggle('disabled', isToday);
     
     console.log(`First: ${firstBtn.disabled}, Prev: ${prevBtn.disabled}, Next: ${nextBtn.disabled}, Last: ${lastBtn.disabled}`);
 }
