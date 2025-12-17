@@ -154,16 +154,6 @@ function initDatePicker() {
             // Подсвечиваем даты, для которых есть KML файлы
             if (availableDates.includes(dateStr)) {
                 dayElem.classList.add('available');
-                
-                // Если это текущая выбранная дата и она есть в KML файлах
-                if (dateStr === selectedDate && kmlFiles[currentIndex]?.name === selectedDate) {
-                    dayElem.classList.add('selected');
-                }
-            }
-            
-            // Также выделяем выбранную дату, даже если для нее нет KML
-            if (dateStr === selectedDate) {
-                dayElem.classList.add('selected');
             }
         }
     });
