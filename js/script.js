@@ -1516,7 +1516,7 @@ function updateButtons() {
     
     firstBtn.classList.toggle('disabled', isFirstAvailable);
     prevBtn.classList.toggle('disabled', !hasPreviousAvailableDate);
-    nextBtn.classList.toggle('disabled', (!hasNextAvailableDate) || (isToday && !hasNextAvailableDate));
+    nextBtn.classList.toggle('disabled', isToday);
     lastBtn.classList.toggle('disabled', isToday);
     
     console.log(`First: ${firstBtn.disabled}, Prev: ${prevBtn.disabled}, Next: ${nextBtn.disabled}, Last: ${lastBtn.disabled}`);
@@ -2966,4 +2966,5 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
 });
+
 
