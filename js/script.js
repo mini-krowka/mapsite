@@ -1511,7 +1511,7 @@ function updateButtons() {
     // Определяем состояние кнопок
     firstBtn.disabled = isFirstAvailable;
     prevBtn.disabled = !hasPreviousAvailableDate;
-    nextBtn.disabled = (!hasNextAvailableDate) || (isToday && !hasNextAvailableDate);
+    nextBtn.disabled = isToday;
     lastBtn.disabled = isToday; // Кнопка "сегодня" отключена, если уже сегодня
     
     firstBtn.classList.toggle('disabled', isFirstAvailable);
@@ -2966,3 +2966,4 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
 });
+
