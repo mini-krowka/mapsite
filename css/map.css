@@ -158,6 +158,10 @@
     justify-content: center;
     align-items: center;
 }
+#nav-menu-toggle:hover:not(.disabled) {
+    border-color: #007bff;
+}
+
 
 /* Адаптация выпадающего меню */
 .dart-menu-container {
@@ -545,4 +549,5 @@
 }
 .nav-dropdown #copy-coords-btn-clone{
   display: none !important;
+
 }
