@@ -133,7 +133,7 @@ body {
 
 /* Стили для полей ввода */
 .date-selector input, #cities-dropdown {
-  height: 40px;
+  height: 28px;
   padding: 0 10px;
   border: 1px solid #ccc;
   border-radius: 4px;
@@ -783,6 +783,7 @@ body {
         gap: 3px;
     }
 }
+
 
 
 
