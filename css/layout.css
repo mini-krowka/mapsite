@@ -164,9 +164,10 @@ body {
 
 /* Стили для навигационной панели */
 .date-navigator {
-    display: flex;
+    display: flex;	
+    flex-wrap: wrap; /* ??? */
     align-items: center;
-    gap: 5px;
+    /* gap: 5px; */
     flex-wrap: nowrap;
     max-width: 100%;
     /* flex-grow: 1; */
@@ -782,5 +783,6 @@ body {
         gap: 3px;
     }
 }
+
 
 
