@@ -737,7 +737,7 @@ body {
 
 /* Выпадающий список для фильтра дат */
 #date-range-dropdown {
-    /* display: none; */
+    display: none;
     position: absolute;
     /* top: 100%;
     left: 0;
@@ -790,3 +790,4 @@ body {
     }
 
 }
+
