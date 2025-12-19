@@ -10,7 +10,7 @@
 } */
 
 .date-selector {
-    /* width: 85px; */
+    width: 85px;
     flex-shrink: 0;
 }
 
@@ -267,7 +267,7 @@
 
 @media (max-width: 901px) {
 	.date-selector {
-		/* width: 85px; */
+		width: 85px;
 		flex-shrink: 0;
 	}
     
@@ -551,6 +551,7 @@
   display: none !important;
 
 }
+
 
 
 
