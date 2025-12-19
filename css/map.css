@@ -158,10 +158,6 @@
     justify-content: center;
     align-items: center;
 }
-#nav-menu-toggle:hover:not(.disabled) {
-    border-color: #007bff;
-}
-
 
 /* Адаптация выпадающего меню */
 .dart-menu-container {
@@ -226,6 +222,10 @@
 @media (max-width: 1837px) { /* Когда схлопываем в дартс-меню */
     #nav-menu-toggle {
         display: flex !important;
+    }
+	    
+    #nav-menu-toggle:hover:not(.disabled) {
+        border-color: #007bff;
     }
     
     .hideable-nav-item:not(.keep-visible) {
@@ -551,3 +551,4 @@
   display: none !important;
 
 }
+
