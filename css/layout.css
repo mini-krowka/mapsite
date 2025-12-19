@@ -706,9 +706,9 @@ body {
 .filter-btn {
     width: 30px;
     height: 30px;
-    border: 2px solid #ccc;
-    border-radius: 5px;
-    background: #fff;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background: #f0f0f0;
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -732,7 +732,6 @@ body {
 
 .filter-btn:hover:not(.disabled) {
     border-color: #007bff;
-    background: #f0f8ff;
 }
 
 /* Выпадающий список для фильтра дат */
@@ -782,12 +781,6 @@ body {
         margin-left: 5px;
         gap: 3px;
     }
-    
-    .filter-btn {
-        width: 35px;
-        height: 35px;
-        font-size: 14px;
-    }
-
 }
+
 
