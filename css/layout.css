@@ -737,16 +737,17 @@ body {
 
 /* Выпадающий список для фильтра дат */
 #date-range-dropdown {
-    display: none;
+    /* display: none; */
     position: absolute;
-    top: 100%;
+    /* top: 100%;
     left: 0;
-    z-index: 1000;
+    z-index: 1000; */
     background: white;
     border: 1px solid #ddd;
     border-radius: 5px;
     box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    min-width: 150px;
+    /* min-width: 150px; */
+	width: auto;
     margin-top: 5px;
 }
 
@@ -787,4 +788,5 @@ body {
         height: 35px;
         font-size: 14px;
     }
+
 }
