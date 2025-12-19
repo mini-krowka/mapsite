@@ -5,9 +5,9 @@
   border-radius: 0; /* Убираем скругление углов */
 }
 
-.date-navigator {
-    flex-wrap: wrap; /* ??? */
-}
+/* .date-navigator {
+    flex-wrap: wrap; 
+} */
 
 .date-selector {
     width: 85px;
@@ -551,4 +551,5 @@
   display: none !important;
 
 }
+
 
