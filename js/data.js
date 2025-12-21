@@ -317,13 +317,18 @@ window.kmlFiles = [
     	                        "kml/Progress/RuAF/ProgressRuAF_25_12_16.kml",
 								"kml/FrontLine/FrontLine_25_12_16.kml",
                                 "kml/Progress/AFU/ProgressAFU_25_12_16.kml"] },
+	{name: "20.12.25", paths: [
+        	                    "kml/ControlZones/Control_25_12_20.kml",
+    	                        "kml/Progress/RuAF/ProgressRuAF_25_12_20.kml",
+								"kml/FrontLine/FrontLine_25_12_20.kml",
+                                "kml/Progress/AFU/ProgressAFU_25_12_20.kml"] }
 	
    ];
 
 // Постоянные слои
 window.permanentLayers = [
     // Текущая ЛБС
-    { name: "Current_frontline",      path: "kml/FrontLine/FrontLine_25_12_16.kml" },
+    { name: "Current_frontline",      path: "kml/FrontLine/FrontLine_25_12_20.kml" },
 	// Текущий прогресс 
 	// { name: "Current_progress_RuAF",      path: "kml/Progress/RuAF/ProgressRuAF_Current.kml" },
 	// { name: "Current_progress_AFU",      path: "kml/Progress/AFU/ProgressAFU_Current.kml" },
@@ -368,6 +373,7 @@ window.cities = [
     start: null,
     end: null
  };
+
 
 
 
