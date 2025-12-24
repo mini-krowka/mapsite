@@ -7,7 +7,7 @@
     <Style id="121">
       <LineStyle>
         <width>1</width>
-        <color>ff0000ff</color>
+        <color>ff0800ff</color>
       </LineStyle>
     </Style>
     <Style id="122">
@@ -16,7 +16,7 @@
         <color>00000000</color>
       </LineStyle>
       <PolyStyle>
-        <color>280000ff</color>
+        <color>280800ff</color>
       </PolyStyle>
     </Style>
     <Folder>
