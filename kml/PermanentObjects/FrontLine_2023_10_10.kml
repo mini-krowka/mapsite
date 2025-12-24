@@ -7,7 +7,7 @@
     <Style id="121">
       <LineStyle>
         <width>1</width>
-        <color>ff0000ff</color>
+        <color>ff6600cc</color>
       </LineStyle>
     </Style>
     <Style id="122">
@@ -16,7 +16,7 @@
         <color>00000000</color>
       </LineStyle>
       <PolyStyle>
-        <color>280000ff</color>
+        <color>286600cc</color>
       </PolyStyle>
     </Style>
     <Folder>
@@ -13249,4 +13249,5 @@
       </Placemark>
     </Folder>
   </Document>
+
 </kml>
