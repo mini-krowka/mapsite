@@ -342,8 +342,8 @@ window.permanentLayers = [
     //Конституционная граница РФ
     { name: "RuUaBorder",             path: "kml/PermanentObjects/RuUaBorder.kml" },
         //Единая линия на 10.10.23
-    //{ name: "Offensive_23_10_10",     path: "kml/PermanentObjects/OffensiveLine_2023_10_10.kml" },
-	{ name: "Offensive_23_10_10",     path: "kml/PermanentObjects/FrontLine_2023_10_10.kml" },
+    { name: "Offensive_23_10_10",     path: "kml/PermanentObjects/OffensiveLine_2023_10_10.kml" },
+	// { name: "Offensive_23_10_10",     path: "kml/PermanentObjects/FrontLine_2023_10_10.kml" },
     //Линия максимального продвижения ВСУ в Курской области.
     { name: "AFU_advance_Kursk2024",  path: "kml/PermanentObjects/AFU_advance_Kursk2024.kml" },
     // Контур максимального продвижения в Доброполье
@@ -372,14 +372,15 @@ window.cities = [
 
 // Управление точками
 // Путь к файлу с точками
-// window.pointsKmlPaths = ["kml/Geolocations/2025 год ноябрь - декабрь.kml",
-//                          "kml/Geolocations/2025 .kml"];
- window.pointsKmlPaths = [];
+ window.pointsKmlPaths = ["kml/Geolocations/2025 год ноябрь - декабрь.kml",
+                          "kml/Geolocations/2025 .kml"];
+// window.pointsKmlPaths = [];
  window.pointLayers = [];
  window.pointsDateRange = {
     start: null,
     end: null
  };
+
 
 
 
