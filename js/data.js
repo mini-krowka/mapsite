@@ -322,11 +322,11 @@ window.kmlFiles = [
     	                        "kml/Progress/RuAF/ProgressRuAF_25_12_20.kml",
 								"kml/FrontLine/FrontLine_25_12_20.kml",
                                 "kml/Progress/AFU/ProgressAFU_25_12_20.kml"] },
-	{name: "20.12.25", paths: [
-        	                    "kml/ControlZones/Control_25_12_20.kml",
-    	                        "kml/Progress/RuAF/ProgressRuAF_25_12_20.kml",
-								"kml/FrontLine/FrontLine_25_12_20.kml",
-                                "kml/Progress/AFU/ProgressAFU_25_12_20.kml"] }
+	{name: "24.12.25", paths: [
+        	                    "kml/ControlZones/Control_25_12_24.kml",
+    	                        "kml/Progress/RuAF/ProgressRuAF_25_12_24.kml",
+								"kml/FrontLine/FrontLine_25_12_24.kml",
+                                "kml/Progress/AFU/ProgressAFU_25_12_24.kml"] }
 	
    ];
 
@@ -372,13 +372,14 @@ window.cities = [
 // Управление точками
 // Путь к файлу с точками
 // window.pointsKmlPaths = ["kml/Geolocations/2025 год ноябрь - декабрь.kml",
-                          "kml/Geolocations/2025 .kml"];
+//                          "kml/Geolocations/2025 .kml"];
  window.pointsKmlPaths = [];
  window.pointLayers = [];
  window.pointsDateRange = {
     start: null,
     end: null
  };
+
 
 
 
