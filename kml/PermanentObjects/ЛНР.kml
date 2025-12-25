@@ -7,7 +7,7 @@
     <Style id="2">
       <LineStyle>
         <width>1</width>
-        <color>80ff00ff</color>
+        <color>99ff00ff</color>
       </LineStyle>
     </Style>
     <Folder>
@@ -5031,3 +5031,4 @@
   </Document>
 
 </kml>
+
