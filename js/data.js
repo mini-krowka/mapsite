@@ -332,6 +332,8 @@ window.kmlFiles = [
 
 // Постоянные слои
 window.permanentLayers = [
+	// Области
+	{ name: "Днепропетровская область",  path: "kml/PermanentObjects/Днепропетровская область.kml" }.
     // Текущая ЛБС
     { name: "Current_frontline",      path: "kml/FrontLine/FrontLine_25_12_24.kml" },
 	// Текущий прогресс 
@@ -349,11 +351,10 @@ window.permanentLayers = [
     // Контур максимального продвижения в Доброполье
     { name: "Добропольский прорыв",  path: "kml/PermanentObjects/Доброполье.kml" },
 	// Мультиполигон
-    { name: "Мультиполигон",         path: "kml/PermanentObjects/CitiesBorders.kml" },
+    { name: "Мультиполигон",         path: "kml/PermanentObjects/CitiesBorders.kml" }
 	// { name: "стиль1", path: "kml/Progress/RuAF/ProgressRuAF_25_10_29.kml" },
 	// { name: "стиль2", path: "kml/Progress/AFU/ProgressAFU_25_10_29.kml" }
-	// Области
-	{ name: "Днепропетровская область",  path: "kml/PermanentObjects/Днепропетровская область.kml" }
+	
 ];
 
 // Список городов с координатами
@@ -382,6 +383,7 @@ window.cities = [
     start: null,
     end: null
  };
+
 
 
 
