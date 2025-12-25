@@ -13,7 +13,7 @@
     <Style id="404">
       <LineStyle>
         <width>1</width>
-        <color99ff0000</color>
+        <color>99ff0000</color>
       </LineStyle>
     </Style>
     <Folder>
