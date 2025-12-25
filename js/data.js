@@ -338,6 +338,8 @@ window.permanentLayers = [
 	{ name: "Сумская область",           path: "kml/PermanentObjects/Сумская область.kml" },
 	{ name: "ЛНР",                       path: "kml/PermanentObjects/ЛНР.kml" },
 	{ name: "ДНР",                       path: "kml/PermanentObjects/ДНР.kml" },
+	{ name: "Запорожская область",       path: "kml/PermanentObjects/Запорожская область.kml" },
+	{ name: "Херсонская область",        path: "kml/PermanentObjects/Херсонская область.kml" },
     // Текущая ЛБС
     { name: "Current_frontline",      path: "kml/FrontLine/FrontLine_25_12_24.kml" },
 	// Текущий прогресс 
@@ -387,6 +389,7 @@ window.cities = [
     start: null,
     end: null
  };
+
 
 
 
