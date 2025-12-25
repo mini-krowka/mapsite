@@ -12,8 +12,8 @@
     </Style>
     <Style id="404">
       <LineStyle>
-        <width>1</width>
-        <color>99ff0000</color>
+        <width>2</width>
+        <color>ff666666</color>
       </LineStyle>
     </Style>
     <Folder>
