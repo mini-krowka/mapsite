@@ -6,7 +6,7 @@
     <description>Exported data from UTM Geo Map APP</description>
     <Style id="2">
       <LineStyle>
-        <width>4</width>
+        <width>1</width>
         <color>99ff0000</color>
       </LineStyle>
     </Style>
@@ -5028,4 +5028,5 @@
       </Placemark>
     </Folder>
   </Document>
+
 </kml>
