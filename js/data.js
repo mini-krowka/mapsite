@@ -325,7 +325,7 @@ window.kmlFiles = [
 	{name: "24.12.25", paths: [
         	                    "kml/ControlZones/Control_25_12_24.kml",
     	                        "kml/Progress/RuAF/ProgressRuAF_25_12_24.kml",
-								"kml/FrontLine/FrontLine_25_12_24.kml",
+								
                                 "kml/Progress/AFU/ProgressAFU_25_12_24.kml"] }
 	
    ];
@@ -341,7 +341,7 @@ window.permanentLayers = [
 	{ name: "Запорожская область",       path: "kml/PermanentObjects/Запорожская область.kml" },
 	{ name: "Херсонская область",        path: "kml/PermanentObjects/Херсонская область.kml" },
     // Текущая ЛБС
-    { name: "Current_frontline",      path: "kml/FrontLine/FrontLine_25_12_24.kml" },
+    // { name: "Current_frontline",      path: "kml/FrontLine/FrontLine_25_12_24.kml" },
 	// Текущий прогресс 
 	// { name: "Current_progress_RuAF",      path: "kml/Progress/RuAF/ProgressRuAF_Current.kml" },
 	// { name: "Current_progress_AFU",      path: "kml/Progress/AFU/ProgressAFU_Current.kml" },
@@ -389,6 +389,7 @@ window.cities = [
     start: null,
     end: null
  };
+
 
 
 
