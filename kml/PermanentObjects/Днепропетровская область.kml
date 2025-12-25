@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='UTF-8' ?>
 <kml>
   <Document>
-    <name>1</name>
+    <name> </name>
     <open>1</open>
     <description>1</description>
     <Style id="403">
@@ -17,11 +17,11 @@
       </LineStyle>
     </Style>
     <Folder>
-      <name>Line</name>
+      <name> </name>
       <visibility>1</visibility>
       <description>Line and polyline features</description>
       <Placemark>
-        <name>1</name>
+        <name> </name>
         <visibility>1</visibility>
         <styleUrl>#404</styleUrl>
         <LineString>
