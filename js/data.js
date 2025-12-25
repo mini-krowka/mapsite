@@ -334,6 +334,7 @@ window.kmlFiles = [
 window.permanentLayers = [
 	// Области
 	{ name: "Днепропетровская область",  path: "kml/PermanentObjects/Днепропетровская область.kml" },
+	{ name: "Харьковская область",       path: "kml/PermanentObjects/Харьковская область.kml" },
     // Текущая ЛБС
     { name: "Current_frontline",      path: "kml/FrontLine/FrontLine_25_12_24.kml" },
 	// Текущий прогресс 
@@ -383,6 +384,7 @@ window.cities = [
     start: null,
     end: null
  };
+
 
 
 
