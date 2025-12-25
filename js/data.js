@@ -348,12 +348,12 @@ window.permanentLayers = [
     //Конституционная граница РФ
     { name: "RuUaBorder",             path: "kml/PermanentObjects/RuUaBorder.kml" },
         //Единая линия на 10.10.23
-    { name: "Offensive_23_10_10",     path: "kml/PermanentObjects/OffensiveLine_2023_10_10.kml" },
+    // { name: "Offensive_23_10_10",     path: "kml/PermanentObjects/OffensiveLine_2023_10_10.kml" },
 	// { name: "Offensive_23_10_10",     path: "kml/PermanentObjects/FrontLine_2023_10_10.kml" },
     //Линия максимального продвижения ВСУ в Курской области.
     { name: "AFU_advance_Kursk2024",  path: "kml/PermanentObjects/AFU_advance_Kursk2024.kml" },
     // Контур максимального продвижения в Доброполье
-    { name: "Добропольский прорыв",  path: "kml/PermanentObjects/Доброполье.kml" },
+    // { name: "Добропольский прорыв",  path: "kml/PermanentObjects/Доброполье.kml" },
 	// Мультиполигон
     { name: "Мультиполигон",         path: "kml/PermanentObjects/CitiesBorders.kml" }
 	// { name: "стиль1", path: "kml/Progress/RuAF/ProgressRuAF_25_10_29.kml" },
@@ -387,6 +387,7 @@ window.cities = [
     start: null,
     end: null
  };
+
 
 
 
