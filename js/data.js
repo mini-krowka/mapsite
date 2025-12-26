@@ -333,29 +333,28 @@ window.kmlFiles = [
 // Постоянные слои
 window.permanentLayers = [
 	// Области
-	{ name: "Днепропетровская область",  path: "kml/PermanentObjects/Днепропетровская область.kml" },
-	{ name: "Харьковская область",       path: "kml/PermanentObjects/Харьковская область.kml" },
-	{ name: "Сумская область",           path: "kml/PermanentObjects/Сумская область.kml" },
-	{ name: "ЛНР",                       path: "kml/PermanentObjects/ЛНР.kml" },
-	{ name: "ДНР",                       path: "kml/PermanentObjects/ДНР.kml" },
-	{ name: "Запорожская область",       path: "kml/PermanentObjects/Запорожская область.kml" },
-	{ name: "Херсонская область",        path: "kml/PermanentObjects/Херсонская область.kml" },
+	// { name: "Днепропетровская область",  path: "kml/PermanentObjects/Днепропетровская область.kml" },
+	// { name: "Харьковская область",       path: "kml/PermanentObjects/Харьковская область.kml" },
+	// { name: "Сумская область",           path: "kml/PermanentObjects/Сумская область.kml" },
+	// { name: "ЛНР",                       path: "kml/PermanentObjects/ЛНР.kml" },
+	// { name: "ДНР",                       path: "kml/PermanentObjects/ДНР.kml" },
+	// { name: "Запорожская область",       path: "kml/PermanentObjects/Запорожская область.kml" },
+	// { name: "Херсонская область",        path: "kml/PermanentObjects/Херсонская область.kml" },
+	{ name: "Области",        path: "kml/PermanentObjects/Области.kml" },
     // Текущая ЛБС
-    // { name: "Current_frontline",      path: "kml/FrontLine/FrontLine_25_12_24.kml" },
-	// Текущий прогресс 
-	// { name: "Current_progress_RuAF",      path: "kml/Progress/RuAF/ProgressRuAF_Current.kml" },
-	// { name: "Current_progress_AFU",      path: "kml/Progress/AFU/ProgressAFU_Current.kml" },
+     { name: "Current_frontline",      path: "kml/FrontLine/FrontLine_25_12_24.kml" },
+	
     // Граница ЛДНР без Ростовской области
     { name: "LDPR",                   path: "kml/PermanentObjects/LDPR_line3.kml" },
     //Конституционная граница РФ
     { name: "RuUaBorder",             path: "kml/PermanentObjects/RuUaBorder.kml" },
         //Единая линия на 10.10.23
-    // { name: "Offensive_23_10_10",     path: "kml/PermanentObjects/OffensiveLine_2023_10_10.kml" },
-	// { name: "Offensive_23_10_10",     path: "kml/PermanentObjects/FrontLine_2023_10_10.kml" },
+    { name: "Offensive_23_10_10",     path: "kml/PermanentObjects/OffensiveLine_2023_10_10.kml" },
+	 { name: "Offensive_23_10_10",     path: "kml/PermanentObjects/FrontLine_2023_10_10.kml" },
     //Линия максимального продвижения ВСУ в Курской области.
     { name: "AFU_advance_Kursk2024",  path: "kml/PermanentObjects/AFU_advance_Kursk2024.kml" },
     // Контур максимального продвижения в Доброполье
-    // { name: "Добропольский прорыв",  path: "kml/PermanentObjects/Доброполье.kml" },
+     { name: "Добропольский прорыв",  path: "kml/PermanentObjects/Доброполье.kml" },
 	// Мультиполигон
     { name: "Мультиполигон",         path: "kml/PermanentObjects/CitiesBorders.kml" }
 	// { name: "стиль1", path: "kml/Progress/RuAF/ProgressRuAF_25_10_29.kml" },
@@ -389,6 +388,7 @@ window.cities = [
     start: null,
     end: null
  };
+
 
 
 
