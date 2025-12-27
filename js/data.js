@@ -345,7 +345,8 @@ window.permanentLayers = [
      { name: "Current_frontline",      path: "kml/FrontLine/FrontLine_25_12_24.kml" },
 	
     // Граница ЛДНР без Ростовской области
-    { name: "LDPR",                   path: "kml/PermanentObjects/LDPR_line3.kml" },
+    // { name: "LDPR",                   path: "kml/PermanentObjects/LDPR_line3.kml" },
+	{ name: "LDPR",                   path: "kml/PermanentObjects/LDPR_Border.kml" },
     //Конституционная граница РФ
     { name: "RuUaBorder",             path: "kml/PermanentObjects/RuUaBorder.kml" },
         //Единая линия на 10.10.23
@@ -388,6 +389,7 @@ window.cities = [
     start: null,
     end: null
  };
+
 
 
 
