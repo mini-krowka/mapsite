@@ -16181,7 +16181,7 @@
 		<!-- Харьковская область -->
         <visibility>1</visibility>
         <description>Distance: 805,871 m, Note: null</description>
-        <styleUrl>#2</styleUrl>
+        <styleUrl>#Ua</styleUrl>
         <LineString>
           <extrude>1</extrude>
           <altitudeMode>relativeToGround</altitudeMode>
@@ -26209,6 +26209,7 @@
   </Document>
 
 </kml>
+
 
 
 
