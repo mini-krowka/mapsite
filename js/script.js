@@ -1407,6 +1407,169 @@ function initFilterButtons() {
     updatePointsDateFilter();
 }
 
+// Функция для инициализации мобильного меню фильтров
+function initMobileFilterMenu() {
+    console.log('Инициализация мобильного меню фильтров...');
+    
+    const mobileFilterToggle = document.getElementById('mobile-filter-toggle');
+    const filterButtons = document.querySelector('.filter-buttons');
+    const dateRangeBtn = document.getElementById('date-range-btn');
+    const dateRangeDropdown = document.getElementById('date-range-dropdown');
+    
+    if (!mobileFilterToggle || !filterButtons || !dateRangeBtn || !dateRangeDropdown) {
+        console.error('Не найдены элементы мобильного фильтра');
+        return;
+    }
+    
+    console.log('Элементы мобильного фильтра найдены');
+    
+    // Флаг для отслеживания состояния
+    let isDateDropdownOpen = false;
+    
+    // Функция для открытия/закрытия мобильного меню
+    function toggleMobileFilterMenu() {
+        const isVisible = filterButtons.classList.contains('show-mobile');
+        
+        if (isVisible) {
+            // Закрываем меню
+            mobileFilterToggle.classList.remove('active');
+            filterButtons.classList.remove('show-mobile');
+            
+            // Также закрываем выпадающий список диапазонов
+            dateRangeDropdown.classList.remove('show');
+            isDateDropdownOpen = false;
+        } else {
+            // Открываем меню
+            mobileFilterToggle.classList.add('active');
+            filterButtons.classList.add('show-mobile');
+        }
+    }
+    
+    // Функция для открытия/закрытия выпадающего списка диапазонов
+    function toggleDateRangeDropdown(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        const isVisible = dateRangeDropdown.classList.contains('show');
+        
+        // if (isVisible) {
+            // // Закрываем выпадающий список
+            // dateRangeDropdown.classList.remove('show');
+            // isDateDropdownOpen = false;
+        // } else {
+            // Открываем выпадающий список
+            dateRangeDropdown.classList.add('show');
+            isDateDropdownOpen = true;
+            
+            // Позиционируем выпадающий список относительно кнопки
+            const rect = dateRangeBtn.getBoundingClientRect();
+            dateRangeDropdown.style.left = '0';
+            dateRangeDropdown.style.top = rect.height + 'px';
+        // }
+    }
+    
+    // Обработчик клика на кнопку переключения
+    mobileFilterToggle.addEventListener('click', function(e) {
+        e.stopPropagation();
+        toggleMobileFilterMenu();
+    });
+    
+    // Обработчик клика на date-range-btn
+    dateRangeBtn.addEventListener('click', function(e) {
+        // Открываем только выпадающий список диапазонов
+        toggleDateRangeDropdown(e);
+        
+        // НЕ закрываем основное меню - позволяем пользователю выбрать диапазон
+        // Не вызываем stopImmediatePropagation(), так как можем иметь другие обработчики
+    });
+    
+    // Обработчик для опций диапазона
+    dateRangeDropdown.querySelectorAll('.range-option').forEach(option => {
+        option.addEventListener('click', function(e) {
+            e.stopPropagation();
+            
+            // Выполняем выбор диапазона (ваш существующий код)
+            const range = this.getAttribute('data-range');
+            const rangeOptions = dateRangeDropdown.querySelectorAll('.range-option');
+            
+            // Убираем активный класс со всех опций
+            rangeOptions.forEach(opt => opt.classList.remove('active'));
+            // Добавляем активный класс выбранной опции
+            this.classList.add('active');
+            
+            // Сохраняем выбранный диапазон
+            currentDateRange = range;
+            
+            // Обновляем заголовок кнопки
+            updateDateRangeButtonTitle();
+            
+            // Применяем фильтр
+            updatePointsDateFilter();
+            
+            // Закрываем выпадающий список
+            dateRangeDropdown.classList.remove('show');
+            isDateDropdownOpen = false;
+            
+            // Не закрываем основное меню фильтров
+            // (оставляем его открытым, чтобы пользователь мог выполнить другие действия)
+        });
+    });
+    
+    // Обработчик клика на другие кнопки фильтров (кроме date-range-btn)
+    filterButtons.querySelectorAll('.filter-btn:not(#date-range-btn)').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            // Для остальных кнопок закрываем мобильное меню
+            toggleMobileFilterMenu();
+        });
+    });
+    
+    // Закрытие при клике вне области
+    document.addEventListener('click', function(e) {
+        const isMobileFilterToggle = mobileFilterToggle.contains(e.target);
+        const isFilterButtons = filterButtons.contains(e.target);
+        const isDateRangeBtn = dateRangeBtn.contains(e.target);
+        const isDateRangeDropdown = dateRangeDropdown.contains(e.target);
+        
+        // Если выпадающий список диапазонов открыт и клик был вне его
+        if (isDateDropdownOpen && !isDateRangeDropdown && !isDateRangeBtn) {
+            dateRangeDropdown.classList.remove('show');
+            isDateDropdownOpen = false;
+        }
+        
+        // Если клик был вне всех элементов мобильного фильтра
+        if (!isMobileFilterToggle && !isFilterButtons && !isDateRangeDropdown && !isDateRangeBtn) {
+            if (mobileFilterToggle.classList.contains('active')) {
+                toggleMobileFilterMenu();
+            }
+        }
+    });
+    
+    // Также закрываем при нажатии Escape
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            if (isDateDropdownOpen) {
+                dateRangeDropdown.classList.remove('show');
+                isDateDropdownOpen = false;
+            } else if (mobileFilterToggle.classList.contains('active')) {
+                toggleMobileFilterMenu();
+            }
+        }
+    });
+    
+    // Обработчик изменения размера окна
+    window.addEventListener('resize', function() {
+        // На широких экранах убеждаемся, что всё закрыто
+        if (window.innerWidth > 768) {
+            if (mobileFilterToggle.classList.contains('active')) {
+                toggleMobileFilterMenu();
+            }
+        }
+    });
+    
+    console.log('Мобильное меню фильтров инициализировано');
+}
+
+
 // Функция для обновления заголовка кнопки фильтра дат
 function updateDateRangeButtonTitle() {
     const dateRangeBtn = document.getElementById('date-range-btn');
@@ -1847,6 +2010,7 @@ async function init() {
     
     // Шаг 5: Инициализация кнопок фильтров
     initFilterButtons();
+    initMobileFilterMenu();
     
     // Шаг 6: Инициализируем другие UI компоненты
     populateCitiesDropdown();
