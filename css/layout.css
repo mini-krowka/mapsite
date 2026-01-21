@@ -694,7 +694,6 @@ body {
 /* Стили для кнопок фильтров */
 .filter-buttons {
     display: flex;
-    gap: 5px;
     margin-left: 10px;
     align-items: center;
 }
@@ -796,7 +795,6 @@ body {
 
 .filter-buttons {
     display: flex;
-    gap: 5px;
     margin-left: 10px;
     align-items: center;
     transition: all 0.3s ease;
@@ -848,7 +846,6 @@ body {
 
 .filter-buttons-dropdown.show {
     display: flex;
-    gap: 8px;
     animation: fadeIn 0.2s ease;
 }
 
@@ -905,7 +902,6 @@ body {
 @media (max-width: 768px) {
     .filter-buttons.show-mobile {
         flex-direction: row;
-        gap: 8px;
         min-width: auto;
         width: auto;
     }
