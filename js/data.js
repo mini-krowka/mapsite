@@ -391,8 +391,9 @@ window.cities = [
     end: null
  };
  
-window.milequipKmlPaths = ["kml/Geolocations/Уничтоженная техника ВСУ НАТО.kml"];
+window.milequipKmlPaths = ["kml/Geolocations/Military_equipment.kml"];
 window.milequipLayers = [];
+
 
 
 
