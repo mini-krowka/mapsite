@@ -870,8 +870,24 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup,  style
                 return null; // Пропускаем точку, если она не в диапазоне
             }
 
+            // Для техники определяем категорию из поля "Тип техники"
+            let equipmentType = position; // по умолчанию используем position
+            if (iconGetter === getMilEquipIcon) {
+                // Получаем данные из ExtendedData для техники
+                const extendedData = parseExtendedData(placemark);
+                equipmentType = extendedData['Тип техники'] || extendedData['equipment_type'] || position;
+                
+                if (LOG_STYLES) {
+                    console.log('Техника найдена:', {
+                        originalPosition: position,
+                        equipmentType: equipmentType,
+                        extendedData: extendedData
+                    });
+                }
+            }
+            
             // Получаем иконку для точки с помощью переданной функции
-            const icon = iconGetter(position);
+            const icon = iconGetter(equipmentType);
             
             // Создаем маркер с иконкой
             const marker = L.marker([lat, lng], {icon: icon}).addTo(layerGroup);
@@ -879,13 +895,18 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup,  style
             // Форматируем название - заменяем ссылки на кликабельные
             const formattedName = formatNameWithLinks(name);
             
+            // Для техники добавляем тип в popup
+            const positionText = iconGetter === getMilEquipIcon ? 
+                `Тип техники: ${equipmentType}` : 
+                `Позиция: ${position}`;
+            
             // Добавляем popup с информацией с красивым форматированием
             const coordsString = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
             const popupContent = `
                 ${formattedName ? `<div class="popup-title" style="white-space: pre-wrap; font-weight: bold; margin-bottom: 8px;">${formattedName}</div>` : ''}
                 <div class="popup-details" style="font-size: 14px; line-height: 1.4;">
                     ${date ? `<div><strong>Дата:</strong> ${date}</div>` : ''}
-                    ${position ? `<div><strong>${iconGetter.name.includes('MilEquip') ? 'Тип:' : 'Позиция:'}</strong> ${position}</div>` : ''}
+                    ${equipmentType ? `<div><strong>${iconGetter === getMilEquipIcon ? 'Тип техники:' : 'Позиция:'}</strong> ${equipmentType}</div>` : ''}
                     <div style="display: flex; align-items: center; gap: 8px; margin-top: 4px;">
                         <strong>Координаты:</strong> 
                         <span style="font-family: monospace;">${coordsString}</span>
@@ -913,7 +934,15 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup,  style
             });
             
             if (LOG_STYLES) {
-                console.log(`Point added:`, { name, date, position, descriptionUrl, coordinates: [lat, lng], iconGetter: iconGetter.name });
+                console.log(`Point added:`, { 
+                    name, 
+                    date, 
+                    position: equipmentType, 
+                    descriptionUrl, 
+                    coordinates: [lat, lng], 
+                    iconGetter: iconGetter.name,
+                    isEquipment: iconGetter === getMilEquipIcon 
+                });
             }
             
             return marker;
@@ -962,10 +991,17 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup,  style
             // Обработка Point в MultiGeometry
             multiGeometry.querySelectorAll('Point').forEach(point => {
                 const extendedData = parseExtendedData(placemark);
-                const date = extendedData['дата'];
-                const position = extendedData['позиция'];
-                const descriptionUrl = extendedData['описание'];
-                const pnt = parseAndAddPoint(point, date, position, descriptionUrl);
+                const date = extendedData['дата'] || extendedData['date'];
+                // Для техники используем категорию из "Тип техники"
+                const equipmentType = extendedData['Тип техники'] || extendedData['equipment_type'];
+                const descriptionUrl = extendedData['описание'] || extendedData['description'];
+                
+                // Если это слой техники и есть категория, используем ее
+                const position = (iconGetter === getMilEquipIcon && equipmentType) ? 
+                    equipmentType : 
+                    (extendedData['позиция'] || extendedData['position']);
+                
+                const pnt = parseAndAddPoint(point, date, position, descriptionUrl, iconGetter);
             });
         }
 
@@ -985,10 +1021,17 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup,  style
         const point = placemark.querySelector('Point');
         if (point && !multiGeometry) {
             const extendedData = parseExtendedData(placemark);
-            const date = extendedData['дата'];
-            const position = extendedData['позиция'];
-            const descriptionUrl = extendedData['описание'];
-            const pnt = parseAndAddPoint(point, date, position, descriptionUrl);
+            const date = extendedData['дата'] || extendedData['date'];
+            // Для техники используем категорию из "Тип техники"
+            const equipmentType = extendedData['Тип техники'] || extendedData['equipment_type'];
+            const descriptionUrl = extendedData['описание'] || extendedData['description'];
+            
+            // Если это слой техники и есть категорию, используем ее
+            const position = (iconGetter === getMilEquipIcon && equipmentType) ? 
+                equipmentType : 
+                (extendedData['позиция'] || extendedData['position']);
+            
+            const pnt = parseAndAddPoint(point, date, position, descriptionUrl, iconGetter);
         }
         
         if (LOG_STYLES) console.groupEnd(); // Закрываем группу Placemark
@@ -1234,7 +1277,7 @@ function getMilEquipIcon(position) {
         'Небронированный транспорт': 'img/military equipment/Небронированный транспорт.png',
         'ПВО'                      : 'img/military equipment/ПВО.png',
         'Танк'                     : 'img/military equipment/Танк.png',
-        'default'                  : 'img/military equipment/Другое.png',
+        'default'                  : 'img/logo.png',
     };
 
     const iconUrl = iconUrls[position] || iconUrls.default;
@@ -1258,7 +1301,18 @@ function parseExtendedData(placemark) {
             const name = dataElement.getAttribute('name');
             const value = dataElement.querySelector('value')?.textContent;
             if (name && value) {
+                // Сохраняем с оригинальным именем
                 data[name] = value;
+                // Также добавляем англоязычные альтернативы для совместимости
+                if (name === 'Тип техники') {
+                    data['equipment_type'] = value;
+                } else if (name === 'позиция') {
+                    data['position'] = value;
+                } else if (name === 'дата') {
+                    data['date'] = value;
+                } else if (name === 'описание') {
+                    data['description'] = value;
+                }
             }
         });
     }
