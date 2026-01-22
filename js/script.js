@@ -15,6 +15,7 @@ let selectedDate = null; // Глобальная переменная для х�
 const LOG_STYLES = true; // Можно менять на false для отключения
 
 let currentDateRange = 'week'; // 'week', 'month', '3months', '6months', 'year'
+let isMilEquipVisible = false; // Флаг видимости слоя техники
 
 // Получаем массив доступных дат из kmlFiles
 const availableDates = kmlFiles.map(file => file.name);
@@ -1394,13 +1395,17 @@ async function initMilequipLayer(kmlFilePaths) {
     
     // Удаляем старые слои техники, если они существуют
     if (window.milequipLayers && window.milequipLayers.length) {
-        window.milequipLayers.forEach(layer => map.removeLayer(layer));
+        window.milequipLayers.forEach(layer => {
+            if (map.hasLayer(layer)) {
+                map.removeLayer(layer);
+            }
+        });
         window.milequipLayers = [];
     }
     
     // Создаем новую группу слоев для техники
     const milequipLayerGroup = L.layerGroup();
-    milequipLayerGroup.addTo(map);
+    // НЕ добавляем на карту сразу - только при нажатии кнопки
     
     // Сохраняем ссылки для последующего управления
     window.milequipLayers.push(milequipLayerGroup);
@@ -1416,6 +1421,73 @@ async function initMilequipLayer(kmlFilePaths) {
     console.log(`Загружено слоев техники: ${window.milequipLayers.length}, точек: ${milequipLayerGroup.getLayers().length}`);
     
     return milequipLayerGroup;
+}
+
+// Функция для переключения отображения техники
+function toggleMilEquipVisibility() {
+    const milEquipBtn = document.getElementById('mil-equip-btn');
+    
+    // Переключаем флаг
+    isMilEquipVisible = !isMilEquipVisible;
+    
+    if (isMilEquipVisible) {
+        // Показываем технику
+        milEquipBtn.classList.add('active');
+        
+        // Если слои техники еще не загружены, загружаем их
+        if (!window.milequipLayers || window.milequipLayers.length === 0) {
+            console.log('Загрузка техники...');
+            initMilequipLayer(window.milequipKmlPaths).then(() => {
+                // После загрузки добавляем на карту
+                window.milequipLayers.forEach(layer => {
+                    if (layer && !map.hasLayer(layer)) {
+                        layer.addTo(map);
+                    }
+                });
+            });
+        } else {
+            // Если уже загружены, просто добавляем на карту
+            window.milequipLayers.forEach(layer => {
+                if (layer && !map.hasLayer(layer)) {
+                    layer.addTo(map);
+                }
+            });
+        }
+        
+        console.log('Техника показана');
+    } else {
+        // Скрываем технику
+        milEquipBtn.classList.remove('active');
+        
+        // Убираем слои техники с карты
+        if (window.milequipLayers && window.milequipLayers.length) {
+            window.milequipLayers.forEach(layer => {
+                if (layer && map.hasLayer(layer)) {
+                    map.removeLayer(layer);
+                }
+            });
+        }
+        
+        console.log('Техника скрыта');
+    }
+    
+    // Обновляем title кнопки
+    updateMilEquipButtonTitle();
+}
+
+// Функция для обновления заголовка кнопки техники
+function updateMilEquipButtonTitle() {
+    const milEquipBtn = document.getElementById('mil-equip-btn');
+    if (milEquipBtn) {
+        const t = translations[currentLang];
+        if (t) {
+            milEquipBtn.title = isMilEquipVisible ? 
+                (t.hideEquipment || 'Скрыть технику') : 
+                (t.showEquipment || 'Показать технику');
+        } else {
+            milEquipBtn.title = isMilEquipVisible ? 'Скрыть технику' : 'Показать технику';
+        }
+    }
 }
 
 // Функция для вычисления даты начала на основе текущей даты и диапазона
@@ -2125,7 +2197,8 @@ async function init() {
     // Загружаем точки с фильтром по дате
     await initPointsLayer(window.pointsKmlPaths);    
     // Загружаем технику (без фильтра по дате)
-    await initMilequipLayer(window.milequipKmlPaths);
+    // await initMilequipLayer(window.milequipKmlPaths);
+    // загружаем по кнопке
     
     // Шаг 5: Инициализация кнопок фильтров
     initFilterButtons();
@@ -2205,6 +2278,12 @@ async function init() {
     // Инициализация поиска по названию
     initSearchFunctionality();
     
+    // обработчик для кнопки техники
+    const milEquipBtn = document.getElementById('mil-equip-btn');
+    if (milEquipBtn) {
+        milEquipBtn.addEventListener('click', toggleMilEquipVisibility);
+        updateMilEquipButtonTitle(); // Инициализируем заголовок
+    }
     
     window.initialLayerSet = false;
     map.on('load', function() {

@@ -18,6 +18,9 @@ const translations = {
         nextBtnTitle: "Следующий",
         lastBtnTitle: "Сегодня",
         
+        showEquipment: 'Показать технику',
+        hideEquipment: 'Скрыть технику',
+        
         ruBtnTitle: "Текущий язык: Русский",
         enBtnTitle: "Переключить на Английский",
         
@@ -67,6 +70,9 @@ const translations = {
         prevBtnTitle: "Previous",
         nextBtnTitle: "Next",
         lastBtnTitle: "Today",
+        
+        showEquipment: 'Show equipment',
+        hideEquipment: 'Hide equipment',
         
         ruBtnTitle: "Switch to Russian",
         enBtnTitle: "Current language: English",

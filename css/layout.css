@@ -917,3 +917,13 @@ body {
         display: flex;
     }
 }
+
+.filter-btn.active {
+    background-color: #4CAF50 !important;
+    color: white !important;
+    border-color: #45a049 !important;
+}
+
+.filter-btn.active:hover {
+    background-color: #45a049 !important;
+}
