@@ -715,7 +715,7 @@ function parseStyleMapFromKmlDoc(kmlDoc)
 }
 
 // Обработка Placemarks
-function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup,  styleMode = window.kmlStyleModes.DEFAULT)
+function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup,  styleMode = window.kmlStyleModes.DEFAULT, iconGetter = getPointIcon)
 {
     let bounds = L.latLngBounds(); // Инициализация пустыми границами
     let elementCount = 0;
@@ -1082,7 +1082,7 @@ async function loadKmlToLayer(filePath, layerGroup, options = {}) {
             console.log('Found styleMaps:', styleMaps);
         }
 
-        const bounds = parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup, finalStyleMode);
+        const bounds = parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup, finalStyleMode, getPointIcon);
         
         if (LOG_STYLES) console.groupEnd();
         
