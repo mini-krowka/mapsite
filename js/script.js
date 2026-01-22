@@ -855,7 +855,7 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup,  style
         }
 
 
-        function parseAndAddPoint(pointElement, date, position, descriptionUrl) {
+        function parseAndAddPoint(pointElement, date, position, descriptionUrl, iconGetter = getPointIcon) {
             const coordinates = parseCoordinates(pointElement, map.options.crs);
             if (coordinates.length < 1) {
                 if (LOG_STYLES) console.log(`Point skipped - insufficient coordinates: ${coordinates.length}`);
@@ -864,16 +864,16 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup,  style
 
             const [lat, lng] = coordinates[0];
             
-            // Проверяем, попадает ли точка в диапазон дат
-            if (date && window.pointsDateRange && 
+            // Проверяем, попадает ли точка в диапазон дат (только для обычных точек)
+            if (!iconGetter.name.includes('MilEquip') && date && window.pointsDateRange && 
                 !isDateInRange(date, window.pointsDateRange.start, window.pointsDateRange.end)) {
                 return null; // Пропускаем точку, если она не в диапазоне
             }
 
-            // Получаем иконку для точки
-            const icon = getPointIcon(position);
+            // Получаем иконку для точки с помощью переданной функции
+            const icon = iconGetter(position);
             
-            // Создаем маркер с иконкой флага
+            // Создаем маркер с иконкой
             const marker = L.marker([lat, lng], {icon: icon}).addTo(layerGroup);
             
             // Форматируем название - заменяем ссылки на кликабельные
@@ -885,7 +885,7 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup,  style
                 ${formattedName ? `<div class="popup-title" style="white-space: pre-wrap; font-weight: bold; margin-bottom: 8px;">${formattedName}</div>` : ''}
                 <div class="popup-details" style="font-size: 14px; line-height: 1.4;">
                     ${date ? `<div><strong>Дата:</strong> ${date}</div>` : ''}
-                    ${position ? `<div><strong>Позиция:</strong> ${position}</div>` : ''}
+                    ${position ? `<div><strong>${iconGetter.name.includes('MilEquip') ? 'Тип:' : 'Позиция:'}</strong> ${position}</div>` : ''}
                     <div style="display: flex; align-items: center; gap: 8px; margin-top: 4px;">
                         <strong>Координаты:</strong> 
                         <span style="font-family: monospace;">${coordsString}</span>
@@ -913,7 +913,7 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup,  style
             });
             
             if (LOG_STYLES) {
-                console.log(`Point added:`, { name, date, position, descriptionUrl, coordinates: [lat, lng] });
+                console.log(`Point added:`, { name, date, position, descriptionUrl, coordinates: [lat, lng], iconGetter: iconGetter.name });
             }
             
             return marker;
@@ -1223,6 +1223,31 @@ function getPointIcon(position) {
     });
 }
 
+function getMilEquipIcon(position) {
+    const iconUrls = {
+        'Авиация'                  : 'img/military equipment/Авиация.png',
+        'Артиллерия'               : 'img/military equipment/Артиллерия.png',
+        'БПЛА'                     : 'img/military equipment/БПЛА.png',
+        'Бронированный транспорт'  : 'img/military equipment/Бронированный транспорт.png',
+        'Другое'                   : 'img/military equipment/Другое.png',
+        'Другое/Нет данных'        : 'img/military equipment/Другое Нет данных.png',
+        'Небронированный транспорт': 'img/military equipment/Небронированный транспорт.png',
+        'ПВО'                      : 'img/military equipment/ПВО.png',
+        'Танк'                     : 'img/military equipment/Танк.png',
+        'default'                  : 'img/military equipment/Другое.png',
+    };
+
+    const iconUrl = iconUrls[position] || iconUrls.default;
+    
+    return L.icon({
+        iconUrl: iconUrl,
+        iconSize: [14, 14], // размер иконки
+        iconAnchor: [7, 7], // точка привязки
+        popupAnchor: [0, 0] // смещение для popup
+    });
+}
+
+
 // Функция для извлечения данных из ExtendedData
 function parseExtendedData(placemark) {
     const extendedData = placemark.querySelector('ExtendedData');
@@ -1242,8 +1267,13 @@ function parseExtendedData(placemark) {
 }
 
 
-// Функция для загрузки KML с точками
-async function loadPointsFromKml(filePath, layerGroup) {
+// Функция для загрузки KML с точками (с поддержкой разных типов иконок)
+async function loadPointsFromKml(filePath, layerGroup, options = {}) {
+    const {
+        iconGetter = getPointIcon, // По умолчанию используем getPointIcon
+        isEquipment = false // Флаг для техники
+    } = options;
+
     try {
         const response = await fetch(filePath);
         if (!response.ok) {
@@ -1256,11 +1286,11 @@ async function loadPointsFromKml(filePath, layerGroup) {
         const kmlDoc = parser.parseFromString(kmlText, "text/xml");
 
         if (LOG_STYLES) {
-            console.groupCollapsed(`Points layer loaded: ${filePath}`);
+            console.groupCollapsed(`Points layer loaded: ${filePath} ${isEquipment ? '(техника)' : ''}`);
         }
 
-        // Загружаем только точки
-        const bounds = parsePlacemarksFromKmlDoc(kmlDoc, {}, {}, layerGroup, window.kmlStyleModes.DEFAULT);
+        // Загружаем только точки с указанной функцией получения иконок
+        const bounds = parsePlacemarksFromKmlDoc(kmlDoc, {}, {}, layerGroup, window.kmlStyleModes.DEFAULT, iconGetter);
         
         if (LOG_STYLES) {
             console.log(`Total points loaded from ${filePath}: ${layerGroup.getLayers().length}`);
@@ -1299,6 +1329,39 @@ async function initPointsLayer(kmlFilePaths) {
     }
     
     return pointsLayerGroup;
+}
+
+// Функция для инициализации слоя с техникой
+async function initMilequipLayer(kmlFilePaths) {
+    // Если передана строка, преобразуем в массив
+    if (typeof kmlFilePaths === 'string') {
+        kmlFilePaths = [kmlFilePaths];
+    }
+    
+    // Удаляем старые слои техники, если они существуют
+    if (window.milequipLayers && window.milequipLayers.length) {
+        window.milequipLayers.forEach(layer => map.removeLayer(layer));
+        window.milequipLayers = [];
+    }
+    
+    // Создаем новую группу слоев для техники
+    const milequipLayerGroup = L.layerGroup();
+    milequipLayerGroup.addTo(map);
+    
+    // Сохраняем ссылки для последующего управления
+    window.milequipLayers.push(milequipLayerGroup);
+    
+    // Загружаем технику из всех KML файлов
+    for (const path of kmlFilePaths) {
+        await loadPointsFromKml(path, milequipLayerGroup, {
+            iconGetter: getMilEquipIcon,
+            isEquipment: true
+        });
+    }
+    
+    console.log(`Загружено слоев техники: ${window.milequipLayers.length}, точек: ${milequipLayerGroup.getLayers().length}`);
+    
+    return milequipLayerGroup;
 }
 
 // Функция для вычисления даты начала на основе текущей даты и диапазона
@@ -2005,8 +2068,10 @@ async function init() {
     window.pointsDateRange.start = startDate;
     window.pointsDateRange.end = currentDate;
     
-    // Загружаем точки с фильтром
-    await initPointsLayer(window.pointsKmlPaths);
+    // Загружаем точки с фильтром по дате
+    await initPointsLayer(window.pointsKmlPaths);    
+    // Загружаем технику (без фильтра по дате)
+    await initMilequipLayer(window.milequipKmlPaths);
     
     // Шаг 5: Инициализация кнопок фильтров
     initFilterButtons();
