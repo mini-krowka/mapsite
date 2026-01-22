@@ -1285,8 +1285,8 @@ function getMilEquipIcon(position) {
     
     return L.icon({
         iconUrl: iconUrl,
-        iconSize: [14, 14], // размер иконки
-        iconAnchor: [7, 7], // точка привязки
+        iconSize: [28, 28], // размер иконки
+        iconAnchor: [14, 14], // точка привязки
         popupAnchor: [0, 0] // смещение для popup
     });
 }
@@ -3322,5 +3322,6 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
 });
+
 
 
