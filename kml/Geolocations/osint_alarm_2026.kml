@@ -1,0 +1,1507 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Document>
+    <name>2026</name>
+    <Style id="icon-1528-BDBDBD-normal">
+      <IconStyle>
+        <color>ffbdbdbd</color>
+        <scale>1</scale>
+        <Icon>
+          <href>https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png</href>
+        </Icon>
+      </IconStyle>
+      <LabelStyle>
+        <scale>0</scale>
+      </LabelStyle>
+    </Style>
+    <Style id="icon-1528-BDBDBD-highlight">
+      <IconStyle>
+        <color>ffbdbdbd</color>
+        <scale>1</scale>
+        <Icon>
+          <href>https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png</href>
+        </Icon>
+      </IconStyle>
+      <LabelStyle>
+        <scale>1</scale>
+      </LabelStyle>
+    </Style>
+    <StyleMap id="icon-1528-BDBDBD">
+      <Pair>
+        <key>normal</key>
+        <styleUrl>#icon-1528-BDBDBD-normal</styleUrl>
+      </Pair>
+      <Pair>
+        <key>highlight</key>
+        <styleUrl>#icon-1528-BDBDBD-highlight</styleUrl>
+      </Pair>
+    </StyleMap>
+    <Style id="icon-1564-F57C00-normal">
+      <IconStyle>
+        <color>ff007cf5</color>
+        <scale>1</scale>
+        <Icon>
+          <href>https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png</href>
+        </Icon>
+      </IconStyle>
+      <LabelStyle>
+        <scale>0</scale>
+      </LabelStyle>
+    </Style>
+    <Style id="icon-1564-F57C00-highlight">
+      <IconStyle>
+        <color>ff007cf5</color>
+        <scale>1</scale>
+        <Icon>
+          <href>https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png</href>
+        </Icon>
+      </IconStyle>
+      <LabelStyle>
+        <scale>1</scale>
+      </LabelStyle>
+    </Style>
+    <StyleMap id="icon-1564-F57C00">
+      <Pair>
+        <key>normal</key>
+        <styleUrl>#icon-1564-F57C00-normal</styleUrl>
+      </Pair>
+      <Pair>
+        <key>highlight</key>
+        <styleUrl>#icon-1564-F57C00-highlight</styleUrl>
+      </Pair>
+    </StyleMap>
+    <Style id="icon-1565-AFB42B-normal">
+      <IconStyle>
+        <color>ff2bb4af</color>
+        <scale>1</scale>
+        <Icon>
+          <href>https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png</href>
+        </Icon>
+      </IconStyle>
+      <LabelStyle>
+        <scale>0</scale>
+      </LabelStyle>
+    </Style>
+    <Style id="icon-1565-AFB42B-highlight">
+      <IconStyle>
+        <color>ff2bb4af</color>
+        <scale>1</scale>
+        <Icon>
+          <href>https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png</href>
+        </Icon>
+      </IconStyle>
+      <LabelStyle>
+        <scale>1</scale>
+      </LabelStyle>
+    </Style>
+    <StyleMap id="icon-1565-AFB42B">
+      <Pair>
+        <key>normal</key>
+        <styleUrl>#icon-1565-AFB42B-normal</styleUrl>
+      </Pair>
+      <Pair>
+        <key>highlight</key>
+        <styleUrl>#icon-1565-AFB42B-highlight</styleUrl>
+      </Pair>
+    </StyleMap>
+    <Style id="icon-1569-01579B-normal">
+      <IconStyle>
+        <color>ff9b5701</color>
+        <scale>1</scale>
+        <Icon>
+          <href>https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png</href>
+        </Icon>
+      </IconStyle>
+      <LabelStyle>
+        <scale>0</scale>
+      </LabelStyle>
+    </Style>
+    <Style id="icon-1569-01579B-highlight">
+      <IconStyle>
+        <color>ff9b5701</color>
+        <scale>1</scale>
+        <Icon>
+          <href>https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png</href>
+        </Icon>
+      </IconStyle>
+      <LabelStyle>
+        <scale>1</scale>
+      </LabelStyle>
+    </Style>
+    <StyleMap id="icon-1569-01579B">
+      <Pair>
+        <key>normal</key>
+        <styleUrl>#icon-1569-01579B-normal</styleUrl>
+      </Pair>
+      <Pair>
+        <key>highlight</key>
+        <styleUrl>#icon-1569-01579B-highlight</styleUrl>
+      </Pair>
+    </StyleMap>
+    <Style id="icon-1569-757575-normal">
+      <IconStyle>
+        <color>ff757575</color>
+        <scale>1</scale>
+        <Icon>
+          <href>https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png</href>
+        </Icon>
+      </IconStyle>
+      <LabelStyle>
+        <scale>0</scale>
+      </LabelStyle>
+    </Style>
+    <Style id="icon-1569-757575-highlight">
+      <IconStyle>
+        <color>ff757575</color>
+        <scale>1</scale>
+        <Icon>
+          <href>https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png</href>
+        </Icon>
+      </IconStyle>
+      <LabelStyle>
+        <scale>1</scale>
+      </LabelStyle>
+    </Style>
+    <StyleMap id="icon-1569-757575">
+      <Pair>
+        <key>normal</key>
+        <styleUrl>#icon-1569-757575-normal</styleUrl>
+      </Pair>
+      <Pair>
+        <key>highlight</key>
+        <styleUrl>#icon-1569-757575-highlight</styleUrl>
+      </Pair>
+    </StyleMap>
+    <Style id="icon-1581-000000-normal">
+      <IconStyle>
+        <color>ff000000</color>
+        <scale>1</scale>
+        <Icon>
+          <href>https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png</href>
+        </Icon>
+      </IconStyle>
+      <LabelStyle>
+        <scale>0</scale>
+      </LabelStyle>
+    </Style>
+    <Style id="icon-1581-000000-highlight">
+      <IconStyle>
+        <color>ff000000</color>
+        <scale>1</scale>
+        <Icon>
+          <href>https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png</href>
+        </Icon>
+      </IconStyle>
+      <LabelStyle>
+        <scale>1</scale>
+      </LabelStyle>
+    </Style>
+    <StyleMap id="icon-1581-000000">
+      <Pair>
+        <key>normal</key>
+        <styleUrl>#icon-1581-000000-normal</styleUrl>
+      </Pair>
+      <Pair>
+        <key>highlight</key>
+        <styleUrl>#icon-1581-000000-highlight</styleUrl>
+      </Pair>
+    </StyleMap>
+    <Style id="icon-1581-424242-normal">
+      <IconStyle>
+        <color>ff424242</color>
+        <scale>1</scale>
+        <Icon>
+          <href>https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png</href>
+        </Icon>
+      </IconStyle>
+      <LabelStyle>
+        <scale>0</scale>
+      </LabelStyle>
+    </Style>
+    <Style id="icon-1581-424242-highlight">
+      <IconStyle>
+        <color>ff424242</color>
+        <scale>1</scale>
+        <Icon>
+          <href>https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png</href>
+        </Icon>
+      </IconStyle>
+      <LabelStyle>
+        <scale>1</scale>
+      </LabelStyle>
+    </Style>
+    <StyleMap id="icon-1581-424242">
+      <Pair>
+        <key>normal</key>
+        <styleUrl>#icon-1581-424242-normal</styleUrl>
+      </Pair>
+      <Pair>
+        <key>highlight</key>
+        <styleUrl>#icon-1581-424242-highlight</styleUrl>
+      </Pair>
+    </StyleMap>
+    <Style id="icon-1594-9C27B0-normal">
+      <IconStyle>
+        <color>ffb0279c</color>
+        <scale>1</scale>
+        <Icon>
+          <href>https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png</href>
+        </Icon>
+      </IconStyle>
+      <LabelStyle>
+        <scale>0</scale>
+      </LabelStyle>
+    </Style>
+    <Style id="icon-1594-9C27B0-highlight">
+      <IconStyle>
+        <color>ffb0279c</color>
+        <scale>1</scale>
+        <Icon>
+          <href>https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png</href>
+        </Icon>
+      </IconStyle>
+      <LabelStyle>
+        <scale>1</scale>
+      </LabelStyle>
+    </Style>
+    <StyleMap id="icon-1594-9C27B0">
+      <Pair>
+        <key>normal</key>
+        <styleUrl>#icon-1594-9C27B0-normal</styleUrl>
+      </Pair>
+      <Pair>
+        <key>highlight</key>
+        <styleUrl>#icon-1594-9C27B0-highlight</styleUrl>
+      </Pair>
+    </StyleMap>
+    <Style id="icon-1603-0288D1-normal">
+      <IconStyle>
+        <color>ffd18802</color>
+        <scale>1</scale>
+        <Icon>
+          <href>https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png</href>
+        </Icon>
+      </IconStyle>
+      <LabelStyle>
+        <scale>0</scale>
+      </LabelStyle>
+    </Style>
+    <Style id="icon-1603-0288D1-highlight">
+      <IconStyle>
+        <color>ffd18802</color>
+        <scale>1</scale>
+        <Icon>
+          <href>https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png</href>
+        </Icon>
+      </IconStyle>
+      <LabelStyle>
+        <scale>1</scale>
+      </LabelStyle>
+    </Style>
+    <StyleMap id="icon-1603-0288D1">
+      <Pair>
+        <key>normal</key>
+        <styleUrl>#icon-1603-0288D1-normal</styleUrl>
+      </Pair>
+      <Pair>
+        <key>highlight</key>
+        <styleUrl>#icon-1603-0288D1-highlight</styleUrl>
+      </Pair>
+    </StyleMap>
+    <Style id="icon-1619-9C27B0-normal">
+      <IconStyle>
+        <color>ffb0279c</color>
+        <scale>1</scale>
+        <Icon>
+          <href>https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png</href>
+        </Icon>
+      </IconStyle>
+      <LabelStyle>
+        <scale>0</scale>
+      </LabelStyle>
+    </Style>
+    <Style id="icon-1619-9C27B0-highlight">
+      <IconStyle>
+        <color>ffb0279c</color>
+        <scale>1</scale>
+        <Icon>
+          <href>https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png</href>
+        </Icon>
+      </IconStyle>
+      <LabelStyle>
+        <scale>1</scale>
+      </LabelStyle>
+    </Style>
+    <StyleMap id="icon-1619-9C27B0">
+      <Pair>
+        <key>normal</key>
+        <styleUrl>#icon-1619-9C27B0-normal</styleUrl>
+      </Pair>
+      <Pair>
+        <key>highlight</key>
+        <styleUrl>#icon-1619-9C27B0-highlight</styleUrl>
+      </Pair>
+    </StyleMap>
+    <Style id="icon-1644-01579B-normal">
+      <IconStyle>
+        <color>ff9b5701</color>
+        <scale>1</scale>
+        <Icon>
+          <href>https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png</href>
+        </Icon>
+      </IconStyle>
+      <LabelStyle>
+        <scale>0</scale>
+      </LabelStyle>
+    </Style>
+    <Style id="icon-1644-01579B-highlight">
+      <IconStyle>
+        <color>ff9b5701</color>
+        <scale>1</scale>
+        <Icon>
+          <href>https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png</href>
+        </Icon>
+      </IconStyle>
+      <LabelStyle>
+        <scale>1</scale>
+      </LabelStyle>
+    </Style>
+    <StyleMap id="icon-1644-01579B">
+      <Pair>
+        <key>normal</key>
+        <styleUrl>#icon-1644-01579B-normal</styleUrl>
+      </Pair>
+      <Pair>
+        <key>highlight</key>
+        <styleUrl>#icon-1644-01579B-highlight</styleUrl>
+      </Pair>
+    </StyleMap>
+    <Style id="icon-1660-006064-normal">
+      <IconStyle>
+        <color>ff646000</color>
+        <scale>1</scale>
+        <Icon>
+          <href>https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png</href>
+        </Icon>
+      </IconStyle>
+      <LabelStyle>
+        <scale>0</scale>
+      </LabelStyle>
+    </Style>
+    <Style id="icon-1660-006064-highlight">
+      <IconStyle>
+        <color>ff646000</color>
+        <scale>1</scale>
+        <Icon>
+          <href>https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png</href>
+        </Icon>
+      </IconStyle>
+      <LabelStyle>
+        <scale>1</scale>
+      </LabelStyle>
+    </Style>
+    <StyleMap id="icon-1660-006064">
+      <Pair>
+        <key>normal</key>
+        <styleUrl>#icon-1660-006064-normal</styleUrl>
+      </Pair>
+      <Pair>
+        <key>highlight</key>
+        <styleUrl>#icon-1660-006064-highlight</styleUrl>
+      </Pair>
+    </StyleMap>
+    <Style id="icon-1693-BDBDBD-normal">
+      <IconStyle>
+        <color>ffbdbdbd</color>
+        <scale>1</scale>
+        <Icon>
+          <href>https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png</href>
+        </Icon>
+      </IconStyle>
+      <LabelStyle>
+        <scale>0</scale>
+      </LabelStyle>
+    </Style>
+    <Style id="icon-1693-BDBDBD-highlight">
+      <IconStyle>
+        <color>ffbdbdbd</color>
+        <scale>1</scale>
+        <Icon>
+          <href>https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png</href>
+        </Icon>
+      </IconStyle>
+      <LabelStyle>
+        <scale>1</scale>
+      </LabelStyle>
+    </Style>
+    <StyleMap id="icon-1693-BDBDBD">
+      <Pair>
+        <key>normal</key>
+        <styleUrl>#icon-1693-BDBDBD-normal</styleUrl>
+      </Pair>
+      <Pair>
+        <key>highlight</key>
+        <styleUrl>#icon-1693-BDBDBD-highlight</styleUrl>
+      </Pair>
+    </StyleMap>
+    <Style id="icon-1710-E65100-normal">
+      <IconStyle>
+        <color>ff0051e6</color>
+        <scale>1</scale>
+        <Icon>
+          <href>https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png</href>
+        </Icon>
+      </IconStyle>
+      <LabelStyle>
+        <scale>0</scale>
+      </LabelStyle>
+    </Style>
+    <Style id="icon-1710-E65100-highlight">
+      <IconStyle>
+        <color>ff0051e6</color>
+        <scale>1</scale>
+        <Icon>
+          <href>https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png</href>
+        </Icon>
+      </IconStyle>
+      <LabelStyle>
+        <scale>1</scale>
+      </LabelStyle>
+    </Style>
+    <StyleMap id="icon-1710-E65100">
+      <Pair>
+        <key>normal</key>
+        <styleUrl>#icon-1710-E65100-normal</styleUrl>
+      </Pair>
+      <Pair>
+        <key>highlight</key>
+        <styleUrl>#icon-1710-E65100-highlight</styleUrl>
+      </Pair>
+    </StyleMap>
+    <Style id="icon-1719-7CB342-normal">
+      <IconStyle>
+        <color>ff42b37c</color>
+        <scale>1</scale>
+        <Icon>
+          <href>https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png</href>
+        </Icon>
+      </IconStyle>
+      <LabelStyle>
+        <scale>0</scale>
+      </LabelStyle>
+    </Style>
+    <Style id="icon-1719-7CB342-highlight">
+      <IconStyle>
+        <color>ff42b37c</color>
+        <scale>1</scale>
+        <Icon>
+          <href>https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png</href>
+        </Icon>
+      </IconStyle>
+      <LabelStyle>
+        <scale>1</scale>
+      </LabelStyle>
+    </Style>
+    <StyleMap id="icon-1719-7CB342">
+      <Pair>
+        <key>normal</key>
+        <styleUrl>#icon-1719-7CB342-normal</styleUrl>
+      </Pair>
+      <Pair>
+        <key>highlight</key>
+        <styleUrl>#icon-1719-7CB342-highlight</styleUrl>
+      </Pair>
+    </StyleMap>
+    <Style id="icon-1826-FFEA00-normal">
+      <IconStyle>
+        <color>ff00eaff</color>
+        <scale>1</scale>
+        <Icon>
+          <href>https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png</href>
+        </Icon>
+      </IconStyle>
+      <LabelStyle>
+        <scale>0</scale>
+      </LabelStyle>
+    </Style>
+    <Style id="icon-1826-FFEA00-highlight">
+      <IconStyle>
+        <color>ff00eaff</color>
+        <scale>1</scale>
+        <Icon>
+          <href>https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png</href>
+        </Icon>
+      </IconStyle>
+      <LabelStyle>
+        <scale>1</scale>
+      </LabelStyle>
+    </Style>
+    <StyleMap id="icon-1826-FFEA00">
+      <Pair>
+        <key>normal</key>
+        <styleUrl>#icon-1826-FFEA00-normal</styleUrl>
+      </Pair>
+      <Pair>
+        <key>highlight</key>
+        <styleUrl>#icon-1826-FFEA00-highlight</styleUrl>
+      </Pair>
+    </StyleMap>
+    <Style id="icon-1856-E65100-normal">
+      <IconStyle>
+        <color>ff0051e6</color>
+        <scale>1</scale>
+        <Icon>
+          <href>https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png</href>
+        </Icon>
+      </IconStyle>
+      <LabelStyle>
+        <scale>0</scale>
+      </LabelStyle>
+    </Style>
+    <Style id="icon-1856-E65100-highlight">
+      <IconStyle>
+        <color>ff0051e6</color>
+        <scale>1</scale>
+        <Icon>
+          <href>https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png</href>
+        </Icon>
+      </IconStyle>
+      <LabelStyle>
+        <scale>1</scale>
+      </LabelStyle>
+    </Style>
+    <StyleMap id="icon-1856-E65100">
+      <Pair>
+        <key>normal</key>
+        <styleUrl>#icon-1856-E65100-normal</styleUrl>
+      </Pair>
+      <Pair>
+        <key>highlight</key>
+        <styleUrl>#icon-1856-E65100-highlight</styleUrl>
+      </Pair>
+    </StyleMap>
+    <Placemark>
+      <name>9 января, Одесса, Судно</name>
+      <description><![CDATA[описание: Атака БпЛА на судно.<br>https://t.me/icpbtrubicon/941<br>Тип объекта: Судно<br>Дата: 2026.01.09]]></description>
+      <styleUrl>#icon-1569-01579B</styleUrl>
+      <ExtendedData>
+        <Data name="описание">
+          <value>Атака БпЛА на судно.
+https://t.me/icpbtrubicon/941</value>
+        </Data>
+        <Data name="Тип объекта">
+          <value>Судно</value>
+        </Data>
+        <Data name="Дата">
+          <value>2026.01.09</value>
+        </Data>
+      </ExtendedData>
+      <Point>
+        <coordinates>
+          30.83145,46.44951,0
+        </coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name>Семёновка, 2 января</name>
+      <description><![CDATA[описание: Удар БпЛА по гаражам.<br>https://t.me/The_Wrong_Side/27472<br>https://t.me/ridna_semenivka_ua/7461<br>Тип объекта: Объект неустановленного назначения<br>Дата: 2026.01.02]]></description>
+      <styleUrl>#icon-1594-9C27B0</styleUrl>
+      <ExtendedData>
+        <Data name="описание">
+          <value>Удар БпЛА по гаражам.
+https://t.me/The_Wrong_Side/27472
+https://t.me/ridna_semenivka_ua/7461</value>
+        </Data>
+        <Data name="Тип объекта">
+          <value>Объект неустановленного назначения</value>
+        </Data>
+        <Data name="Дата">
+          <value>2026.01.02</value>
+        </Data>
+      </ExtendedData>
+      <Point>
+        <coordinates>
+          32.568515,52.177771,0
+        </coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name>5 января, Днепропетровск, Олейна</name>
+      <description><![CDATA[описание: Удар БпЛА по "Днепровскому маслоэкстракционному заводу"<br>https://t.me/osint_alarm/1595<br>Тип объекта: Предприятие гражданского или двойного назначения<br>Дата: 2026.01.05]]></description>
+      <styleUrl>#icon-1565-AFB42B</styleUrl>
+      <ExtendedData>
+        <Data name="описание">
+          <value><![CDATA[Удар БпЛА по "Днепровскому маслоэкстракционному заводу"
+https://t.me/osint_alarm/1595]]></value>
+        </Data>
+        <Data name="Тип объекта">
+          <value>Предприятие гражданского или двойного назначения</value>
+        </Data>
+        <Data name="Дата">
+          <value>2026.01.05</value>
+        </Data>
+      </ExtendedData>
+      <Point>
+        <coordinates>
+          35.0324255,48.4774312,0
+        </coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name>9 января, Одесса, Судно</name>
+      <description><![CDATA[описание: Атака БпЛА на судно.<br>https://t.me/icpbtrubicon/941<br>Тип объекта: Судно<br>Дата: 2026.01.09]]></description>
+      <styleUrl>#icon-1569-01579B</styleUrl>
+      <ExtendedData>
+        <Data name="описание">
+          <value>Атака БпЛА на судно.
+https://t.me/icpbtrubicon/941</value>
+        </Data>
+        <Data name="Тип объекта">
+          <value>Судно</value>
+        </Data>
+        <Data name="Дата">
+          <value>2026.01.09</value>
+        </Data>
+      </ExtendedData>
+      <Point>
+        <coordinates>
+          30.7421,46.4925,0
+        </coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name>Январь, Широкое, РЛС</name>
+      <description><![CDATA[описание: Удар по РЛС П-18, где-то в начале января.<br>https://t.me/icpbtrubicon/941<br>Тип объекта: ПВО, РЛС и ракетное вооружение<br>Дата: 2026.01.01]]></description>
+      <styleUrl>#icon-1856-E65100</styleUrl>
+      <ExtendedData>
+        <Data name="описание">
+          <value>Удар по РЛС П-18, где-то в начале января.
+https://t.me/icpbtrubicon/941</value>
+        </Data>
+        <Data name="Тип объекта">
+          <value>ПВО, РЛС и ракетное вооружение</value>
+        </Data>
+        <Data name="Дата">
+          <value>2026.01.01</value>
+        </Data>
+      </ExtendedData>
+      <Point>
+        <coordinates>
+          35.6835935,48.0886903,0
+        </coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name>январь, Широкое, РЛС</name>
+      <description><![CDATA[описание: Удар БпЛА в начале января по РЛС 36Д6 в походном порядке.<br>https://t.me/icpbtrubicon/941<br>Тип объекта: ПВО, РЛС и ракетное вооружение<br>Дата: 2026.01.01]]></description>
+      <styleUrl>#icon-1856-E65100</styleUrl>
+      <ExtendedData>
+        <Data name="описание">
+          <value>Удар БпЛА в начале января по РЛС 36Д6 в походном порядке.
+https://t.me/icpbtrubicon/941</value>
+        </Data>
+        <Data name="Тип объекта">
+          <value>ПВО, РЛС и ракетное вооружение</value>
+        </Data>
+        <Data name="Дата">
+          <value>2026.01.01</value>
+        </Data>
+      </ExtendedData>
+      <Point>
+        <coordinates>
+          36.20993,48.71838,0
+        </coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name>январь, г.Днепропетровск, промах</name>
+      <description><![CDATA[описание: Удар БпЛА по ППД, предположительно 5 января 2026г, одно попадание и один промах.<br>https://t.me/icpbtrubicon/941<br>Тип объекта: ППД<br>Дата: 2026.01.05]]></description>
+      <styleUrl>#icon-1826-FFEA00</styleUrl>
+      <ExtendedData>
+        <Data name="описание">
+          <value>Удар БпЛА по ППД, предположительно 5 января 2026г, одно попадание и один промах.
+https://t.me/icpbtrubicon/941</value>
+        </Data>
+        <Data name="Тип объекта">
+          <value>ППД</value>
+        </Data>
+        <Data name="Дата">
+          <value>2026.01.05</value>
+        </Data>
+      </ExtendedData>
+      <Point>
+        <coordinates>
+          35.06969,48.36989,0
+        </coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name>январь, г.Днепропетровск, склад</name>
+      <description><![CDATA[описание: Удар БпЛА по складскому помещению, прежположительно, 5 января 2026г.<br>https://t.me/icpbtrubicon/941<br>Тип объекта: Склад<br>Дата: 2026.01.05]]></description>
+      <styleUrl>#icon-1603-0288D1</styleUrl>
+      <ExtendedData>
+        <Data name="описание">
+          <value>Удар БпЛА по складскому помещению, прежположительно, 5 января 2026г.
+https://t.me/icpbtrubicon/941</value>
+        </Data>
+        <Data name="Тип объекта">
+          <value>Склад</value>
+        </Data>
+        <Data name="Дата">
+          <value>2026.01.05</value>
+        </Data>
+      </ExtendedData>
+      <Point>
+        <coordinates>
+          35.0769822,48.3698656,0
+        </coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name>12 января, Одесса, Судно</name>
+      <description><![CDATA[<img src="https://mymaps.usercontent.google.com/hostedimage/m/*/3ALCsBorhoM_hOJWZ40UvRtDq-T_kjoSvQxB5mVoJb0aiaOyiNXWrYvINw-LvRq7OblwSnwT4YlHe5Gyij7yM7-eFTehgYp6u2scpqMDFSCZPL7qPwBH2pZ6sLjtKT5PJgmOoyk5-64xhGXBJyIo28d8scrgsyU2bWBhzE07eeGF8BLfdO7FF5kRwlmpAUVMvVKtmcNzw6JsGPYGbb8ayj_ku53cngaHPX_yZX9LBc6Q-vFYLLX6nEyVGgM31Iio?authuser=0&fife=s16383" height="200" width="auto" /><br><br>описание: Удар БпЛА по судну.<br>https://t.me/icpbtrubicon/943<br>Тип объекта: Судно<br>Дата: 2026.01.12]]></description>
+      <styleUrl>#icon-1569-01579B</styleUrl>
+      <ExtendedData>
+        <Data name="описание">
+          <value>Удар БпЛА по судну.
+https://t.me/icpbtrubicon/943</value>
+        </Data>
+        <Data name="Тип объекта">
+          <value>Судно</value>
+        </Data>
+        <Data name="Дата">
+          <value>2026.01.12</value>
+        </Data>
+        <Data name="gx_media_links">
+          <value><![CDATA[https://mymaps.usercontent.google.com/hostedimage/m/*/3ALCsBorhoM_hOJWZ40UvRtDq-T_kjoSvQxB5mVoJb0aiaOyiNXWrYvINw-LvRq7OblwSnwT4YlHe5Gyij7yM7-eFTehgYp6u2scpqMDFSCZPL7qPwBH2pZ6sLjtKT5PJgmOoyk5-64xhGXBJyIo28d8scrgsyU2bWBhzE07eeGF8BLfdO7FF5kRwlmpAUVMvVKtmcNzw6JsGPYGbb8ayj_ku53cngaHPX_yZX9LBc6Q-vFYLLX6nEyVGgM31Iio?authuser=0&fife=s16383]]></value>
+        </Data>
+      </ExtendedData>
+      <Point>
+        <coordinates>
+          30.8805272,46.4990147,0
+        </coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name>11 января, н.п.Мироновка, Склад</name>
+      <description><![CDATA[описание: Удар БпЛА по складам, в следствии чего было уничтожено два здания.<br>https://t.me/The_Wrong_Side/27644<br>Тип объекта: Склад<br>Дата: 2026.01.11]]></description>
+      <styleUrl>#icon-1603-0288D1</styleUrl>
+      <ExtendedData>
+        <Data name="описание">
+          <value>Удар БпЛА по складам, в следствии чего было уничтожено два здания.
+https://t.me/The_Wrong_Side/27644</value>
+        </Data>
+        <Data name="Тип объекта">
+          <value>Склад</value>
+        </Data>
+        <Data name="Дата">
+          <value>2026.01.11</value>
+        </Data>
+      </ExtendedData>
+      <Point>
+        <coordinates>
+          33.56128,51.91429,0
+        </coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name>13 января, г.Славянск, ТПС</name>
+      <description><![CDATA[описание: Удар БпЛА по ТПС. Но с учётом того, что поезда на ещё в ноябре 2025г перестали ходить в город, то пользы не много.<br>https://t.me/c/2837810209/73768<br>Тип объекта: Тяговая подстанция<br>Дата: 2026.01.13]]></description>
+      <styleUrl>#icon-1660-006064</styleUrl>
+      <ExtendedData>
+        <Data name="описание">
+          <value>Удар БпЛА по ТПС. Но с учётом того, что поезда на ещё в ноябре 2025г перестали ходить в город, то пользы не много.
+https://t.me/c/2837810209/73768</value>
+        </Data>
+        <Data name="Тип объекта">
+          <value>Тяговая подстанция</value>
+        </Data>
+        <Data name="Дата">
+          <value>2026.01.13</value>
+        </Data>
+      </ExtendedData>
+      <Point>
+        <coordinates>
+          37.6614728,48.8738457,0
+        </coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name>13 января, н.п.Николаевка, подвижный состав</name>
+      <description><![CDATA[<img src="https://mymaps.usercontent.google.com/hostedimage/m/*/3ALCsBoq7hTYBnbkU9YE7BeQFQ1PQxLwPTM_vEsOENAg3QKo7Z6wNfYsNQyOwrYNJO0I7izuM7XONI0rGbnn26wOhWVBzhzkWPfx5532RH_JiZlEYKBFKMi7VxqDqW9gtenN78zce6AXKhAMKrfATcCK8gp_0ySyTiLsUy-qlCjJTU-Mdfws2jFs-Y2m231GrkD1Q2AcED6kzyCAFKDU412TDByDyt_XZr8-1q9By0gbmEKmrHXKc-9HvGb449Cc?authuser=0&fife=s16383" height="200" width="auto" /><br><br>описание: Удар БпЛА по тепловозу, <br>https://t.me/news_kramatorsk/43305<br>Тип объекта: Подвижный состав<br>Дата: 2026.01.13]]></description>
+      <styleUrl>#icon-1719-7CB342</styleUrl>
+      <ExtendedData>
+        <Data name="описание">
+          <value>Удар БпЛА по тепловозу, 
+https://t.me/news_kramatorsk/43305</value>
+        </Data>
+        <Data name="Тип объекта">
+          <value>Подвижный состав</value>
+        </Data>
+        <Data name="Дата">
+          <value>2026.01.13</value>
+        </Data>
+        <Data name="gx_media_links">
+          <value><![CDATA[https://mymaps.usercontent.google.com/hostedimage/m/*/3ALCsBoq7hTYBnbkU9YE7BeQFQ1PQxLwPTM_vEsOENAg3QKo7Z6wNfYsNQyOwrYNJO0I7izuM7XONI0rGbnn26wOhWVBzhzkWPfx5532RH_JiZlEYKBFKMi7VxqDqW9gtenN78zce6AXKhAMKrfATcCK8gp_0ySyTiLsUy-qlCjJTU-Mdfws2jFs-Y2m231GrkD1Q2AcED6kzyCAFKDU412TDByDyt_XZr8-1q9By0gbmEKmrHXKc-9HvGb449Cc?authuser=0&fife=s16383]]></value>
+        </Data>
+      </ExtendedData>
+      <Point>
+        <coordinates>
+          37.7574486,48.8680054,0
+        </coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name>январь, г.Ильичёвск, нефтехранилище</name>
+      <description><![CDATA[описание: Удар БпЛА по резервуару, на Сентениле послелствия не видно, скорее всего был пустым.<br>https://t.me/icpbtrubicon/941<br>Тип объекта: Склад ГСМ<br>Дата: 2026.01.01]]></description>
+      <styleUrl>#icon-1581-424242</styleUrl>
+      <ExtendedData>
+        <Data name="описание">
+          <value>Удар БпЛА по резервуару, на Сентениле послелствия не видно, скорее всего был пустым.
+https://t.me/icpbtrubicon/941</value>
+        </Data>
+        <Data name="Тип объекта">
+          <value>Склад ГСМ</value>
+        </Data>
+        <Data name="Дата">
+          <value>2026.01.01</value>
+        </Data>
+      </ExtendedData>
+      <Point>
+        <coordinates>
+          30.6471153,46.3485896,0
+        </coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name>6 январь, г.Ильичёвск, Маслозавод</name>
+      <description><![CDATA[описание: Удар БпЛА по резевуарам с маслом между 6 и 11 января.<br>На Сентениле еле различимы повреждения.<br>https://t.me/icpbtrubicon/941<br>Тип объекта: Предприятие гражданского или двойного назначения<br>Дата: 2026.01.06]]></description>
+      <styleUrl>#icon-1565-AFB42B</styleUrl>
+      <ExtendedData>
+        <Data name="описание">
+          <value>Удар БпЛА по резевуарам с маслом между 6 и 11 января.
+На Сентениле еле различимы повреждения.
+https://t.me/icpbtrubicon/941</value>
+        </Data>
+        <Data name="Тип объекта">
+          <value>Предприятие гражданского или двойного назначения</value>
+        </Data>
+        <Data name="Дата">
+          <value>2026.01.06</value>
+        </Data>
+      </ExtendedData>
+      <Point>
+        <coordinates>
+          30.6527994,46.3187798,0
+        </coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name>6 января, г.Одесса, нефтебаза</name>
+      <description><![CDATA[описание: Удар БпЛА по резевуару между 6 и 11 января, судя по сентенилю он был пустой.<br>Тип объекта: Склад ГСМ<br>Дата: 2026.01.06]]></description>
+      <styleUrl>#icon-1581-000000</styleUrl>
+      <ExtendedData>
+        <Data name="описание">
+          <value>Удар БпЛА по резевуару между 6 и 11 января, судя по сентенилю он был пустой.</value>
+        </Data>
+        <Data name="Тип объекта">
+          <value>Склад ГСМ</value>
+        </Data>
+        <Data name="Дата">
+          <value>2026.01.06</value>
+        </Data>
+      </ExtendedData>
+      <Point>
+        <coordinates>
+          30.7151259,46.5160788,0
+        </coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name>12 января, н.п.Троицкое, ППД</name>
+      <description><![CDATA[описание: Ракетный удар по ППД, предположительно, 12 янваяр.<br>https://t.me/brigadagromkaskad/36<br>Тип объекта: ППД<br>Дата: 2026.01.12]]></description>
+      <styleUrl>#icon-1826-FFEA00</styleUrl>
+      <ExtendedData>
+        <Data name="описание">
+          <value>Ракетный удар по ППД, предположительно, 12 янваяр.
+https://t.me/brigadagromkaskad/36</value>
+        </Data>
+        <Data name="Тип объекта">
+          <value>ППД</value>
+        </Data>
+        <Data name="Дата">
+          <value>2026.01.12</value>
+        </Data>
+      </ExtendedData>
+      <Point>
+        <coordinates>
+          35.8722951,48.4254281,0
+        </coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name>15 января, г.Ильичёвск, судно, промах</name>
+      <description><![CDATA[описание: Предположительно, неудачная попытка удара БпЛА по судну.<br>https://t.me/osint_alarm/1724<br>Тип объекта: Судно<br>Дата: 2026.01.15]]></description>
+      <styleUrl>#icon-1569-757575</styleUrl>
+      <ExtendedData>
+        <Data name="описание">
+          <value>Предположительно, неудачная попытка удара БпЛА по судну.
+https://t.me/osint_alarm/1724</value>
+        </Data>
+        <Data name="Тип объекта">
+          <value>Судно</value>
+        </Data>
+        <Data name="Дата">
+          <value>2026.01.15</value>
+        </Data>
+      </ExtendedData>
+      <Point>
+        <coordinates>
+          30.6626501,46.3314844,0
+        </coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name>15 января, н.п.Свирок, Himars</name>
+      <description><![CDATA[описание: Уничтожение M142 с помощью БпЛА типа "Герань": https://t.me/brigadagromkaskad/39<br>Геопривязка от: https://t.me/Osintpen/2388<br>Тип объекта: ПВО, РЛС и ракетное вооружение<br>Дата: 2026.01.15]]></description>
+      <styleUrl>#icon-1856-E65100</styleUrl>
+      <ExtendedData>
+        <Data name="описание">
+          <value><![CDATA[Уничтожение M142 с помощью БпЛА типа "Герань": https://t.me/brigadagromkaskad/39
+Геопривязка от: https://t.me/Osintpen/2388]]></value>
+        </Data>
+        <Data name="Тип объекта">
+          <value>ПВО, РЛС и ракетное вооружение</value>
+        </Data>
+        <Data name="Дата">
+          <value>2026.01.15</value>
+        </Data>
+      </ExtendedData>
+      <Point>
+        <coordinates>
+          32.654748,51.733902,0
+        </coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name>2 января, г. Харьков, Склад боеприпасов</name>
+      <description><![CDATA[описание: Ракетный удар/самопроизвольная детонация склада БК в г.Харьков, Харьковской области 2 января 2026г.<br>https://t.me/osint_alarm/1569<br>Тип объекта: Склад боеприпасов<br>Дата: 2026.01.02]]></description>
+      <styleUrl>#icon-1564-F57C00</styleUrl>
+      <ExtendedData>
+        <Data name="описание">
+          <value>Ракетный удар/самопроизвольная детонация склада БК в г.Харьков, Харьковской области 2 января 2026г.
+https://t.me/osint_alarm/1569</value>
+        </Data>
+        <Data name="Тип объекта">
+          <value>Склад боеприпасов</value>
+        </Data>
+        <Data name="Дата">
+          <value>2026.01.02</value>
+        </Data>
+      </ExtendedData>
+      <Point>
+        <coordinates>
+          36.2439965,50.0121765,0
+        </coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name>1 января, г. Луцк, Нефтебаза</name>
+      <description><![CDATA[<img src="https://mymaps.usercontent.google.com/hostedimage/m/*/3ALCsBooWSC4ZMCIZ2k7LIb8B-A1tym7jycuLu9NCtmqsCJX_AnY-69VwRKx2tSUBH2rcXct4n2Wd15JtwEsHib9scAngodwqG3ms_XIkV9P0njwG0JaFCcSrLY9syjsqhqgBDiO4UU4hIq_vIZvwA4wY4yfTjUcaF2I1LgUmssbPT2YX0lmJJtsjf6N3dIvoZ5fqJD_ru6dfZr7KMqEpzokIBtxMj_44EE5ov-A8dJs1ru2Ga7scVwvwH1X-SDM?authuser=0&fife=s16383" height="200" width="auto" /><br><br>описание: Удар БпЛА по нефтебазе в г.Луцк, Волынской области в ночь на 1 января 2026г.<br>https://t.me/osint_alarm/1600<br>Тип объекта: Склад ГСМ<br>Дата: 2026.01.01]]></description>
+      <styleUrl>#icon-1581-000000</styleUrl>
+      <ExtendedData>
+        <Data name="описание">
+          <value>Удар БпЛА по нефтебазе в г.Луцк, Волынской области в ночь на 1 января 2026г.
+https://t.me/osint_alarm/1600</value>
+        </Data>
+        <Data name="Тип объекта">
+          <value>Склад ГСМ</value>
+        </Data>
+        <Data name="Дата">
+          <value>2026.01.01</value>
+        </Data>
+        <Data name="gx_media_links">
+          <value><![CDATA[https://mymaps.usercontent.google.com/hostedimage/m/*/3ALCsBooWSC4ZMCIZ2k7LIb8B-A1tym7jycuLu9NCtmqsCJX_AnY-69VwRKx2tSUBH2rcXct4n2Wd15JtwEsHib9scAngodwqG3ms_XIkV9P0njwG0JaFCcSrLY9syjsqhqgBDiO4UU4hIq_vIZvwA4wY4yfTjUcaF2I1LgUmssbPT2YX0lmJJtsjf6N3dIvoZ5fqJD_ru6dfZr7KMqEpzokIBtxMj_44EE5ov-A8dJs1ru2Ga7scVwvwH1X-SDM?authuser=0&fife=s16383]]></value>
+        </Data>
+      </ExtendedData>
+      <Point>
+        <coordinates>
+          25.383245,50.783316,0
+        </coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name>7 января, г. Ильичевск, Автостоянка</name>
+      <description><![CDATA[описание: Удар БпЛА по стоянке грузового автотранспорта в г.Ильичёвск, Одесской области 7 января 2026г.<br>https://t.me/osint_alarm/1617<br>Тип объекта: Стоянка грузового транспорта<br>Дата: 2026.01.07]]></description>
+      <styleUrl>#icon-1644-01579B</styleUrl>
+      <ExtendedData>
+        <Data name="описание">
+          <value>Удар БпЛА по стоянке грузового автотранспорта в г.Ильичёвск, Одесской области 7 января 2026г.
+https://t.me/osint_alarm/1617</value>
+        </Data>
+        <Data name="Тип объекта">
+          <value>Стоянка грузового транспорта</value>
+        </Data>
+        <Data name="Дата">
+          <value>2026.01.07</value>
+        </Data>
+      </ExtendedData>
+      <Point>
+        <coordinates>
+          30.674416,46.3151313,0
+        </coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name>12 января, г. Киев, Предприятие</name>
+      <description><![CDATA[<img src="https://mymaps.usercontent.google.com/hostedimage/m/*/3ALCsBorwu5W1xKDy837em33v9NLgjqzTQFIvg5t4GubbWT6pK56ibkQOErZokcMnp78CDqBzTcY9Px4dAf27yhzAm1be6HNkd2whsMubl8puVBVLuhIJQmuxyOWti36SZmVCHcqUf3eQmqclD9RZEZyYm8Mo1zI8HSyB2euzXIms6mqPT2IpVOjfTsb1SQowks8N9MgeqAzYrfdbN0YN5uObIBSwkH5NO1_7diQZAFWJ1hiNTjkvxZNnRD2KstY?authuser=0&fife=s16383" height="200" width="auto" /><br><br>описание: Удар БпЛА по предприятию в г.Киев, 12 января 2026г.<br>https://t.me/osint_alarm/1689<br>Тип объекта: Предприятие гражданского или двойного назначения<br>Дата: 2026.01.12]]></description>
+      <styleUrl>#icon-1693-BDBDBD</styleUrl>
+      <ExtendedData>
+        <Data name="описание">
+          <value>Удар БпЛА по предприятию в г.Киев, 12 января 2026г.
+https://t.me/osint_alarm/1689</value>
+        </Data>
+        <Data name="Тип объекта">
+          <value>Предприятие гражданского или двойного назначения</value>
+        </Data>
+        <Data name="Дата">
+          <value>2026.01.12</value>
+        </Data>
+        <Data name="gx_media_links">
+          <value><![CDATA[https://mymaps.usercontent.google.com/hostedimage/m/*/3ALCsBorwu5W1xKDy837em33v9NLgjqzTQFIvg5t4GubbWT6pK56ibkQOErZokcMnp78CDqBzTcY9Px4dAf27yhzAm1be6HNkd2whsMubl8puVBVLuhIJQmuxyOWti36SZmVCHcqUf3eQmqclD9RZEZyYm8Mo1zI8HSyB2euzXIms6mqPT2IpVOjfTsb1SQowks8N9MgeqAzYrfdbN0YN5uObIBSwkH5NO1_7diQZAFWJ1hiNTjkvxZNnRD2KstY?authuser=0&fife=s16383]]></value>
+        </Data>
+      </ExtendedData>
+      <Point>
+        <coordinates>
+          30.4456038,50.4500467,0
+        </coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name>10 января, г. Зеленодольск, ТЭС</name>
+      <description><![CDATA[описание: Ракетный удар по энергоинфраструктуре в г.Зеленодольск, Днепропетровской области в ночь 10 января 2026г.<br>https://t.me/osint_alarm/1692<br>Тип объекта: Энергогенерация <br>Дата: 2026.01.10]]></description>
+      <styleUrl>#icon-1710-E65100</styleUrl>
+      <ExtendedData>
+        <Data name="описание">
+          <value>Ракетный удар по энергоинфраструктуре в г.Зеленодольск, Днепропетровской области в ночь 10 января 2026г.
+https://t.me/osint_alarm/1692</value>
+        </Data>
+        <Data name="Тип объекта">
+          <value>Энергогенерация </value>
+        </Data>
+        <Data name="Дата">
+          <value>2026.01.10</value>
+        </Data>
+      </ExtendedData>
+      <Point>
+        <coordinates>
+          33.6569484,47.5435426,0
+        </coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name>7 января, н.п. Васильков, Подстанция</name>
+      <description><![CDATA[описание: Удар БпЛА по энергоинфраструктуре у н.п.Василовка, Днепропетровской области в ночь на 7 января 2026г.<br>https://t.me/osint_alarm/1704<br>Тип объекта: Подстанция<br>Дата: 2026.01.07]]></description>
+      <styleUrl>#icon-1619-9C27B0</styleUrl>
+      <ExtendedData>
+        <Data name="описание">
+          <value>Удар БпЛА по энергоинфраструктуре у н.п.Василовка, Днепропетровской области в ночь на 7 января 2026г.
+https://t.me/osint_alarm/1704</value>
+        </Data>
+        <Data name="Тип объекта">
+          <value>Подстанция</value>
+        </Data>
+        <Data name="Дата">
+          <value>2026.01.07</value>
+        </Data>
+      </ExtendedData>
+      <Point>
+        <coordinates>
+          34.036015,48.4359726,0
+        </coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name>Январь, г. Запорожье, Склад</name>
+      <description><![CDATA[описание: Удар БпЛА по складу в г. Запорожье, г, в начале января 2026г. <br>https://t.me/Osintpen/2399<br>https://t.me/Viking_SpN/3858<br>Тип объекта: Склад<br>Дата: 2026.01.10]]></description>
+      <styleUrl>#icon-1603-0288D1</styleUrl>
+      <ExtendedData>
+        <Data name="описание">
+          <value>Удар БпЛА по складу в г. Запорожье, г, в начале января 2026г. 
+https://t.me/Osintpen/2399
+https://t.me/Viking_SpN/3858</value>
+        </Data>
+        <Data name="Тип объекта">
+          <value>Склад</value>
+        </Data>
+        <Data name="Дата">
+          <value>2026.01.10</value>
+        </Data>
+      </ExtendedData>
+      <Point>
+        <coordinates>
+          35.212626,47.7609477,0
+        </coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name>январь, н.п.Разумовка, склады</name>
+      <description><![CDATA[описание: В следствии атаки было повреждено 4 складских помещения.<br>https://t.me/osint_alarm/1636<br>Тип объекта: Склад<br>Дата: 2026.01.01]]></description>
+      <styleUrl>#icon-1603-0288D1</styleUrl>
+      <ExtendedData>
+        <Data name="описание">
+          <value>В следствии атаки было повреждено 4 складских помещения.
+https://t.me/osint_alarm/1636</value>
+        </Data>
+        <Data name="Тип объекта">
+          <value>Склад</value>
+        </Data>
+        <Data name="Дата">
+          <value>2026.01.01</value>
+        </Data>
+      </ExtendedData>
+      <Point>
+        <coordinates>
+          35.1403983,47.7438182,0
+        </coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name>17 января, н.п.Новая Берёзовка, Patriot</name>
+      <description><![CDATA[<img src="https://mymaps.usercontent.google.com/hostedimage/m/*/3ALCsBopx_L8DrWohXMoLPXZZk9NC3zCMnoYY87wG43gl67iJULa_fvNCjGA1ZglmjkGI6uFwaMgiVccpwYaAaMQ_z-T-t3e20jq1iAvUmZMdw3IZx05OrKzgq6cjc8eznD4Q1d9NriJ_VoU8BvYTaD4mwjrbDwpfBljzjWwr73SULkCduYOodIXGznWULyCPt6U-cwEu4inta4mJH1B5ScBeelVRsMm36z5SEZH4jU2m1HAt6pdZWznV9dEtkoA?authuser=0&fife=s16383" height="200" width="auto" /><br><br>описание: Налёт на позицию ЗРК Patriot с помощью БпЛА. По ПУ (красное) был промах или она была повреждена, РЛС (оранжевое) была уничтожена.<br>https://t.me/icpbtrubicon/967<br>Тип объекта: ПВО, РЛС и ракетное вооружение<br>Дата: 2026.01.17]]></description>
+      <styleUrl>#icon-1856-E65100</styleUrl>
+      <ExtendedData>
+        <Data name="описание">
+          <value>Налёт на позицию ЗРК Patriot с помощью БпЛА. По ПУ (красное) был промах или она была повреждена, РЛС (оранжевое) была уничтожена.
+https://t.me/icpbtrubicon/967</value>
+        </Data>
+        <Data name="Тип объекта">
+          <value>ПВО, РЛС и ракетное вооружение</value>
+        </Data>
+        <Data name="Дата">
+          <value>2026.01.17</value>
+        </Data>
+        <Data name="gx_media_links">
+          <value><![CDATA[https://mymaps.usercontent.google.com/hostedimage/m/*/3ALCsBopx_L8DrWohXMoLPXZZk9NC3zCMnoYY87wG43gl67iJULa_fvNCjGA1ZglmjkGI6uFwaMgiVccpwYaAaMQ_z-T-t3e20jq1iAvUmZMdw3IZx05OrKzgq6cjc8eznD4Q1d9NriJ_VoU8BvYTaD4mwjrbDwpfBljzjWwr73SULkCduYOodIXGznWULyCPt6U-cwEu4inta4mJH1B5ScBeelVRsMm36z5SEZH4jU2m1HAt6pdZWznV9dEtkoA?authuser=0&fife=s16383]]></value>
+        </Data>
+      </ExtendedData>
+      <Point>
+        <coordinates>
+          36.0896232,49.9015722,0
+        </coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name>январь, н.п.Михайло-Ларино, РЛС</name>
+      <description><![CDATA[описание: Удар БпЛА по РЛС 19Ж6 и некому прицепу советского производства.<br>https://t.me/icpbtrubicon/972<br>Тип объекта: ПВО, РЛС и ракетное вооружение<br>Дата: 2026.01.10]]></description>
+      <styleUrl>#icon-1856-E65100</styleUrl>
+      <ExtendedData>
+        <Data name="описание">
+          <value>Удар БпЛА по РЛС 19Ж6 и некому прицепу советского производства.
+https://t.me/icpbtrubicon/972</value>
+        </Data>
+        <Data name="Тип объекта">
+          <value>ПВО, РЛС и ракетное вооружение</value>
+        </Data>
+        <Data name="Дата">
+          <value>2026.01.10</value>
+        </Data>
+      </ExtendedData>
+      <Point>
+        <coordinates>
+          32.0966713,47.0793754,0
+        </coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name>январь, н.п.Красное, РЛС</name>
+      <description><![CDATA[описание: Удар БпЛА по РЛС 36Д6.<br>https://t.me/icpbtrubicon/972<br>Тип объекта: ПВО, РЛС и ракетное вооружение<br>Дата: 2026.01.10]]></description>
+      <styleUrl>#icon-1856-E65100</styleUrl>
+      <ExtendedData>
+        <Data name="описание">
+          <value>Удар БпЛА по РЛС 36Д6.
+https://t.me/icpbtrubicon/972</value>
+        </Data>
+        <Data name="Тип объекта">
+          <value>ПВО, РЛС и ракетное вооружение</value>
+        </Data>
+        <Data name="Дата">
+          <value>2026.01.10</value>
+        </Data>
+      </ExtendedData>
+      <Point>
+        <coordinates>
+          35.73497,48.40642,0
+        </coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name>январь, н.п.Евецко-Николаевка</name>
+      <description><![CDATA[описание: Удар БпЛА по РЛС 36Д6.<br>https://t.me/icpbtrubicon/972<br>Тип объекта: ПВО, РЛС и ракетное вооружение<br>Дата: 2026.01.10]]></description>
+      <styleUrl>#icon-1856-E65100</styleUrl>
+      <ExtendedData>
+        <Data name="описание">
+          <value>Удар БпЛА по РЛС 36Д6.
+https://t.me/icpbtrubicon/972</value>
+        </Data>
+        <Data name="Тип объекта">
+          <value>ПВО, РЛС и ракетное вооружение</value>
+        </Data>
+        <Data name="Дата">
+          <value>2026.01.10</value>
+        </Data>
+      </ExtendedData>
+      <Point>
+        <coordinates>
+          35.38527,48.80733,0
+        </coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name>январь, н.п.Троицкое, РЛС</name>
+      <description><![CDATA[описание: Удар БпЛА по РЛС 36Д6.<br>https://t.me/icpbtrubicon/972<br>Тип объекта: ПВО, РЛС и ракетное вооружение<br>Дата: 2026.01.10]]></description>
+      <styleUrl>#icon-1856-E65100</styleUrl>
+      <ExtendedData>
+        <Data name="описание">
+          <value>Удар БпЛА по РЛС 36Д6.
+https://t.me/icpbtrubicon/972</value>
+        </Data>
+        <Data name="Тип объекта">
+          <value>ПВО, РЛС и ракетное вооружение</value>
+        </Data>
+        <Data name="Дата">
+          <value>2026.01.10</value>
+        </Data>
+      </ExtendedData>
+      <Point>
+        <coordinates>
+          35.82679,48.42119,0
+        </coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name>январь, н.п.Сергеевка, РЛС</name>
+      <description><![CDATA[описание: Два удара БпЛА по РЛС П18.<br>https://t.me/icpbtrubicon/972<br>Тип объекта: ПВО, РЛС и ракетное вооружение<br>Дата: 2026.01.10]]></description>
+      <styleUrl>#icon-1856-E65100</styleUrl>
+      <ExtendedData>
+        <Data name="описание">
+          <value>Два удара БпЛА по РЛС П18.
+https://t.me/icpbtrubicon/972</value>
+        </Data>
+        <Data name="Тип объекта">
+          <value>ПВО, РЛС и ракетное вооружение</value>
+        </Data>
+        <Data name="Дата">
+          <value>2026.01.10</value>
+        </Data>
+      </ExtendedData>
+      <Point>
+        <coordinates>
+          35.75437,48.81586,0
+        </coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name>январь, н.п.Благодаровка, РЛС</name>
+      <description><![CDATA[описание: Два удара БпЛА по РЛС П-18МУ.<br>https://t.me/icpbtrubicon/972<br>Тип объекта: ПВО, РЛС и ракетное вооружение<br>Дата: 2026.01.10]]></description>
+      <styleUrl>#icon-1856-E65100</styleUrl>
+      <ExtendedData>
+        <Data name="описание">
+          <value>Два удара БпЛА по РЛС П-18МУ.
+https://t.me/icpbtrubicon/972</value>
+        </Data>
+        <Data name="Тип объекта">
+          <value>ПВО, РЛС и ракетное вооружение</value>
+        </Data>
+        <Data name="Дата">
+          <value>2026.01.10</value>
+        </Data>
+      </ExtendedData>
+      <Point>
+        <coordinates>
+          31.70417,46.97961,0
+        </coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name>январь, н.п.Перемога, РЛС</name>
+      <description><![CDATA[описание: Удар БпЛА по КШМ РЛС П-18МА.<br>https://t.me/icpbtrubicon/972<br>Тип объекта: ПВО, РЛС и ракетное вооружение<br>Дата: 2026.01.10]]></description>
+      <styleUrl>#icon-1856-E65100</styleUrl>
+      <ExtendedData>
+        <Data name="описание">
+          <value>Удар БпЛА по КШМ РЛС П-18МА.
+https://t.me/icpbtrubicon/972</value>
+        </Data>
+        <Data name="Тип объекта">
+          <value>ПВО, РЛС и ракетное вооружение</value>
+        </Data>
+        <Data name="Дата">
+          <value>2026.01.10</value>
+        </Data>
+      </ExtendedData>
+      <Point>
+        <coordinates>
+          32.5421717,47.2282403,0
+        </coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name>январь, н.п.Александровка, РЛС</name>
+      <description><![CDATA[описание: Два удар БпЛА по КШМ РЛС 36Д6.<br>https://t.me/icpbtrubicon/972<br>Тип объекта: ПВО, РЛС и ракетное вооружение<br>Дата: 2026.01.10]]></description>
+      <styleUrl>#icon-1856-E65100</styleUrl>
+      <ExtendedData>
+        <Data name="описание">
+          <value>Два удар БпЛА по КШМ РЛС 36Д6.
+https://t.me/icpbtrubicon/972</value>
+        </Data>
+        <Data name="Тип объекта">
+          <value>ПВО, РЛС и ракетное вооружение</value>
+        </Data>
+        <Data name="Дата">
+          <value>2026.01.10</value>
+        </Data>
+      </ExtendedData>
+      <Point>
+        <coordinates>
+          30.9174167,46.6089658,0
+        </coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name>январь, н.п.Глазуновка, РЛС</name>
+      <description><![CDATA[описание: Удар БпЛА по РЛС 36Д6.<br>https://t.me/icpbtrubicon/972<br>Тип объекта: ПВО, РЛС и ракетное вооружение<br>Дата: 2026.01.10]]></description>
+      <styleUrl>#icon-1856-E65100</styleUrl>
+      <ExtendedData>
+        <Data name="описание">
+          <value>Удар БпЛА по РЛС 36Д6.
+https://t.me/icpbtrubicon/972</value>
+        </Data>
+        <Data name="Тип объекта">
+          <value>ПВО, РЛС и ракетное вооружение</value>
+        </Data>
+        <Data name="Дата">
+          <value>2026.01.10</value>
+        </Data>
+      </ExtendedData>
+      <Point>
+        <coordinates>
+          36.61234,49.40271,0
+        </coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name>январь, н.п.Дмитровка, Бук</name>
+      <description><![CDATA[описание: Удар БпЛА по ЗРК "Бук".<br>https://t.me/icpbtrubicon/972<br>Тип объекта: ПВО, РЛС и ракетное вооружение<br>Дата: 2026.01.10]]></description>
+      <styleUrl>#icon-1856-E65100</styleUrl>
+      <ExtendedData>
+        <Data name="описание">
+          <value><![CDATA[Удар БпЛА по ЗРК "Бук".
+https://t.me/icpbtrubicon/972]]></value>
+        </Data>
+        <Data name="Тип объекта">
+          <value>ПВО, РЛС и ракетное вооружение</value>
+        </Data>
+        <Data name="Дата">
+          <value>2026.01.10</value>
+        </Data>
+      </ExtendedData>
+      <Point>
+        <coordinates>
+          36.24614,48.3567,0
+        </coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name>17 января, н.п.Холмы, грузовик с БП</name>
+      <description><![CDATA[описание: Удар БпЛА по грузовику и авто рядом.<br>https://t.me/The_Wrong_Side/27733<br>Тип объекта: Стоянка грузового транспорта<br>Дата: 2026.01.17]]></description>
+      <styleUrl>#icon-1644-01579B</styleUrl>
+      <ExtendedData>
+        <Data name="описание">
+          <value>Удар БпЛА по грузовику и авто рядом.
+https://t.me/The_Wrong_Side/27733</value>
+        </Data>
+        <Data name="Тип объекта">
+          <value>Стоянка грузового транспорта</value>
+        </Data>
+        <Data name="Дата">
+          <value>2026.01.17</value>
+        </Data>
+      </ExtendedData>
+      <Point>
+        <coordinates>
+          32.6139828,51.8673061,0
+        </coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name>17 января, н.п.Лысогубовка, ЖД Мост</name>
+      <description><![CDATA[описание: Удар БпЛА по мосту, предположительно, 17 января 2026г.<br>https://t.me/The_Wrong_Side/27738<br>Тип объекта: Мост<br>Дата: 2026.01.17]]></description>
+      <styleUrl>#icon-1528-BDBDBD</styleUrl>
+      <ExtendedData>
+        <Data name="описание">
+          <value>Удар БпЛА по мосту, предположительно, 17 января 2026г.
+https://t.me/The_Wrong_Side/27738</value>
+        </Data>
+        <Data name="Тип объекта">
+          <value>Мост</value>
+        </Data>
+        <Data name="Дата">
+          <value>2026.01.17</value>
+        </Data>
+      </ExtendedData>
+      <Point>
+        <coordinates>
+          33.1555122,51.3265232,0
+        </coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name>19 января, г.Днепропетровск, Patriot</name>
+      <description><![CDATA[описание: Ракетный удар по позиции ЗРК Patriot.<br><br>https://t.me/creamy_caprice/11056<br>https://t.me/The_Wrong_Side/27742<br><br>Тип объекта: ПВО, РЛС и ракетное вооружение<br>Дата: 2026.01.19]]></description>
+      <styleUrl>#icon-1856-E65100</styleUrl>
+      <ExtendedData>
+        <Data name="описание">
+          <value>Ракетный удар по позиции ЗРК Patriot.
+
+https://t.me/creamy_caprice/11056
+https://t.me/The_Wrong_Side/27742
+</value>
+        </Data>
+        <Data name="Тип объекта">
+          <value>ПВО, РЛС и ракетное вооружение</value>
+        </Data>
+        <Data name="Дата">
+          <value>2026.01.19</value>
+        </Data>
+      </ExtendedData>
+      <Point>
+        <coordinates>
+          34.874961,48.371375,0
+        </coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name>20 января, н.п.Братское, БпЛА</name>
+      <description><![CDATA[описание: Удар по ПВД, расчётов дальних БпЛА, предположительно, 20 января.<br>https://t.me/The_Wrong_Side/27763<br>Геопривязка: https://t.me/Osintpen/2421<br>Тип объекта: ППД<br>Дата: 2026.01.20]]></description>
+      <styleUrl>#icon-1826-FFEA00</styleUrl>
+      <ExtendedData>
+        <Data name="описание">
+          <value>Удар по ПВД, расчётов дальних БпЛА, предположительно, 20 января.
+https://t.me/The_Wrong_Side/27763
+Геопривязка: https://t.me/Osintpen/2421</value>
+        </Data>
+        <Data name="Тип объекта">
+          <value>ППД</value>
+        </Data>
+        <Data name="Дата">
+          <value>2026.01.20</value>
+        </Data>
+      </ExtendedData>
+      <Point>
+        <coordinates>
+          34.969611,50.732984,0
+        </coordinates>
+      </Point>
+    </Placemark>
+  </Document>
+</kml>
