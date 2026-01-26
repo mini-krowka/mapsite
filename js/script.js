@@ -878,7 +878,7 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup,  style
                     // Пропускаем поля
                     if (['Тип техники', 'equipment_type',
                          'описание', 'description', 
-                         'дата', 'date',
+                         'дата', 'date', 'Датировано',
                          'позиция', 'position', 'Координаты точки', 'coordinates'].includes(key)) {
                         continue;
                     }
