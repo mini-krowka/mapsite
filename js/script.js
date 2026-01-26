@@ -875,7 +875,7 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup,  style
                 
                 // Обрабатываем каждое поле из extendedData
                 for (const [key, value] of Object.entries(extendedData)) {
-                    // Пропускаем поля, которые уже выводим отдельно
+                    // Пропускаем поля
                     if (['Тип техники', 'equipment_type',
                          'описание', 'description', 
                          'дата', 'date',
@@ -917,16 +917,8 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup,  style
                 return `
                     ${formattedName ? `<div class="popup-title" style="white-space: pre-wrap; font-weight: bold; margin-bottom: 8px;">${formattedName}</div>` : ''}
                     <div class="popup-details" style="font-size: 14px; line-height: 1.4;">
-                        ${date ? `<div><strong>Дата:</strong> ${date}</div>` : ''}
+                        ${date ? `<div><strong>Датировано:</strong> ${date}</div>` : ''}
                         ${equipmentType ? `<div><strong>Тип техники:</strong> ${equipmentType}</div>` : ''}
-                        <div style="display: flex; align-items: center; gap: 8px; margin-top: 4px;">
-                            <strong>Координаты точки:</strong> 
-                            <span style="font-family: monospace;">${coordsString}</span>
-                            <button class="copy-coords-popup-btn" data-coords="${coordsString}" 
-                                    style="cursor: pointer; background: #007bff; color: white; border: none; border-radius: 3px; padding: 2px 6px; font-size: 12px;">
-                                ⎘
-                            </button>
-                        </div>
                         ${descriptionUrl ? `<div style="margin-top: 4px;"><strong>Описание:</strong> ${descriptionUrl}</div>` : ''}
                         ${extendedInfoHTML}
                     </div>
