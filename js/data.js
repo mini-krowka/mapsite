@@ -395,6 +395,11 @@ window.milequipKmlPaths = ["kml/Geolocations/Military_equipment.kml"];
 window.milequipLayers = [];
 
 
+window.attacksOnUaKmlPaths = ["kml/Geolocations/osint_alarm_2025.kml",
+                              "kml/Geolocations/osint_alarm_2026.kml"];
+window.attacksOnUaLayers = [];
+
+
 
 
 

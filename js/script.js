@@ -15,7 +15,8 @@ let selectedDate = null; // Глобальная переменная для х�
 const LOG_STYLES = true; // Можно менять на false для отключения
 
 let currentDateRange = 'week'; // 'week', 'month', '3months', '6months', 'year'
-let isMilEquipVisible = false; // Флаг видимости слоя техники
+let isMilEquipVisible     = false; // Флаг видимости слоя техники
+let isAttacksOnUaVisible  = false; // Флаг видимости слоя атак по территории
 
 // Получаем массив доступных дат из kmlFiles
 const availableDates = kmlFiles.map(file => file.name);
@@ -956,7 +957,10 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup,  style
             const [lat, lng] = coordinates[0];
             
             // Проверяем, попадает ли точка в диапазон дат (только для обычных точек)
-            if (!iconGetter.name.includes('MilEquip') && date && window.pointsDateRange && 
+            // Не применяем фильтр для техники (getMilEquipIcon) и атак по Украине (getAttacksOnUaIcon)
+            if (iconGetter !== getMilEquipIcon && 
+                iconGetter !== getAttacksOnUaIcon && 
+                date && window.pointsDateRange && 
                 !isDateInRange(date, window.pointsDateRange.start, window.pointsDateRange.end)) {
                 return null; // Пропускаем точку, если она не в диапазоне
             }
@@ -964,22 +968,21 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup,  style
             // Парсим extendedData для всех точек
             const extendedData = parseExtendedData(placemark);
 
-            // Для техники определяем категорию из поля "Тип техники"
-            let equipmentType = position; // по умолчанию используем position
+            // Определяем категорию в зависимости от типа иконки
+            let category;
             if (iconGetter === getMilEquipIcon) {
-                equipmentType = extendedData['Тип техники'] || extendedData['equipment_type'] || position;
-                
-                if (LOG_STYLES) {
-                    console.log('Техника найдена:', {
-                        originalPosition: position,
-                        equipmentType: equipmentType,
-                        extendedData: extendedData
-                    });
-                }
+                // Для техники используем поле "Тип техники"
+                category = extendedData['Тип техники'] || extendedData['equipment_type'] || position;
+            } else if (iconGetter === getAttacksOnUaIcon) {
+                // Для атак по Украине используем поле "Тип объекта"
+                category = extendedData['Тип объекта'] || extendedData['object_type'] || position;
+            } else {
+                // Для обычных точек используем position
+                category = position;
             }
             
             // Получаем иконку для точки с помощью переданной функции
-            const icon = iconGetter(equipmentType);
+            const icon = iconGetter(category);
             
             // Создаем маркер с иконкой
             const marker = L.marker([lat, lng], {icon: icon}).addTo(layerGroup);
@@ -987,16 +990,22 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup,  style
             // Форматируем название - заменяем ссылки на кликабельные
             const formattedName = formatNameWithLinks(name);
             
-            // Создаем контент для popup с использованием новой функции
+            // Создаем контент для popup
             const coordsString = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+            
+            // Определяем тип точки для отображения в popup
+            const isEquipment = iconGetter === getMilEquipIcon;
+            const isAttackOnUa = iconGetter === getAttacksOnUaIcon;
+            
+            // Используем категорию как equipmentType для popup
             const popupContent = createPopupContent({
                 formattedName,
                 date,
-                equipmentType,
+                equipmentType: category, // Используем определенную категорию
                 coordsString,
                 descriptionUrl,
-                isEquipment: iconGetter === getMilEquipIcon,
-                extendedData: iconGetter === getMilEquipIcon ? extendedData : {} // Передаем extendedData только для техники
+                isEquipment: isEquipment || isAttackOnUa, // Для техники и атак показываем extendedData
+                extendedData: isEquipment || isAttackOnUa ? extendedData : {} // Передаем extendedData только для техники и атак
             });
             
             marker.bindPopup(popupContent);
@@ -1017,11 +1026,12 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup,  style
                 console.log(`Point added:`, { 
                     name, 
                     date, 
-                    position: equipmentType, 
+                    category: category,
                     descriptionUrl, 
                     coordinates: [lat, lng], 
                     iconGetter: iconGetter.name,
-                    isEquipment: iconGetter === getMilEquipIcon 
+                    isEquipment: isEquipment,
+                    isAttackOnUa: isAttackOnUa
                 });
             }
             
@@ -1080,7 +1090,7 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup,  style
                 const position = (iconGetter === getMilEquipIcon && equipmentType) ? 
                     equipmentType : 
                     (extendedData['позиция'] || extendedData['position']);
-                
+                    
                 const pnt = parseAndAddPoint(point, date, position, descriptionUrl, iconGetter);
             });
         }
@@ -1371,6 +1381,23 @@ function getMilEquipIcon(position) {
 }
 
 
+function getAttacksOnUaIcon(position) {
+    const iconUrls = {
+        'Предприятие ВПК'          : 'img/Взрывчик.png',
+        'default'                  : 'img/Взрывчик.png',
+    };
+
+    const iconUrl = iconUrls[position] || iconUrls.default;
+    
+    return L.icon({
+        iconUrl: iconUrl,
+        iconSize: [28, 28], // размер иконки
+        iconAnchor: [14, 14], // точка привязки
+        popupAnchor: [0, 0] // смещение для popup
+    });
+}
+
+
 // Функция для извлечения данных из ExtendedData
 function parseExtendedData(placemark) {
     const extendedData = placemark.querySelector('ExtendedData');
@@ -1386,6 +1413,8 @@ function parseExtendedData(placemark) {
                 // Также добавляем англоязычные альтернативы для совместимости
                 if (name === 'Тип техники') {
                     data['equipment_type'] = value;
+                } else if (name === 'Тип объекта') {
+                    data['object_type'] = value;
                 } else if (name === 'позиция') {
                     data['position'] = value;
                 } else if (name === 'дата') {
@@ -1506,6 +1535,43 @@ async function initMilequipLayer(kmlFilePaths) {
     return milequipLayerGroup;
 }
 
+// Функция для инициализации слоя с атаками на Украину
+async function initAttacksOnUaLayer(kmlFilePaths) {
+    // Если передана строка, преобразуем в массив
+    if (typeof kmlFilePaths === 'string') {
+        kmlFilePaths = [kmlFilePaths];
+    }
+    
+    // Удаляем старые слои атак, если они существуют
+    if (window.attacksOnUaLayers && window.attacksOnUaLayers.length) {
+        window.attacksOnUaLayers.forEach(layer => {
+            if (map.hasLayer(layer)) {
+                map.removeLayer(layer);
+            }
+        });
+        window.attacksOnUaLayers = [];
+    }
+    
+    // Создаем новую группу слоев для атак
+    const attacksOnUaLayerGroup = L.layerGroup();
+    // НЕ добавляем на карту сразу - только при нажатии кнопки
+    
+    // Сохраняем ссылки для последующего управления
+    window.attacksOnUaLayers.push(attacksOnUaLayerGroup);
+    
+    // Загружаем точки атак из всех KML файлов
+    for (const path of kmlFilePaths) {
+        await loadPointsFromKml(path, attacksOnUaLayerGroup, {
+            iconGetter: getAttacksOnUaIcon,
+            isEquipment: true // Можно использовать тот же флаг или создать отдельный
+        });
+    }
+    
+    console.log(`Загружено слоев атак: ${window.attacksOnUaLayers.length}, точек: ${attacksOnUaLayerGroup.getLayers().length}`);
+    
+    return attacksOnUaLayerGroup;
+}
+
 // Функция для переключения отображения техники
 function toggleMilEquipVisibility() {
     const milEquipBtn = document.getElementById('mil-equip-btn');
@@ -1558,6 +1624,58 @@ function toggleMilEquipVisibility() {
     updateMilEquipButtonTitle();
 }
 
+// Функция для переключения отображения атак на Украину
+function toggleAttacksOnUaVisibility() {
+    const attacksOnUaBtn = document.getElementById('attacks-on-ua-btn');
+    
+    // Переключаем флаг
+    isAttacksOnUaVisible = !isAttacksOnUaVisible;
+    
+    if (isAttacksOnUaVisible) {
+        // Показываем атаки
+        attacksOnUaBtn.classList.add('active');
+        
+        // Если слои атак еще не загружены, загружаем их
+        if (!window.attacksOnUaLayers || window.attacksOnUaLayers.length === 0) {
+            console.log('Загрузка атак на Украину...');
+            initAttacksOnUaLayer(window.attacksOnUaKmlPaths).then(() => {
+                // После загрузки добавляем на карту
+                window.attacksOnUaLayers.forEach(layer => {
+                    if (layer && !map.hasLayer(layer)) {
+                        layer.addTo(map);
+                    }
+                });
+            });
+        } else {
+            // Если уже загружены, просто добавляем на карту
+            window.attacksOnUaLayers.forEach(layer => {
+                if (layer && !map.hasLayer(layer)) {
+                    layer.addTo(map);
+                }
+            });
+        }
+        
+        console.log('Атаки на Украину показаны');
+    } else {
+        // Скрываем атаки
+        attacksOnUaBtn.classList.remove('active');
+        
+        // Убираем слои атак с карты
+        if (window.attacksOnUaLayers && window.attacksOnUaLayers.length) {
+            window.attacksOnUaLayers.forEach(layer => {
+                if (layer && map.hasLayer(layer)) {
+                    map.removeLayer(layer);
+                }
+            });
+        }
+        
+        console.log('Атаки на Украину скрыты');
+    }
+    
+    // Обновляем title кнопки
+    updateAttacksOnUaButtonTitle();
+}
+
 // Функция для обновления заголовка кнопки техники
 function updateMilEquipButtonTitle() {
     const milEquipBtn = document.getElementById('mil-equip-btn');
@@ -1569,6 +1687,21 @@ function updateMilEquipButtonTitle() {
                 (t.showEquipment || 'Показать технику');
         } else {
             milEquipBtn.title = isMilEquipVisible ? 'Скрыть технику' : 'Показать технику';
+        }
+    }
+}
+
+// Функция для обновления заголовка кнопки атак на Украину
+function updateAttacksOnUaButtonTitle() {
+    const attacksOnUaBtn = document.getElementById('attacks-on-ua-btn');
+    if (attacksOnUaBtn) {
+        const t = translations[currentLang];
+        if (t) {
+            attacksOnUaBtn.title = isAttacksOnUaVisible ? 
+                (t.hideAttacksOnUa || 'Скрыть удары по Украине') : 
+                (t.showAttacksOnUa || 'Показать удары по Украине');
+        } else {
+            attacksOnUaBtn.title = isAttacksOnUaVisible ? 'Скрыть удары по Украине' : 'Показать удары по Украине';
         }
     }
 }
@@ -2366,6 +2499,12 @@ async function init() {
     if (milEquipBtn) {
         milEquipBtn.addEventListener('click', toggleMilEquipVisibility);
         updateMilEquipButtonTitle(); // Инициализируем заголовок
+    }
+    // обработчик для кнопки атак на Украину
+    const attacksOnUaBtn = document.getElementById('attacks-on-ua-btn');
+    if (attacksOnUaBtn) {
+        attacksOnUaBtn.addEventListener('click', toggleAttacksOnUaVisibility);
+        updateAttacksOnUaButtonTitle(); // Инициализируем заголовок
     }
     
     window.initialLayerSet = false;

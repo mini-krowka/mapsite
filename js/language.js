@@ -19,7 +19,10 @@ const translations = {
         lastBtnTitle: "Сегодня",
         
         showEquipment: 'Показать технику',
-        hideEquipment: 'Скрыть технику',
+        hideEquipment: 'Скрыть технику',        
+        
+        showAttacksOnUa: 'Показать удары по территории Украины',
+        hideAttacksOnUa: 'Скрыть удары по территории Украины',
         
         ruBtnTitle: "Текущий язык: Русский",
         enBtnTitle: "Переключить на Английский",
@@ -73,6 +76,9 @@ const translations = {
         
         showEquipment: 'Show equipment',
         hideEquipment: 'Hide equipment',
+        
+        showAttacksOnUa: 'Show attacks on Ukraine',
+        hideAttacksOnUa: 'Hide attacks on Ukraine',
         
         ruBtnTitle: "Switch to Russian",
         enBtnTitle: "Current language: English",
