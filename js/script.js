@@ -966,11 +966,12 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup,  style
                 return null; // Пропускаем точку, если она не в диапазоне
             }
 
+            // Парсим extendedData для всех точек
+            const extendedData = parseExtendedData(placemark);
+
             // Для техники определяем категорию из поля "Тип техники"
             let equipmentType = position; // по умолчанию используем position
             if (iconGetter === getMilEquipIcon) {
-                // Получаем данные из ExtendedData для техники
-                const extendedData = parseExtendedData(placemark);
                 equipmentType = extendedData['Тип техники'] || extendedData['equipment_type'] || position;
                 
                 if (LOG_STYLES) {
