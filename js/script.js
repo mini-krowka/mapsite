@@ -878,6 +878,7 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup,  style
                 for (const [key, value] of Object.entries(extendedData)) {
                     // Пропускаем поля
                     if (['Тип техники', 'equipment_type',
+                         'object_type',
                          'описание', 'description', 
                          'дата', 'date', 'Датировано',
                          'позиция', 'position', 'Координаты точки', 'coordinates'].includes(key)) {
@@ -928,21 +929,21 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup,  style
             // Старый формат для обычных точек
             else {
                 return `
-                    ${formattedName ? `<div class="popup-title" style="white-space: pre-wrap; font-weight: bold; margin-bottom: 8px;">${formattedName}</div>` : ''}
-                    <div class="popup-details" style="font-size: 14px; line-height: 1.4;">
-                        ${date ? `<div><strong>Дата:</strong> ${date}</div>` : ''}
-                        ${equipmentType ? `<div><strong>${isEquipment ? 'Тип техники:' : 'Позиция:'}</strong> ${equipmentType}</div>` : ''}
-                        <div style="display: flex; align-items: center; gap: 8px; margin-top: 4px;">
-                            <strong>Координаты:</strong> 
-                            <span style="font-family: monospace;">${coordsString}</span>
-                            <button class="copy-coords-popup-btn" data-coords="${coordsString}" 
-                                    style="cursor: pointer; background: #007bff; color: white; border: none; border-radius: 3px; padding: 2px 6px; font-size: 12px;">
-                                ⎘
-                            </button>
-                        </div>
-                        ${descriptionUrl ? `<div style="margin-top: 6px;"><a href="${descriptionUrl}" target="_blank" style="color: #007bff; text-decoration: none; font-weight: bold;">📝 Подробная информация</a></div>` : ''}
+                ${formattedName ? `<div class="popup-title" style="white-space: pre-wrap; font-weight: bold; margin-bottom: 8px;">${formattedName}</div>` : ''}
+                <div class="popup-details" style="font-size: 14px; line-height: 1.4;">
+                    ${date ? `<div><strong>Дата:</strong> ${date}</div>` : ''}
+                    ${position ? `<div><strong>Позиция:</strong> ${position}</div>` : ''}
+                    <div style="display: flex; align-items: center; gap: 8px; margin-top: 4px;">
+                        <strong>Координаты:</strong> 
+                        <span style="font-family: monospace;">${coordsString}</span>
+                        <button class="copy-coords-popup-btn" data-coords="${coordsString}" 
+                                style="cursor: pointer; background: #007bff; color: white; border: none; border-radius: 3px; padding: 2px 6px; font-size: 12px;">
+                            ⎘
+                        </button>
                     </div>
-                `;
+                    ${descriptionUrl ? `<div style="margin-top: 6px;"><a href="${descriptionUrl}" target="_blank" style="color: #007bff; text-decoration: none; font-weight: bold;">📝 Подробная информация</a></div>` : ''}
+                </div>
+            `;
             }
         }
 
