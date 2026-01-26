@@ -856,6 +856,101 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup,  style
         }
 
 
+        // Функция для создания HTML-контента popup
+        function createPopupContent(params) {
+            const {
+                formattedName,
+                date,
+                equipmentType,
+                coordsString,
+                descriptionUrl,
+                isEquipment = false,
+                extendedData = {} // Новый параметр для всех данных ExtendedData
+            } = params;
+            
+            // Если это техника и есть extendedData, отображаем все поля
+            if (isEquipment && extendedData && Object.keys(extendedData).length > 0) {
+                // Собираем все поля из extendedData, кроме "Тип техники" который уже выводится отдельно
+                let extendedInfoHTML = '';
+                
+                // Обрабатываем каждое поле из extendedData
+                for (const [key, value] of Object.entries(extendedData)) {
+                    // Пропускаем поля, которые уже выводим отдельно
+                    if (['Тип техники', 'equipment_type', 'описание', 'description', 'дата', 'date', 'позиция', 'position'].includes(key)) {
+                        continue;
+                    }
+                    
+                    // Для поля "Координаты" добавляем кнопку копирования
+                    if (key === 'Координаты' || key === 'coordinates') {
+                        extendedInfoHTML += `
+                            <div style="margin-top: 4px;">
+                                <strong>${key}:</strong> 
+                                <span style="font-family: monospace;">${value}</span>
+                                <button class="copy-coords-popup-btn" data-coords="${value}" 
+                                        style="cursor: pointer; background: #007bff; color: white; border: none; border-radius: 3px; padding: 2px 6px; font-size: 12px; margin-left: 8px;">
+                                    ⎘
+                                </button>
+                            </div>`;
+                    } 
+                    // Для полей с URL выводим как ссылку
+                    else if (typeof value === 'string' && (value.startsWith('http://') || value.startsWith('https://'))) {
+                        // Извлекаем домен для отображения
+                        const url = new URL(value);
+                        const domain = url.hostname;
+                        extendedInfoHTML += `
+                            <div style="margin-top: 4px;">
+                                <strong>${key}:</strong> 
+                                <a href="${value}" target="_blank" style="color: #007bff; text-decoration: none;">
+                                    ${domain}
+                                </a>
+                            </div>`;
+                    }
+                    // Для остальных полей просто текст
+                    else {
+                        extendedInfoHTML += `<div style="margin-top: 4px;"><strong>${key}:</strong> ${value}</div>`;
+                    }
+                }
+                
+                return `
+                    ${formattedName ? `<div class="popup-title" style="white-space: pre-wrap; font-weight: bold; margin-bottom: 8px;">${formattedName}</div>` : ''}
+                    <div class="popup-details" style="font-size: 14px; line-height: 1.4;">
+                        ${date ? `<div><strong>Дата:</strong> ${date}</div>` : ''}
+                        ${equipmentType ? `<div><strong>Тип техники:</strong> ${equipmentType}</div>` : ''}
+                        <div style="display: flex; align-items: center; gap: 8px; margin-top: 4px;">
+                            <strong>Координаты точки:</strong> 
+                            <span style="font-family: monospace;">${coordsString}</span>
+                            <button class="copy-coords-popup-btn" data-coords="${coordsString}" 
+                                    style="cursor: pointer; background: #007bff; color: white; border: none; border-radius: 3px; padding: 2px 6px; font-size: 12px;">
+                                ⎘
+                            </button>
+                        </div>
+                        ${descriptionUrl ? `<div style="margin-top: 4px;"><strong>Описание:</strong> ${descriptionUrl}</div>` : ''}
+                        ${extendedInfoHTML}
+                    </div>
+                `;
+            } 
+            // Старый формат для обычных точек
+            else {
+                return `
+                    ${formattedName ? `<div class="popup-title" style="white-space: pre-wrap; font-weight: bold; margin-bottom: 8px;">${formattedName}</div>` : ''}
+                    <div class="popup-details" style="font-size: 14px; line-height: 1.4;">
+                        ${date ? `<div><strong>Дата:</strong> ${date}</div>` : ''}
+                        ${equipmentType ? `<div><strong>${isEquipment ? 'Тип техники:' : 'Позиция:'}</strong> ${equipmentType}</div>` : ''}
+                        <div style="display: flex; align-items: center; gap: 8px; margin-top: 4px;">
+                            <strong>Координаты:</strong> 
+                            <span style="font-family: monospace;">${coordsString}</span>
+                            <button class="copy-coords-popup-btn" data-coords="${coordsString}" 
+                                    style="cursor: pointer; background: #007bff; color: white; border: none; border-radius: 3px; padding: 2px 6px; font-size: 12px;">
+                                ⎘
+                            </button>
+                        </div>
+                        ${descriptionUrl ? `<div style="margin-top: 6px;"><a href="${descriptionUrl}" target="_blank" style="color: #007bff; text-decoration: none; font-weight: bold;">📝 Подробная информация</a></div>` : ''}
+                    </div>
+                `;
+            }
+        }
+
+        // Обновленная функция parseAndAddPoint с использованием новой функции
         function parseAndAddPoint(pointElement, date, position, descriptionUrl, iconGetter = getPointIcon) {
             const coordinates = parseCoordinates(pointElement, map.options.crs);
             if (coordinates.length < 1) {
@@ -896,29 +991,17 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup,  style
             // Форматируем название - заменяем ссылки на кликабельные
             const formattedName = formatNameWithLinks(name);
             
-            // Для техники добавляем тип в popup
-            const positionText = iconGetter === getMilEquipIcon ? 
-                `Тип техники: ${equipmentType}` : 
-                `Позиция: ${position}`;
-            
-            // Добавляем popup с информацией с красивым форматированием
+            // Создаем контент для popup с использованием новой функции
             const coordsString = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
-            const popupContent = `
-                ${formattedName ? `<div class="popup-title" style="white-space: pre-wrap; font-weight: bold; margin-bottom: 8px;">${formattedName}</div>` : ''}
-                <div class="popup-details" style="font-size: 14px; line-height: 1.4;">
-                    ${date ? `<div><strong>Дата:</strong> ${date}</div>` : ''}
-                    ${equipmentType ? `<div><strong>${iconGetter === getMilEquipIcon ? 'Тип техники:' : 'Позиция:'}</strong> ${equipmentType}</div>` : ''}
-                    <div style="display: flex; align-items: center; gap: 8px; margin-top: 4px;">
-                        <strong>Координаты:</strong> 
-                        <span style="font-family: monospace;">${coordsString}</span>
-                        <button class="copy-coords-popup-btn" data-coords="${coordsString}" 
-                                style="cursor: pointer; background: #007bff; color: white; border: none; border-radius: 3px; padding: 2px 6px; font-size: 12px;">
-                            ⎘
-                        </button>
-                    </div>
-                    ${descriptionUrl ? `<div style="margin-top: 6px;"><a href="${descriptionUrl}" target="_blank" style="color: #007bff; text-decoration: none; font-weight: bold;">📝 Подробная информация</a></div>` : ''}
-                </div>
-            `;
+            const popupContent = createPopupContent({
+                formattedName,
+                date,
+                equipmentType,
+                coordsString,
+                descriptionUrl,
+                isEquipment: iconGetter === getMilEquipIcon,
+                extendedData: iconGetter === getMilEquipIcon ? extendedData : {} // Передаем extendedData только для техники
+            });
             
             marker.bindPopup(popupContent);
             
@@ -1311,8 +1394,12 @@ function parseExtendedData(placemark) {
                     data['position'] = value;
                 } else if (name === 'дата') {
                     data['date'] = value;
+                } else if (name === 'Датировано') {
+                    data['date'] = value;
                 } else if (name === 'описание') {
                     data['description'] = value;
+                } else if (name === 'Координаты') {
+                    data['coordinates'] = value;
                 }
             }
         });
