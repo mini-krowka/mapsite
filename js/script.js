@@ -876,7 +876,10 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup,  style
                 // Обрабатываем каждое поле из extendedData
                 for (const [key, value] of Object.entries(extendedData)) {
                     // Пропускаем поля, которые уже выводим отдельно
-                    if (['Тип техники', 'equipment_type', 'описание', 'description', 'дата', 'date', 'позиция', 'position'].includes(key)) {
+                    if (['Тип техники', 'equipment_type',
+                         'описание', 'description', 
+                         'дата', 'date',
+                         'позиция', 'position', 'Координаты точки', 'coordinates'].includes(key)) {
                         continue;
                     }
                     
