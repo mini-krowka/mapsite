@@ -934,4 +934,10 @@ body {
     height: 28px;
     object-fit: contain;
     vertical-align: middle;
+
+}
+
+/* Временное скрытие кнопки ВЗРЫВЧИК */
+#attacks-on-ua-btn {
+display: none !important;
 }
