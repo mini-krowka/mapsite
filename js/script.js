@@ -927,7 +927,8 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup,  style
                 `;
             } 
             // Старый формат для обычных точек
-            else {
+            else {                
+                const position = equipmentType;
                 return `
                 ${formattedName ? `<div class="popup-title" style="white-space: pre-wrap; font-weight: bold; margin-bottom: 8px;">${formattedName}</div>` : ''}
                 <div class="popup-details" style="font-size: 14px; line-height: 1.4;">
@@ -3545,6 +3546,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
 });
+
 
 
 
