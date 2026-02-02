@@ -555,3 +555,34 @@
 
 
 
+
+/* Стили для подсказок при наведении на объекты KML */
+.kml-label-tooltip {
+    background-color: rgba(255, 255, 255, 0.9);
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 4px 8px;
+    font-size: 12px;
+    font-weight: bold;
+    color: #333;
+    white-space: nowrap;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.kml-label-tooltip.leaflet-tooltip-top {
+    margin-top: -8px;
+}
+
+.kml-label-tooltip.leaflet-tooltip-bottom {
+    margin-top: 8px;
+}
+
+.kml-label-tooltip.leaflet-tooltip-left {
+    margin-left: -8px;
+}
+
+.kml-label-tooltip.leaflet-tooltip-right {
+    margin-left: 8px;
+}
+
+
