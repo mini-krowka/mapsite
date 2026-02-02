@@ -1141,11 +1141,21 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup, styleM
             // Обработка Polygon в MultiGeometry
             multiGeometry.querySelectorAll('Polygon').forEach(polygon => {                
                 const poly = parseAndAddPolygon(polygon);
+				
+				if (name && name.trim() !== '' && poly) {
+                    const coords = parseCoordinates(polygon.querySelector('LinearRing'), map.options.crs);
+                    addLabelToLayer(name, 'Polygon', coords, layerGroup);
+                }
             });
 
             // Обработка LineString в MultiGeometry
             multiGeometry.querySelectorAll('LineString').forEach(lineString => {
                 const polyline = parseAndAddLineString(lineString);
+				
+				if (name && name.trim() !== '' && polyline) {
+                    const coords = parseCoordinates(lineString, map.options.crs);
+                    addLabelToLayer(name, 'LineString', coords, layerGroup);
+                }
             });
             
             // Обработка Point в MultiGeometry
@@ -1169,12 +1179,22 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup, styleM
         const polygon = placemark.querySelector('Polygon');
         if (polygon && !multiGeometry) {                
             const poly = parseAndAddPolygon(polygon);
+			
+			if (name && name.trim() !== '' && poly) {
+                const coords = parseCoordinates(polygon.querySelector('LinearRing'), map.options.crs);
+                addLabelToLayer(name, 'Polygon', coords, layerGroup);
+            }
         }
 
         // Обработка LineString (не в MultiGeometry)
         const lineString = placemark.querySelector('LineString');
         if (lineString && !multiGeometry) {
             const polyline = parseAndAddLineString(lineString);
+			
+			if (name && name.trim() !== '' && polyline) {
+                    const coords = parseCoordinates(lineString, map.options.crs);
+                    addLabelToLayer(name, 'LineString', coords, layerGroup);
+			}
         }
         
         // Обработка Point (не в MultiGeometry)
