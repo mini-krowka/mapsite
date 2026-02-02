@@ -784,7 +784,7 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup, styleM
             }
             else if (styles[styleUrl]) { // Проверяем обычный стиль
                 style.line = styles[styleUrl].line || {};
-                style.poly = styles[normalStyleId].poly || {};
+                style.poly = styles[styleUrl].poly || {};
             }
         }
         
