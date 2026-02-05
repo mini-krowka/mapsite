@@ -399,7 +399,7 @@ window.permanentLayers = [
 	// { name: "Херсонская область",        path: "kml/PermanentObjects/Херсонская область.kml" },
 	{ name: "Области",        path: "kml/PermanentObjects/Области.kml" },
     // Текущая ЛБС
-     { name: "Current_frontline",      path: "kml/FrontLine/FrontLine_26_02_02.kml" },
+     { name: "Current_frontline",      path: "kml/FrontLine/ЛБС.kml" },
 	
     // Граница ЛДНР без Ростовской области
     // { name: "LDPR",                   path: "kml/PermanentObjects/LDPR_line3.kml" },
@@ -456,6 +456,7 @@ window.milequipLayers = [];
 window.attacksOnUaKmlPaths = ["kml/Geolocations/osint_alarm_2025.kml",
                               "kml/Geolocations/osint_alarm_2026.kml"];
 window.attacksOnUaLayers = [];
+
 
 
 
