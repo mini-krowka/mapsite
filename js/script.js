@@ -803,127 +803,114 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup, styleM
             console.log('Has MultiGeometry:', hasMultiGeometry);
         }
 
-	function parseAndAddPolygon(polygon, useStyleMode = placemarkStyleMode) {
-		const coords = parseCoordinates(polygon.querySelector('LinearRing'), map.options.crs);
-		if (coords.length < 3) {
-			if (LOG_STYLES) console.log(`Polygon skipped - insufficient coordinates: ${coords.length}`);
-			return;
-		}
+        function parseAndAddPolygon(polygon, useStyleMode = placemarkStyleMode) {
+            const coords = parseCoordinates(polygon.querySelector('LinearRing'), map.options.crs);
+            if (coords.length < 3) {
+                if (LOG_STYLES) console.log(`Polygon skipped - insufficient coordinates: ${coords.length}`);
+                return;
+            }
 
-		let polyStyle = {};
-		
-		if (useStyleMode === window.kmlStyleModes.DEFAULT) {
-			// Для DEFAULT используем стили из KML или базовые
-			polyStyle = {
-				color: style.line.color || '#3388ff',
-				weight: style.line.weight || 0,
-				fillColor: style.poly.fillColor || '#3388ff',
-				fillOpacity: style.poly.fillOpacity || 0.5,
-				interactive: true // Включаем интерактивность для подсказок
-			};
-		} else {
-			// Для заданных стилей (STYLE_RUAF, STYLE_AFU, STYLE_MG) используем предопределенные
-			const styleConfig = window.kmlStyles[useStyleMode];
-			if (styleConfig && styleConfig.polygon) {
-				polyStyle = styleConfig.polygon;
-				polyStyle.interactive = true; // Включаем интерактивность для подсказок
-			} else {
-				polyStyle = {
-					color: '#3388ff',
-					weight: 0,
-					fillColor: '#3388ff',
-					fillOpacity: 0.5,
-					interactive: true // Включаем интерактивность для подсказок
-				};
-			}
-		}
+            let polyStyle = {};
+            
+            if (useStyleMode === window.kmlStyleModes.DEFAULT) {
+                // Для DEFAULT используем стили из KML или базовые
+                polyStyle = {
+                    color: style.line.color || '#3388ff',
+                    weight: style.line.weight || 0,
+                    fillColor: style.poly.fillColor || '#3388ff',
+                    fillOpacity: style.poly.fillOpacity || 0.5,
+                    interactive: false
+                };
+            } else {
+                // Для заданных стилей (STYLE_RUAF, STYLE_AFU, STYLE_MG) используем предопределенные
+                const styleConfig = window.kmlStyles[useStyleMode];
+                if (styleConfig && styleConfig.polygon) {
+                    polyStyle = styleConfig.polygon;
+                } else {
+                    polyStyle = {
+                        color: '#3388ff',
+                        weight: 0,
+                        fillColor: '#3388ff',
+                        fillOpacity: 0.5,
+                        interactive: false
+                    };
+                }
+            }
 
-		// Создаем полигон
-		const poly = L.polygon(coords, polyStyle).addTo(layerGroup);
-		
-		// Обновляем границы                
-		if (poly.getBounds().isValid()) {
-			bounds.extend(poly.getBounds());
-		}
-		
-		// Добавляем подсказку при наведении, если есть название
-		if (name && name.trim() !== '') {
-			poly.bindTooltip(name, {
-				permanent: false,
-				direction: 'center',
-				className: 'kml-label-tooltip',
-				sticky: true // Подсказка следует за курсором
-			});
-		}            
+            // Создаем полигон
+            const poly = L.polygon(coords, polyStyle).addTo(layerGroup);
+            
+            // Обновляем границы                
+            if (poly.getBounds().isValid()) {
+                bounds.extend(poly.getBounds());
+            }
+            // Добавляем метку, если есть название
+            if (name && name.trim() !== '') {
+                addLabelToLayer(name, 'Polygon', coords, layerGroup);
+            }            
 
-		// Логирование информации о полигоне
-		if (LOG_STYLES) {
-			console.log(`Polygon #${++elementCount}:`);
-			console.log('- Coordinates count:', coords.length);
-			console.log('- Applied styles:', polyStyle);
-			console.log('- Style mode:', useStyleMode);
-		}
-		
-		return poly;
-	}
+            // Логирование информации о полигоне
+            if (LOG_STYLES) {
+                console.log(`Polygon #${++elementCount}:`);
+                console.log('- Coordinates count:', coords.length);
+                console.log('- Applied styles:', polyStyle);
+                console.log('- Style mode:', useStyleMode);
+            }
+            
+            return poly;
+        }
+        
+        function parseAndAddLineString(lineString, useStyleMode = placemarkStyleMode) {
+            const coords = parseCoordinates(lineString, map.options.crs);
+            if (coords.length < 2) {
+                if (LOG_STYLES) console.log(`LineString skipped - insufficient coordinates: ${coords.length}`);
+                return;
+            }
+                
+            let lineStyle = {};                
+            
+            if (useStyleMode === window.kmlStyleModes.DEFAULT) {
+                lineStyle = {
+                    color: style.line.color || '#3388ff',
+                    weight: style.line.weight || 3,
+                    opacity: style.line.opacity || 1,
+                    interactive: false
+                };
+            } else {
+                const styleConfig = window.kmlStyles[useStyleMode];
+                if (styleConfig && styleConfig.polyline) {
+                    lineStyle = styleConfig.polyline;
+                } else {
+                    lineStyle = {
+                        color: '#3388ff',
+                        weight: 3,
+                        opacity: 1,
+                        interactive: false
+                    };
+                }
+            }
 
-	function parseAndAddLineString(lineString, useStyleMode = placemarkStyleMode) {
-		const coords = parseCoordinates(lineString, map.options.crs);
-		if (coords.length < 2) {
-			if (LOG_STYLES) console.log(`LineString skipped - insufficient coordinates: ${coords.length}`);
-			return;
-		}
-			
-		let lineStyle = {};                
-		
-		if (useStyleMode === window.kmlStyleModes.DEFAULT) {
-			lineStyle = {
-				color: style.line.color || '#3388ff',
-				weight: style.line.weight || 3,
-				opacity: style.line.opacity || 1,
-				interactive: true // Включаем интерактивность для подсказок
-			};
-		} else {
-			const styleConfig = window.kmlStyles[useStyleMode];
-			if (styleConfig && styleConfig.polyline) {
-				lineStyle = styleConfig.polyline;
-				lineStyle.interactive = true; // Включаем интерактивность для подсказок
-			} else {
-				lineStyle = {
-					color: '#3388ff',
-					weight: 3,
-					opacity: 1,
-					interactive: true // Включаем интерактивность для подсказок
-				};
-			}
-		}
+            const polyline = L.polyline(coords, lineStyle).addTo(layerGroup);
 
-		const polyline = L.polyline(coords, lineStyle).addTo(layerGroup);
+            // Обновляем границы    
+            if (polyline.getBounds().isValid()) {
+                bounds.extend(polyline.getBounds());
+            }
+            // Добавляем метку, если есть название                
+            if (name && name.trim() !== '') {
+                addLabelToLayer(name, 'LineString', coords, layerGroup);
+            }
 
-		// Обновляем границы    
-		if (polyline.getBounds().isValid()) {
-			bounds.extend(polyline.getBounds());
-		}
-		
-		// Добавляем подсказку при наведении, если есть название                
-		if (name && name.trim() !== '') {
-			polyline.bindTooltip(name, {
-				permanent: false,
-				direction: 'top',
-				className: 'kml-label-tooltip',
-				sticky: true // Подсказка следует за курсором
-			});
-		}
+            // Логирование информации о линии
+            if (LOG_STYLES) {
+                console.log(`LineString #${++elementCount}:`);
+                console.log('- Coordinates count:', coords.length);
+                console.log('- Applied styles:', lineStyle);
+                console.log('- Style mode:', useStyleMode);
+            }
+            return polyline;
+        }
 
-		// Логирование информации о линии
-		if (LOG_STYLES) {
-			console.log(`LineString #${++elementCount}:`);
-			console.log('- Coordinates count:', coords.length);
-			console.log('- Applied styles:', lineStyle);
-			console.log('- Style mode:', useStyleMode);
-		}
-		return polyline;
-	}
 
         // Функция для создания HTML-контента popup
         function createPopupContent(params) {
@@ -1141,21 +1128,11 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup, styleM
             // Обработка Polygon в MultiGeometry
             multiGeometry.querySelectorAll('Polygon').forEach(polygon => {                
                 const poly = parseAndAddPolygon(polygon);
-				
-				if (name && name.trim() !== '' && poly) {
-                    const coords = parseCoordinates(polygon.querySelector('LinearRing'), map.options.crs);
-                    addLabelToLayer(name, 'Polygon', coords, layerGroup);
-                }
             });
 
             // Обработка LineString в MultiGeometry
             multiGeometry.querySelectorAll('LineString').forEach(lineString => {
                 const polyline = parseAndAddLineString(lineString);
-				
-				if (name && name.trim() !== '' && polyline) {
-                    const coords = parseCoordinates(lineString, map.options.crs);
-                    addLabelToLayer(name, 'LineString', coords, layerGroup);
-                }
             });
             
             // Обработка Point в MultiGeometry
@@ -1179,22 +1156,12 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup, styleM
         const polygon = placemark.querySelector('Polygon');
         if (polygon && !multiGeometry) {                
             const poly = parseAndAddPolygon(polygon);
-			
-			if (name && name.trim() !== '' && poly) {
-                const coords = parseCoordinates(polygon.querySelector('LinearRing'), map.options.crs);
-                addLabelToLayer(name, 'Polygon', coords, layerGroup);
-            }
         }
 
         // Обработка LineString (не в MultiGeometry)
         const lineString = placemark.querySelector('LineString');
         if (lineString && !multiGeometry) {
             const polyline = parseAndAddLineString(lineString);
-			
-			if (name && name.trim() !== '' && polyline) {
-                    const coords = parseCoordinates(lineString, map.options.crs);
-                    addLabelToLayer(name, 'LineString', coords, layerGroup);
-			}
         }
         
         // Обработка Point (не в MultiGeometry)
@@ -3520,9 +3487,9 @@ function getPolygonCenter(coords) {
     });
     return [(minLat + maxLat) / 2, (minLng + maxLng) / 2];
 }
-
-// функция для добавления подсказки при наведении на объект
+// функция для добавления метки к объекту
 function addLabelToLayer(name, geometryType, coords, layerGroup) {
+    return;
     if (!name || name.trim() === '') return;
     
     let labelCoords;
@@ -3534,21 +3501,20 @@ function addLabelToLayer(name, geometryType, coords, layerGroup) {
 
     if (!labelCoords) return;
 
-    // Создаем временный маркер только для подсказки (не видимый)
-    const tempMarker = L.marker(labelCoords, {
-        opacity: 0,
+    const labelIcon = L.divIcon({
+        className: 'kml-label',
+        html: name,
+        iconSize: [100, 20],
+        iconAnchor: [50, 0]
+    });
+    
+    const labelMarker = L.marker(labelCoords, {
+        icon: labelIcon,
         interactive: false
     }).addTo(layerGroup);
     
-    // Добавляем подсказку при наведении
-    tempMarker.bindTooltip(name, {
-        permanent: false, // Не постоянно, только при наведении
-        direction: 'center',
-        className: 'kml-label-tooltip',
-        offset: [0, 0]
-    });
-    
-    return tempMarker;
+    return labelMarker;
+
 }
 
 
