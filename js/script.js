@@ -1459,14 +1459,14 @@ function getMilEquipIcon(position) {
 
 function getAttacksOnUaIcon(position) {
     const iconUrls = {
-        'Предприятие ВПК'          : 'img/ВПК.png',
-        'ЖД инфраструктура'          : 'img/депо.png',
-        'Аэродром'                  : 'img/аэродром.png',
-        'Предприятие гражданского или двойного назначения'                  : 'img/ВПК2.png',
-        'ПВО, РЛС и ракетное вооружение'                  : 'img/рлс.png',
-        'Подстанция'                  : 'img/подстанция.png',
-        'Склад'                  : 'img/подстанция.png',
-        'default'                  : 'img/Взрывчик.png',
+        'Предприятие ВПК'                                  : 'img/attack types/ВПК.png',
+        'ЖД инфраструктура'                                : 'img/attack types/депо.png',
+        'Аэродром'                                         : 'img/attack types/аэродром.png',
+        'Предприятие гражданского или двойного назначения' : 'img/attack types/ВПК2.png',
+        'ПВО, РЛС и ракетное вооружение'                   : 'img/attack types/рлс.png',
+        'Подстанция'                                       : 'img/attack types/подстанция.png',
+        'Склад'                                            : 'img/attack types/подстанция.png',
+        'default'                                          : 'img/attack types/Взрывчик.png',
     };
 
     const iconUrl = iconUrls[position] || iconUrls.default;
