@@ -1099,28 +1099,13 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup, styleM
             
             // Добавляем обработчик для кнопки копирования в popup
             marker.on('popupopen', function() {
-                // Ищем кнопку внутри открытого popup
-                const popup = this.getPopup();
-                const popupElement = popup.getElement();
-                
-                if (!popupElement) return;
-                
-                // Ищем кнопку внутри конкретного popup
-                const copyBtn = popupElement.querySelector('.copy-coords-popup-btn');
-                
+                const copyBtn = document.querySelector('.copy-coords-popup-btn');
                 if (copyBtn) {
-                    // Удаляем предыдущие обработчики, чтобы избежать дублирования
-                    copyBtn.removeEventListener('click', handleCopyClick);
-                    
-                    // Создаем новый обработчик
-                    const handleCopyClick = function(e) {
+                    copyBtn.addEventListener('click', function(e) {
                         e.stopPropagation();
                         const coords = this.getAttribute('data-coords');
                         copyToClipboard(coords, this);
-                    };
-                    
-                    // Добавляем обработчик
-                    copyBtn.addEventListener('click', handleCopyClick);
+                    });
                 }
             });
             
