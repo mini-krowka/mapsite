@@ -1464,6 +1464,8 @@ function getAttacksOnUaIcon(position) {
         'Аэродром'                  : 'img/аэродром.png',
         'Предприятие гражданского или двойного назначения'                  : 'img/ВПК2.png',
         'ПВО, РЛС и ракетное вооружение'                  : 'img/рлс.png',
+        'Подстанция'                  : 'img/подстанция.png',
+        'Склад'                  : 'img/подстанция.png',
         'default'                  : 'img/Взрывчик.png',
     };
 
@@ -3637,6 +3639,7 @@ document.addEventListener('click', function(e) {
         }
     }
 });
+
 
 
 
