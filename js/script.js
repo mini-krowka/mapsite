@@ -1097,17 +1097,6 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup, styleM
             
             marker.bindPopup(popupContent);
             
-            // Добавляем обработчик для кнопки копирования в popup
-            marker.on('popupopen', function() {
-                const copyBtn = document.querySelector('.copy-coords-popup-btn');
-                if (copyBtn) {
-                    copyBtn.addEventListener('click', function(e) {
-                        e.stopPropagation();
-                        const coords = this.getAttribute('data-coords');
-                        copyToClipboard(coords, this);
-                    });
-                }
-            });
             
             if (LOG_STYLES) {
                 console.log(`Point added:`, { 
@@ -3633,7 +3622,17 @@ document.addEventListener('DOMContentLoaded', function() {
 
 });
 
-
+document.addEventListener('click', function(e) {
+    // Проверяем, кликнули ли по кнопке копирования в popup
+    if (e.target && e.target.classList.contains('copy-coords-popup-btn')) {
+        e.stopPropagation();
+        e.preventDefault();
+        const coords = e.target.getAttribute('data-coords');
+        if (coords) {
+            copyToClipboard(coords, e.target);
+        }
+    }
+});
 
 
 
