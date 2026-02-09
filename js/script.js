@@ -1462,6 +1462,8 @@ function getAttacksOnUaIcon(position) {
         'Предприятие ВПК'          : 'img/ВПК.png',
         'ЖД инфраструктура'          : 'img/депо.png',
         'Аэродром'                  : 'img/аэродром.png',
+        'Предприятие гражданского или двойного назначения'                  : 'img/ВПК2.png',
+        'ПВО, РЛС и ракетное вооружение'                  : 'img/рлс.png',
         'default'                  : 'img/Взрывчик.png',
     };
 
@@ -3635,6 +3637,7 @@ document.addEventListener('click', function(e) {
         }
     }
 });
+
 
 
 
