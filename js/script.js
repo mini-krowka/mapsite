@@ -939,8 +939,8 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup, styleM
                     ${description ? `<div class="popup-description" style="margin-bottom: 8px; white-space: pre-wrap;">${description}</div>` : ''}
                     <div class="popup-details" style="font-size: 14px; line-height: 1.4;">
                         ${objectType ? `<div><strong>Тип объекта:</strong> ${objectType}</div>` : ''}
-                        ${weaponType ? `<div><strong>Средства поражения:</strong> ${weaponType}</div>` : ''}
                         ${attackDate ? `<div><strong>Дата:</strong> ${attackDate}</div>` : ''}
+                        ${weaponType ? `<div><strong>Средства поражения:</strong> ${weaponType}</div>` : ''}
                         <div style="display: flex; align-items: center; gap: 8px; margin-top: 4px;">
                             <strong>Координаты:</strong> 
                             <span style="font-family: monospace;">${coordsString}</span>
@@ -1099,13 +1099,28 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup, styleM
             
             // Добавляем обработчик для кнопки копирования в popup
             marker.on('popupopen', function() {
-                const copyBtn = document.querySelector('.copy-coords-popup-btn');
+                // Ищем кнопку внутри открытого popup
+                const popup = this.getPopup();
+                const popupElement = popup.getElement();
+                
+                if (!popupElement) return;
+                
+                // Ищем кнопку внутри конкретного popup
+                const copyBtn = popupElement.querySelector('.copy-coords-popup-btn');
+                
                 if (copyBtn) {
-                    copyBtn.addEventListener('click', function(e) {
+                    // Удаляем предыдущие обработчики, чтобы избежать дублирования
+                    copyBtn.removeEventListener('click', handleCopyClick);
+                    
+                    // Создаем новый обработчик
+                    const handleCopyClick = function(e) {
                         e.stopPropagation();
                         const coords = this.getAttribute('data-coords');
                         copyToClipboard(coords, this);
-                    });
+                    };
+                    
+                    // Добавляем обработчик
+                    copyBtn.addEventListener('click', handleCopyClick);
                 }
             });
             
