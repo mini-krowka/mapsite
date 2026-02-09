@@ -921,11 +921,40 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup, styleM
                 coordsString,
                 descriptionUrl,
                 isEquipment = false,
+                isAttackOnUa = false, // Новый параметр для атак на Украину
                 extendedData = {} // Новый параметр для всех данных ExtendedData
             } = params;
             
-            // Если это техника и есть extendedData, отображаем все поля
-            if (isEquipment && extendedData && Object.keys(extendedData).length > 0) {
+            // Обрабатываем случай атак на Украину
+            if (isAttackOnUa) {
+                // Извлекаем данные для атак на Украину
+                const objectType = extendedData['Тип объекта'] || extendedData['object_type'] || equipmentType;
+                const weaponType = extendedData['Средства поражения'] || extendedData['weapon_type'];
+                const attackDate = extendedData['Дата'] || extendedData['date'] || date;
+                const description = extendedData['описание'] || extendedData['description'] || '';
+                const link = extendedData['Ссылка'] || extendedData['link'] || '';
+                
+                return `
+                    ${formattedName ? `<div class="popup-title" style="white-space: pre-wrap; font-weight: bold; margin-bottom: 8px;">${formattedName}</div>` : ''}
+                    ${description ? `<div class="popup-description" style="margin-bottom: 8px; white-space: pre-wrap;">${description}</div>` : ''}
+                    <div class="popup-details" style="font-size: 14px; line-height: 1.4;">
+                        ${objectType ? `<div><strong>Тип объекта:</strong> ${objectType}</div>` : ''}
+                        ${weaponType ? `<div><strong>Средства поражения:</strong> ${weaponType}</div>` : ''}
+                        ${attackDate ? `<div><strong>Дата:</strong> ${attackDate}</div>` : ''}
+                        <div style="display: flex; align-items: center; gap: 8px; margin-top: 4px;">
+                            <strong>Координаты:</strong> 
+                            <span style="font-family: monospace;">${coordsString}</span>
+                            <button class="copy-coords-popup-btn" data-coords="${coordsString}" 
+                                    style="cursor: pointer; background: #007bff; color: white; border: none; border-radius: 3px; padding: 2px 6px; font-size: 12px;">
+                                ⎘
+                            </button>
+                        </div>
+                        ${link ? `<div style="margin-top: 6px;"><a href="${link}" target="_blank" style="color: #007bff; text-decoration: none; font-weight: bold;">📝 Подробная информация</a></div>` : ''}
+                    </div>
+                `;
+            }
+            // Обрабатываем случай техники (без изменений)
+            else if (isEquipment && extendedData && Object.keys(extendedData).length > 0) {
                 // Собираем все поля из extendedData, кроме "Тип техники" который уже выводится отдельно
                 let extendedInfoHTML = '';
                 
@@ -1053,7 +1082,7 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup, styleM
             // Определяем тип точки для отображения в popup
             const isEquipment = iconGetter === getMilEquipIcon;
             const isAttackOnUa = iconGetter === getAttacksOnUaIcon;
-            
+
             // Используем категорию как equipmentType для popup
             const popupContent = createPopupContent({
                 formattedName,
@@ -1061,8 +1090,9 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup, styleM
                 equipmentType: category, // Используем определенную категорию
                 coordsString,
                 descriptionUrl,
-                isEquipment: isEquipment || isAttackOnUa, // Для техники и атак показываем extendedData
-                extendedData: isEquipment || isAttackOnUa ? extendedData : {} // Передаем extendedData только для техники и атак
+                isEquipment: isEquipment,
+                isAttackOnUa: isAttackOnUa, // Передаем флаг для атак на Украину
+                extendedData: isEquipment || isAttackOnUa ? extendedData : {} // Передаем extendedData для техники и атак
             });
             
             marker.bindPopup(popupContent);
