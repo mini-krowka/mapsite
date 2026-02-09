@@ -1461,6 +1461,7 @@ function getAttacksOnUaIcon(position) {
     const iconUrls = {
         'Предприятие ВПК'          : 'img/ВПК.png',
         'ЖД инфраструктура'          : 'img/депо.png',
+        'Аэродром'                  : 'img/аэродром.png',
         'default'                  : 'img/Взрывчик.png',
     };
 
@@ -3634,6 +3635,7 @@ document.addEventListener('click', function(e) {
         }
     }
 });
+
 
 
 
