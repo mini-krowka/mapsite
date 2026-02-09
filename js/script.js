@@ -1459,7 +1459,7 @@ function getMilEquipIcon(position) {
 
 function getAttacksOnUaIcon(position) {
     const iconUrls = {
-        'Предприятие ВПК'          : 'img/Взрывчик.png',
+        'Предприятие ВПК'          : 'img/ВПК.png',
         'default'                  : 'img/Взрывчик.png',
     };
 
@@ -3633,6 +3633,7 @@ document.addEventListener('click', function(e) {
         }
     }
 });
+
 
 
 
