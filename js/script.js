@@ -2475,6 +2475,9 @@ async function init() {
     // Шаг 1: Загружаем постоянные слои
     await loadPermanentKmlLayers();
     
+    // Проверяем, что kmlFiles сгенерирован правильно
+    console.log('KML файлов загружено:', window.kmlFiles.length);
+    
     // Шаг 2: Инициализируем selectedDate текущей датой
     selectedDate = getCurrentDateFormatted();
     console.log('Установлена текущая дата:', selectedDate);
