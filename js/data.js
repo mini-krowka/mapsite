@@ -53,9 +53,9 @@ window.kmlFiles = (window.dateList || []).map(dateStr => {
             case "FrontLine":
                 return `kml/FrontLine/FrontLine_${formattedDate}.kml`;
             //case "ProgressRuAF":
-                return `kml/Progress/RuAF/ProgressRuAF_${formattedDate}.kml`;
+            //    return `kml/Progress/RuAF/ProgressRuAF_${formattedDate}.kml`;
             //case "ProgressAFU":
-                return `kml/Progress/AFU/ProgressAFU_${formattedDate}.kml`;
+            //    return `kml/Progress/AFU/ProgressAFU_${formattedDate}.kml`;
             case "Progress":
                 return `kml/Progress/Progress_${formattedDate}.kml`;
             default:
@@ -140,6 +140,7 @@ window.milequipLayers = [];
 window.attacksOnUaKmlPaths = ["kml/Geolocations/osint_alarm_2025.kml",
                               "kml/Geolocations/osint_alarm_2026.kml"];
 window.attacksOnUaLayers = [];
+
 
 
 
