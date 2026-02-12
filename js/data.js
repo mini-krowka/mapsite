@@ -14,8 +14,9 @@ function getFileTypesForDate(dateStr) {
     
     const startDate = new Date(2023, 8, 3); // 03.09.2023
     const frontLineStart = new Date(2025, 1, 1); // 01.02.2025
-    const progressStart = new Date(2025, 9, 17); // 17.10.2025
-    const combinedProgressStart = new Date(2026, 0, 25); // 25.01.2026
+    const ruafafuStart = new Date(2025, 9, 17); // 17.10.2025
+    const ruafafuEnd = new Date(2026, 0, 25); // 25.01.2026
+    const combinedProgressStart = new Date(2025, 9, 9); // 09.10.2025
     
     const types = [];
     
@@ -28,12 +29,12 @@ function getFileTypesForDate(dateStr) {
     }
     
     // ProgressRuAF и ProgressAFU доступны с 17.10.2025 до 25.01.2026
-    if (date >= progressStart && date < combinedProgressStart) {
+    if (date >= ruafafuStart && date <= ruafafuEnd) {
         types.push("ProgressRuAF");
         types.push("ProgressAFU");
     }
     
-    // Progress доступен с 25.01.2026
+    // Progress доступен с 09.10.2025
     if (date >= combinedProgressStart) {
         types.push("Progress");
     }
