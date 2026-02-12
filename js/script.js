@@ -1459,13 +1459,25 @@ function getMilEquipIcon(position) {
 
 function getAttacksOnUaIcon(position) {
     const iconUrls = {
-        'Предприятие ВПК'                                  : 'img/attack types/ВПК.png',
-        'ЖД инфраструктура'                                : 'img/attack types/депо.png',
-        'Аэродром'                                         : 'img/attack types/аэродром.png',
-        'Предприятие гражданского или двойного назначения' : 'img/attack types/ВПК2.png',
-        'ПВО, РЛС и ракетное вооружение'                   : 'img/attack types/рлс.png',
-        'Подстанция'                                       : 'img/attack types/подстанция.png',
-        'Склад'                                            : 'img/attack types/подстанция.png',
+        'Объект неустановленного назначения'               : 'img/attack types/Вопрос2.png',
+        'Предприятие ВПК'                                  : 'img/attack types/ВПК22.png',
+        'ЖД инфраструктура'                                : 'img/attack types/Депо2.png',
+        'Аэродром'                                         : 'img/attack types/Аэродром2.png',
+        'Предприятие гражданского или двойного назначения' : 'img/attack types/ВПК12.png',
+        'ПВО, РЛС и ракетное вооружение'                   : 'img/attack types/РЛС2.png',
+        'Подстанция'                                       : 'img/attack types/Подстанция2.png',
+        'Склад'                                            : 'img/attack types/Склад2.png',
+        'Склад ГСМ'                                        : 'img/attack types/ГСМ2.png',
+        'Энергогенерация'                                  : 'img/attack types/Генерация2.png',
+        'Тяговая подстанция'                               : 'img/attack types/ТПС2.png',
+        'Мост'                                             : 'img/attack types/Мост2.png',
+        'Газовая инфраструктура'                           : 'img/attack types/газ.png',
+        'Судно'                                            : 'img/attack types/Судно2.png',
+        'Склад боеприпасов'                                : 'img/attack types/СкладБК2.png',
+        'Стоянка грузового транспорта'                     : 'img/attack types/Парковка2.png',
+        'ППД'                                              : 'img/attack types/ПВД22.png',
+        'Поезда и локомотивы'                              : 'img/attack types/Поезд2.png',
+        
         'default'                                          : 'img/attack types/Взрывчик.png',
     };
 
