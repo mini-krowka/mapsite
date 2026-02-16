@@ -18,25 +18,6 @@ let currentDateRange = 'week'; // 'week', 'month', '3months', '6months', 'year'
 let isMilEquipVisible     = false; // Флаг видимости слоя техники
 let isAttacksOnUaVisible  = false; // Флаг видимости слоя атак по территории
 
-// Canvas и хранилища маркеров
-let markersCanvas = null;
-let markersStore = {
-    points: [],        // Обычные точки с флагами
-    equipment: [],     // Техника
-    attacks: [],       // Атаки по Украине
-    permanent: [],     // Постоянные маркеры (если есть)
-    temporary: []      // Временные маркеры (если есть)
-};
-
-// Флаги видимости для каждого типа
-let markersVisibility = {
-    points: true,      // Обычные точки всегда видны
-    equipment: false,  // Техника скрыта по умолчанию
-    attacks: false,    // Атаки скрыты по умолчанию
-    permanent: true,   // Постоянные маркеры видны
-    temporary: true    // Временные маркеры видны
-};
-
 // Получаем массив доступных дат из kmlFiles
 const availableDates = kmlFiles.map(file => file.name);
 
@@ -1052,7 +1033,7 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup, styleM
         }
 
         // Обновленная функция parseAndAddPoint с использованием новой функции
-        function parseAndAddPoint(pointElement, date, position, descriptionUrl, iconGetter = getPointIcon, placemarkName) {
+        function parseAndAddPoint(pointElement, date, position, descriptionUrl, iconGetter = getPointIcon) {
             const coordinates = parseCoordinates(pointElement, map.options.crs);
             if (coordinates.length < 1) {
                 if (LOG_STYLES) console.log(`Point skipped - insufficient coordinates: ${coordinates.length}`);
@@ -1062,82 +1043,75 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup, styleM
             const [lat, lng] = coordinates[0];
             
             // Проверяем, попадает ли точка в диапазон дат (только для обычных точек)
+            // Не применяем фильтр для техники (getMilEquipIcon) и атак по Украине (getAttacksOnUaIcon)
             if (iconGetter !== getMilEquipIcon && 
                 iconGetter !== getAttacksOnUaIcon && 
                 date && window.pointsDateRange && 
                 !isDateInRange(date, window.pointsDateRange.start, window.pointsDateRange.end)) {
-                return null;
+                return null; // Пропускаем точку, если она не в диапазоне
             }
 
-            // Парсим extendedData
+            // Парсим extendedData для всех точек
             const extendedData = parseExtendedData(placemark);
 
-            // Определяем категорию
+            // Определяем категорию в зависимости от типа иконки
             let category;
-            let markerType = 'points'; // По умолчанию
-            
             if (iconGetter === getMilEquipIcon) {
+                // Для техники используем поле "Тип техники"
                 category = extendedData['Тип техники'] || extendedData['equipment_type'] || position;
-                markerType = 'equipment';
             } else if (iconGetter === getAttacksOnUaIcon) {
+                // Для атак по Украине используем поле "Тип объекта"
                 category = extendedData['Тип объекта'] || extendedData['object_type'] || position;
-                markerType = 'attacks';
             } else {
+                // Для обычных точек используем position
                 category = position;
-                markerType = 'points';
             }
             
-            // Получаем иконку
+            // Получаем иконку для точки с помощью переданной функции
             const icon = iconGetter(category);
             
-            // Создаем маркер
-            const marker = L.marker([lat, lng], { icon: icon });
+            // Создаем маркер с иконкой
+            const marker = L.marker([lat, lng], {icon: icon}).addTo(layerGroup);
             
-            // Настраиваем popup
-            const formattedName = formatNameWithLinks(placemarkName || name);
+            // Форматируем название - заменяем ссылки на кликабельные
+            const formattedName = formatNameWithLinks(name);
+            
+            // Создаем контент для popup
             const coordsString = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
-            const isEquipment = markerType === 'equipment';
-            const isAttackOnUa = markerType === 'attacks';
             
+            // Определяем тип точки для отображения в popup
+            const isEquipment = iconGetter === getMilEquipIcon;
+            const isAttackOnUa = iconGetter === getAttacksOnUaIcon;
+
+            // Используем категорию как equipmentType для popup
             const popupContent = createPopupContent({
                 formattedName,
                 date,
-                equipmentType: category,
+                equipmentType: category, // Используем определенную категорию
                 coordsString,
                 descriptionUrl,
                 isEquipment: isEquipment,
-                isAttackOnUa: isAttackOnUa,
-                extendedData: isEquipment || isAttackOnUa ? extendedData : {}
+                isAttackOnUa: isAttackOnUa, // Передаем флаг для атак на Украину
+                extendedData: isEquipment || isAttackOnUa ? extendedData : {} // Передаем extendedData для техники и атак
             });
             
             marker.bindPopup(popupContent);
             
-            // Добавляем обработчики для взаимодействия
-            marker.on({
-                mouseover: function(e) {
-                    if (!markersCanvas.options.disablePopupsOnHover) {
-                        this.openPopup();
-                    }
-                },
-                mouseout: function(e) {
-                    if (!markersCanvas.options.disablePopupsOnHover) {
-                        this.closePopup();
-                    }
-                },
-                click: function(e) {
-                    // Дополнительные действия при клике
-                    console.log(`Marker clicked: ${category} at ${coordsString}`);
-                }
-            });
             
-            // Возвращаем объект с маркером и его типом
-            return {
-                marker: marker,
-                type: markerType,
-                category: category,
-                coordinates: [lat, lng],
-                data: extendedData
-            };
+            if (LOG_STYLES) {
+                console.log(`Point added:`, { 
+                    name, 
+                    date, 
+                    category: category,
+                    descriptionUrl, 
+                    coordinates: [lat, lng], 
+                    iconGetter: iconGetter.name,
+                    isEquipment: isEquipment,
+                    isAttackOnUa: isAttackOnUa
+                });
+            }
+            
+            return marker;
         }
 
         // Функция для форматирования названия с заменой ссылок на кликабельные
@@ -1555,11 +1529,10 @@ function parseExtendedData(placemark) {
 
 
 // Функция для загрузки KML с точками (с поддержкой разных типов иконок)
-async function loadPointsFromKml(filePath, options = {}) {
+async function loadPointsFromKml(filePath, layerGroup, options = {}) {
     const {
-        iconGetter = getPointIcon,
-        storeType = 'points', // Куда сохранять маркеры
-        clearStore = false    // Очистить ли хранилище перед загрузкой
+        iconGetter = getPointIcon, // По умолчанию используем getPointIcon
+        isEquipment = false // Флаг для техники
     } = options;
 
     try {
@@ -1574,58 +1547,18 @@ async function loadPointsFromKml(filePath, options = {}) {
         const kmlDoc = parser.parseFromString(kmlText, "text/xml");
 
         if (LOG_STYLES) {
-            console.groupCollapsed(`Points layer loaded: ${filePath} (store: ${storeType})`);
+            console.groupCollapsed(`Points layer loaded: ${filePath} ${isEquipment ? '(техника)' : ''}`);
         }
 
-        // Очищаем хранилище, если нужно
-        if (clearStore) {
-            clearMarkersStore(storeType);
-        }
-
-        const markers = [];
-        let bounds = L.latLngBounds();
-
-        // Обработка Placemarks
-        kmlDoc.querySelectorAll('Placemark').forEach(placemark => {
-            const point = placemark.querySelector('Point');
-            if (!point) return;
-
-            const extendedData = parseExtendedData(placemark);
-            const date = extendedData['дата'] || extendedData['date'];
-            const equipmentType = extendedData['Тип техники'] || extendedData['equipment_type'];
-            const descriptionUrl = extendedData['описание'] || extendedData['description'];
-            const name = placemark.querySelector('name')?.textContent;
-            
-            const position = (iconGetter === getMilEquipIcon && equipmentType) ? 
-                equipmentType : 
-                (extendedData['позиция'] || extendedData['position']);
-
-            // Создаем маркер
-            const markerData = parseAndAddPoint(point, date, position, descriptionUrl, iconGetter, name);
-            if (markerData && markerData.marker) {
-                markers.push(markerData.marker);
-                
-                // Обновляем границы
-                bounds.extend(markerData.marker.getLatLng());
-            }
-        });
-
-        // Сохраняем маркеры в хранилище
-        if (markers.length > 0) {
-            addMarkersToStore(storeType, markers);
-            
-            // Обновляем canvas если тип видим
-            if (markersVisibility[storeType]) {
-                updateCanvasMarkers();
-            }
-        }
-
+        // Загружаем только точки с указанной функцией получения иконок
+        const bounds = parsePlacemarksFromKmlDoc(kmlDoc, {}, {}, layerGroup, window.kmlStyleModes.DEFAULT, iconGetter);
+        
         if (LOG_STYLES) {
-            console.log(`Loaded ${markers.length} markers to ${storeType}`);
+            console.log(`Total points loaded from ${filePath}: ${layerGroup.getLayers().length}`);
             console.groupEnd();
         }
-
-        return { bounds: bounds, markers: markers };
+        
+        return bounds;
     } catch (error) {
         console.error(`Ошибка загрузки KML с точками: ${filePath}`, error);
     }
@@ -1633,110 +1566,207 @@ async function loadPointsFromKml(filePath, options = {}) {
 
 // Функция для инициализации слоя с точками из нескольких файлов
 async function initPointsLayer(kmlFilePaths) {
+    // Если передана строка, преобразуем в массив
     if (typeof kmlFilePaths === 'string') {
         kmlFilePaths = [kmlFilePaths];
     }
     
-    // Очищаем старые точки
-    clearMarkersStore('points');
-    
-    for (const path of kmlFilePaths) {
-        await loadPointsFromKml(path, {
-            iconGetter: getPointIcon,
-            storeType: 'points',
-            clearStore: false
-        });
+    // Удаляем старый слой точек, если он существует
+    if (window.currentPointsLayer) {
+        map.removeLayer(window.currentPointsLayer);
     }
     
-    console.log(`Points layer initialized: ${markersStore.points.length} markers`);
-    updateCanvasMarkers();
+    // Создаем новую группу слоев для точек
+    const pointsLayerGroup = L.layerGroup();
+    pointsLayerGroup.addTo(map);
+    
+    // Сохраняем ссылки для последующего обновления
+    window.currentPointsLayer = pointsLayerGroup;
+    window.currentPointsKmlPaths = kmlFilePaths; // Сохраняем массив путей
+    
+    // Загружаем точки из всех KML файлов
+    for (const path of kmlFilePaths) {
+        await loadPointsFromKml(path, pointsLayerGroup);
+    }
+    
+    return pointsLayerGroup;
 }
 
-// Инициализация слоя с техникой
+// Функция для инициализации слоя с техникой
 async function initMilequipLayer(kmlFilePaths) {
+    // Если передана строка, преобразуем в массив
     if (typeof kmlFilePaths === 'string') {
         kmlFilePaths = [kmlFilePaths];
     }
     
-    // Очищаем старую технику
-    clearMarkersStore('equipment');
+    // Удаляем старые слои техники, если они существуют
+    if (window.milequipLayers && window.milequipLayers.length) {
+        window.milequipLayers.forEach(layer => {
+            if (map.hasLayer(layer)) {
+                map.removeLayer(layer);
+            }
+        });
+        window.milequipLayers = [];
+    }
     
+    // Создаем новую группу слоев для техники
+    const milequipLayerGroup = L.layerGroup();
+    // НЕ добавляем на карту сразу - только при нажатии кнопки
+    
+    // Сохраняем ссылки для последующего управления
+    window.milequipLayers.push(milequipLayerGroup);
+    
+    // Загружаем технику из всех KML файлов
     for (const path of kmlFilePaths) {
-        await loadPointsFromKml(path, {
+        await loadPointsFromKml(path, milequipLayerGroup, {
             iconGetter: getMilEquipIcon,
-            storeType: 'equipment',
-            clearStore: false
+            isEquipment: true
         });
     }
     
-    console.log(`Equipment layer initialized: ${markersStore.equipment.length} markers`);
+    console.log(`Загружено слоев техники: ${window.milequipLayers.length}, точек: ${milequipLayerGroup.getLayers().length}`);
+    
+    return milequipLayerGroup;
 }
 
-// Инициализация слоя с атаками
+// Функция для инициализации слоя с атаками на Украину
 async function initAttacksOnUaLayer(kmlFilePaths) {
+    // Если передана строка, преобразуем в массив
     if (typeof kmlFilePaths === 'string') {
         kmlFilePaths = [kmlFilePaths];
     }
     
-    // Очищаем старые атаки
-    clearMarkersStore('attacks');
+    // Удаляем старые слои атак, если они существуют
+    if (window.attacksOnUaLayers && window.attacksOnUaLayers.length) {
+        window.attacksOnUaLayers.forEach(layer => {
+            if (map.hasLayer(layer)) {
+                map.removeLayer(layer);
+            }
+        });
+        window.attacksOnUaLayers = [];
+    }
     
+    // Создаем новую группу слоев для атак
+    const attacksOnUaLayerGroup = L.layerGroup();
+    // НЕ добавляем на карту сразу - только при нажатии кнопки
+    
+    // Сохраняем ссылки для последующего управления
+    window.attacksOnUaLayers.push(attacksOnUaLayerGroup);
+    
+    // Загружаем точки атак из всех KML файлов
     for (const path of kmlFilePaths) {
-        await loadPointsFromKml(path, {
+        await loadPointsFromKml(path, attacksOnUaLayerGroup, {
             iconGetter: getAttacksOnUaIcon,
-            storeType: 'attacks',
-            clearStore: false
+            isEquipment: true // Можно использовать тот же флаг или создать отдельный
         });
     }
     
-    console.log(`Attacks layer initialized: ${markersStore.attacks.length} markers`);
+    console.log(`Загружено слоев атак: ${window.attacksOnUaLayers.length}, точек: ${attacksOnUaLayerGroup.getLayers().length}`);
+    
+    return attacksOnUaLayerGroup;
 }
 
 // Функция для переключения отображения техники
 function toggleMilEquipVisibility() {
     const milEquipBtn = document.getElementById('mil-equip-btn');
-    const wasVisible = markersVisibility.equipment;
     
-    // Переключаем видимость
-    const nowVisible = toggleMarkersVisibility('equipment');
+    // Переключаем флаг
+    isMilEquipVisible = !isMilEquipVisible;
     
-    // Обновляем кнопку
-    if (nowVisible) {
+    if (isMilEquipVisible) {
+        // Показываем технику
         milEquipBtn.classList.add('active');
         
-        // Если технику еще не загружали - загружаем
-        if (markersStore.equipment.length === 0 && window.milequipKmlPaths) {
-            initMilequipLayer(window.milequipKmlPaths);
+        // Если слои техники еще не загружены, загружаем их
+        if (!window.milequipLayers || window.milequipLayers.length === 0) {
+            console.log('Загрузка техники...');
+            initMilequipLayer(window.milequipKmlPaths).then(() => {
+                // После загрузки добавляем на карту
+                window.milequipLayers.forEach(layer => {
+                    if (layer && !map.hasLayer(layer)) {
+                        layer.addTo(map);
+                    }
+                });
+            });
+        } else {
+            // Если уже загружены, просто добавляем на карту
+            window.milequipLayers.forEach(layer => {
+                if (layer && !map.hasLayer(layer)) {
+                    layer.addTo(map);
+                }
+            });
         }
+        
+        console.log('Техника показана');
     } else {
+        // Скрываем технику
         milEquipBtn.classList.remove('active');
+        
+        // Убираем слои техники с карты
+        if (window.milequipLayers && window.milequipLayers.length) {
+            window.milequipLayers.forEach(layer => {
+                if (layer && map.hasLayer(layer)) {
+                    map.removeLayer(layer);
+                }
+            });
+        }
+        
+        console.log('Техника скрыта');
     }
     
-    // Обновляем title
+    // Обновляем title кнопки
     updateMilEquipButtonTitle();
 }
 
-// Переключение видимости атак
+// Функция для переключения отображения атак на Украину
 function toggleAttacksOnUaVisibility() {
     const attacksOnUaBtn = document.getElementById('attacks-on-ua-btn');
-    const wasVisible = markersVisibility.attacks;
     
-    // Переключаем видимость
-    const nowVisible = toggleMarkersVisibility('attacks');
+    // Переключаем флаг
+    isAttacksOnUaVisible = !isAttacksOnUaVisible;
     
-    // Обновляем кнопку
-    if (nowVisible) {
+    if (isAttacksOnUaVisible) {
+        // Показываем атаки
         attacksOnUaBtn.classList.add('active');
         
-        // Если атаки еще не загружали - загружаем
-        if (markersStore.attacks.length === 0 && window.attacksOnUaKmlPaths) {
-            initAttacksOnUaLayer(window.attacksOnUaKmlPaths);
+        // Если слои атак еще не загружены, загружаем их
+        if (!window.attacksOnUaLayers || window.attacksOnUaLayers.length === 0) {
+            console.log('Загрузка атак на Украину...');
+            initAttacksOnUaLayer(window.attacksOnUaKmlPaths).then(() => {
+                // После загрузки добавляем на карту
+                window.attacksOnUaLayers.forEach(layer => {
+                    if (layer && !map.hasLayer(layer)) {
+                        layer.addTo(map);
+                    }
+                });
+            });
+        } else {
+            // Если уже загружены, просто добавляем на карту
+            window.attacksOnUaLayers.forEach(layer => {
+                if (layer && !map.hasLayer(layer)) {
+                    layer.addTo(map);
+                }
+            });
         }
+        
+        console.log('Атаки на Украину показаны');
     } else {
+        // Скрываем атаки
         attacksOnUaBtn.classList.remove('active');
+        
+        // Убираем слои атак с карты
+        if (window.attacksOnUaLayers && window.attacksOnUaLayers.length) {
+            window.attacksOnUaLayers.forEach(layer => {
+                if (layer && map.hasLayer(layer)) {
+                    map.removeLayer(layer);
+                }
+            });
+        }
+        
+        console.log('Атаки на Украину скрыты');
     }
     
-    // Обновляем title
+    // Обновляем title кнопки
     updateAttacksOnUaButtonTitle();
 }
 
@@ -3627,238 +3657,8 @@ document.addEventListener('click', function(e) {
 
 
 
-////////////////////////// Работа с маркерами
-
-
-// Добавление маркеров в хранилище
-function addMarkersToStore(type, markersArray) {
-    if (!Array.isArray(markersArray)) markersArray = [markersArray];
-    
-    markersStore[type] = markersStore[type] || [];
-    markersStore[type].push(...markersArray);
-    
-    console.log(`Added ${markersArray.length} markers to ${type} store. Total: ${markersStore[type].length}`);
-}
-
-// Очистка хранилища по типу
-function clearMarkersStore(type) {
-    if (markersStore[type]) {
-        markersStore[type] = [];
-        console.log(`Cleared ${type} markers store`);
-    }
-}
-
-// Получение всех видимых маркеров
-function getVisibleMarkers() {
-    let visibleMarkers = [];
-    
-    Object.keys(markersVisibility).forEach(type => {
-        if (markersVisibility[type] && markersStore[type]) {
-            visibleMarkers = visibleMarkers.concat(markersStore[type]);
-        }
-    });
-    
-    return visibleMarkers;
-}
-
-// Обновление отображения на canvas
-function updateCanvasMarkers() {
-    if (!markersCanvas) {
-        initMarkersCanvas();
-    }
-    
-    // Очищаем текущие маркеры на canvas
-    markersCanvas.clearMarkers();
-    
-    // Получаем видимые маркеры
-    const visibleMarkers = getVisibleMarkers();
-    
-    // Добавляем видимые маркеры на canvas
-    if (visibleMarkers.length > 0) {
-        markersCanvas.addMarkers(visibleMarkers);
-        console.log(`Canvas updated: ${visibleMarkers.length} visible markers`);
-    }
-}
-
-// Переключение видимости типа маркеров
-function toggleMarkersVisibility(type) {
-    if (markersVisibility.hasOwnProperty(type)) {
-        markersVisibility[type] = !markersVisibility[type];
-        updateCanvasMarkers();
-        
-        console.log(`${type} markers visibility: ${markersVisibility[type] ? 'ON' : 'OFF'}`);
-        return markersVisibility[type];
-    }
-    return false;
-}
-
-// Массовое добавление маркеров с фильтрацией
-function addFilteredMarkers(type, markers, filterFunction = null) {
-    if (!markers || markers.length === 0) return;
-    
-    let filteredMarkers = markers;
-    if (filterFunction && typeof filterFunction === 'function') {
-        filteredMarkers = markers.filter(filterFunction);
-    }
-    
-    if (filteredMarkers.length > 0) {
-        addMarkersToStore(type, filteredMarkers);
-        
-        // Если этот тип видим, обновляем canvas
-        if (markersVisibility[type]) {
-            updateCanvasMarkers();
-        }
-    }
-    
-    return filteredMarkers.length;
-}
-
-// Поиск маркеров по критериям
-function findMarkers(criteria) {
-    const results = {};
-    
-    Object.keys(markersStore).forEach(type => {
-        results[type] = markersStore[type].filter(marker => {
-            // Пример: поиск по координатам
-            if (criteria.coordinates) {
-                const markerCoords = marker.getLatLng();
-                const [lat, lng] = criteria.coordinates;
-                const tolerance = criteria.tolerance || 0.001;
-                
-                if (Math.abs(markerCoords.lat - lat) > tolerance || 
-                    Math.abs(markerCoords.lng - lng) > tolerance) {
-                    return false;
-                }
-            }
-            
-            // Добавьте другие критерии по необходимости
-            return true;
-        });
-    });
-    
-    return results;
-}
-
-// Фильтрация маркеров по типу и условию
-function filterMarkers(type, filterFunction) {
-    if (!markersStore[type]) return [];
-    
-    return markersStore[type].filter(filterFunction);
-}
-
-// Получение статистики по маркерам
-function getMarkersStats() {
-    const stats = {};
-    let total = 0;
-    
-    Object.keys(markersStore).forEach(type => {
-        stats[type] = markersStore[type].length;
-        total += stats[type];
-    });
-    
-    stats.total = total;
-    stats.visible = getVisibleMarkers().length;
-    
-    return stats;
-}
 
 
 
-// Применение стиля ко всем маркерам типа
-function applyStyleToMarkers(type, styleOptions) {
-    if (!markersStore[type]) return;
-    
-    markersStore[type].forEach(marker => {
-        if (styleOptions.icon) {
-            marker.setIcon(styleOptions.icon);
-        }
-        if (styleOptions.zIndexOffset) {
-            marker.setZIndexOffset(styleOptions.zIndexOffset);
-        }
-    });
-    
-    // После изменения стилей нужно обновить canvas
-    updateCanvasMarkers();
-}
-
-// Удаление маркеров по условию
-function removeMarkersByCondition(type, conditionFunction) {
-    if (!markersStore[type]) return 0;
-    
-    const initialLength = markersStore[type].length;
-    markersStore[type] = markersStore[type].filter(marker => !conditionFunction(marker));
-    const removedCount = initialLength - markersStore[type].length;
-    
-    if (removedCount > 0) {
-        updateCanvasMarkers();
-    }
-    
-    return removedCount;
-}
-
-// Экспорт маркеров в GeoJSON
-function exportMarkersToGeoJSON(type = null) {
-    const features = [];
-    
-    if (type && markersStore[type]) {
-        markersStore[type].forEach((marker, index) => {
-            const coords = marker.getLatLng();
-            features.push({
-                type: "Feature",
-                geometry: {
-                    type: "Point",
-                    coordinates: [coords.lng, coords.lat]
-                },
-                properties: {
-                    id: index,
-                    type: type,
-                    // Добавьте дополнительные свойства если нужно
-                }
-            });
-        });
-    } else {
-        // Все маркеры
-        Object.keys(markersStore).forEach(type => {
-            markersStore[type].forEach((marker, index) => {
-                const coords = marker.getLatLng();
-                features.push({
-                    type: "Feature",
-                    geometry: {
-                        type: "Point",
-                        coordinates: [coords.lng, coords.lat]
-                    },
-                    properties: {
-                        id: `${type}_${index}`,
-                        type: type
-                    }
-                });
-            });
-        });
-    }
-    
-    return {
-        type: "FeatureCollection",
-        features: features
-    };
-}
 
 
-// Инициализация при загрузке страницы
-document.addEventListener('DOMContentLoaded', function() {
-    // Инициализируем canvas после создания карты
-    setTimeout(() => {
-        initMarkersCanvas();
-        
-        // Загружаем начальные точки если нужно
-        if (window.currentPointsKmlPaths) {
-            initPointsLayer(window.currentPointsKmlPaths);
-        }
-    }, 100);
-    
-    // Обновление canvas при изменении размера окна
-    window.addEventListener('resize', function() {
-        if (markersCanvas) {
-            updateCanvasMarkers();
-        }
-    });
-});
