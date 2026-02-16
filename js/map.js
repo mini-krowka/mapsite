@@ -540,6 +540,36 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 
+////////////////////////////////////////////////////////////
+
+
+// Функция инициализации canvas-слоя
+function initMarkersCanvas() {
+    if (markersCanvas) {
+        map.removeLayer(markersCanvas);
+    }
+    
+    markersCanvas = new L.MarkersCanvas();
+    markersCanvas.addTo(map);
+    
+    // Опционально: настройки производительности
+    markersCanvas.options = {
+        maxZoom: 18,
+        minZoom: 0,
+        maxClusterRadius: 80,
+        spiderfyOnMaxZoom: true,
+        showCoverageOnHover: false,
+        zoomToBoundsOnClick: true
+    };
+    
+    console.log('Markers canvas initialized');
+}
+
+//////////////////////////////////////////////////////////////
+
+
+
+
 
 
 
