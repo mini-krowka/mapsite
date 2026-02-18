@@ -603,7 +603,8 @@ window.kmlStyleModes = {
     // Заданные стили
     STYLE_MG:   'styleMG', // Для мультиполигональных файлов
     STYLE_RUAF: 'styleRuAF', // Для файлов из RuAF
-    STYLE_AFU:  'styleAFU'  // Для файлов из AFU
+    STYLE_AFU:  'styleAFU',  // Для файлов из AFU
+    STYLE_CITIES: 'styleCities' // Для городов
 };
 
 // Определение стилей
@@ -611,14 +612,14 @@ window.kmlStyles = {
     [window.kmlStyleModes.STYLE_MG]: {
         polygon: {
             color: '#ffffff', // Обводка для видимости
-            weight: 1, // Толщина линии
+            weight: 5, // Толщина линии
             fillColor: '#999999', //Заливка
             fillOpacity: 0.25, //  Непрозрачность
             interactive: false
         },
         polyline: {
             color: '#ffffff', // Цвет линии
-            weight: 1, // Толщина линии
+            weight: 5, // Толщина линии
             opacity: 1,
             interactive: false
         }
@@ -652,6 +653,21 @@ window.kmlStyles = {
             opacity: 0.8,
             interactive: false
         }
+    },
+    [window.kmlStyleModes.STYLE_CITIES]: {
+        polygon: {
+            color: '#ffffff',      // цвет обводки
+            weight: 1,             // толщина обводки
+            fillColor: '#999999',   // цвет заливки
+            fillOpacity: 0.25,      // прозрачность заливки
+            interactive: false
+        },
+        polyline: {
+            color: '#ffffff',
+            weight: 1,
+            opacity: 1,
+            interactive: false
+        }
     }
 };
 
@@ -664,6 +680,10 @@ async function getStyleModeForFile(filePath) {
         return window.kmlStyleModes.STYLE_AFU;
     else if (filePath.includes('/Progress/')) {
         return window.kmlStyleModes.DEFAULT;
+    }
+        
+    if (filePath.includes('CitiesBorders.kml')) {
+        return window.kmlStyleModes.STYLE_CITIES;
     }
         
     // Для остальных файлов проверяем содержимое на мультигеометрию
