@@ -663,8 +663,11 @@ async function getStyleModeForFile(filePath) {
     else if (filePath.includes('/AFU/')) 
         return window.kmlStyleModes.STYLE_AFU;
     else if (filePath.includes('/Progress/')) {
-        // Новые файлы в папке Progress могут содержать обе стороны
-        // Возвращаем DEFAULT, чтобы стиль определялся по description
+        return window.kmlStyleModes.DEFAULT;
+    }
+    
+    // *** НОВОЕ: для фортификаций всегда использовать стиль из KML ***
+    if (filePath.includes('/Fortifications/')) {
         return window.kmlStyleModes.DEFAULT;
     }
     
@@ -682,7 +685,6 @@ async function getStyleModeForFile(filePath) {
         
         if (hasMultiGeometry) {
             // Для мультигеометрии проверяем, есть ли description с указанием стороны
-            // Если есть - возвращаем DEFAULT, чтобы стиль определялся динамически
             const placemarks = kmlDoc.querySelectorAll('Placemark');
             for (const placemark of placemarks) {
                 const description = placemark.querySelector('description');
@@ -757,7 +759,7 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup, styleM
     
     kmlDoc.querySelectorAll('Placemark').forEach(placemark => {
         // Получаем описание для определения стиля
-        const descriptionElement = placemark.querySelector('description') || placemark.querySelector('tessellate');
+        const descriptionElement = placemark.querySelector('description');
         const descriptionStyleMode = getStyleModeFromDescription(descriptionElement);
         
         // Определяем финальный стиль для этого placemark
