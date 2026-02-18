@@ -665,12 +665,7 @@ async function getStyleModeForFile(filePath) {
     else if (filePath.includes('/Progress/')) {
         return window.kmlStyleModes.DEFAULT;
     }
-    
-    // *** НОВОЕ: для фортификаций всегда использовать стиль из KML ***
-    if (filePath.includes('/Fortifications/')) {
-        return window.kmlStyleModes.DEFAULT;
-    }
-    
+        
     // Для остальных файлов проверяем содержимое на мультигеометрию
     try {
         const response = await fetch(filePath);
@@ -694,7 +689,8 @@ async function getStyleModeForFile(filePath) {
                 }
             }
             // Если description нет, но есть мультигеометрия - используем STYLE_MG
-            return window.kmlStyleModes.STYLE_MG;
+            // return window.kmlStyleModes.STYLE_MG;
+            return window.kmlStyleModes.DEFAULT;
         }
     } catch (error) {
         console.error(`Ошибка проверки файла на мультигеометрию: ${filePath}`, error);
