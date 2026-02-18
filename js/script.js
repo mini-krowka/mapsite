@@ -1686,15 +1686,15 @@ async function initFortificationLayer(kmlFilePaths) {
     
     // Создаём новую группу слоёв для фортификаций
     const fortificationLayerGroup = L.layerGroup();
-    // Не добавляем на карту сразу — только при нажатии кнопки
     
-    // Загружаем все KML-файлы фортификаций в группу
+    // Загружаем все KML-файлы фортификаций в группу, 
+    // принудительно используя режим DEFAULT (стили из файла)
     for (const path of kmlFilePaths) {
         await loadKmlToLayer(path, fortificationLayerGroup, {
             isPermanent: false,
             preserveZoom: true,
-            fitBounds: false
-            // styleMode не указываем — используется DEFAULT, т.е. стили из KML
+            fitBounds: false,
+            styleMode: window.kmlStyleModes.DEFAULT   // ← важно!
         });
     }
     
