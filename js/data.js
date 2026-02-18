@@ -143,6 +143,10 @@ window.attacksOnUaKmlPaths = ["kml/Geolocations/osint_alarm_2025.kml",
 window.attacksOnUaLayers = [];
 
 
+window.fortificationKmlPaths = ["kml/Fortifications/Barbed_wire.kml"];
+window.fortificationLayers = [];
+
+
 
 
 
