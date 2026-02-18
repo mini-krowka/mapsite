@@ -143,9 +143,12 @@ window.attacksOnUaKmlPaths = ["kml/Geolocations/osint_alarm_2025.kml",
 window.attacksOnUaLayers = [];
 
 
-window.fortificationKmlPaths = ["kml/Fortifications/Barbed_wire.kml",
+window.fortificationKmlPaths = ["kml/Fortifications/Trenches_Pokrovsk.kml",
+								"kml/Fortifications/Ditches.kml",
+								"kml/Fortifications/Barbed_wire.kml",
                                 "kml/Fortifications/Dragons_teeth.kml"];
 window.fortificationLayers = [];
+
 
 
 
