@@ -4,7 +4,7 @@
 		<name>Ditches</name>
 		<Style id="1">
       <LineStyle>
-        <width>1</width>
+        <width>2</width>
         <color>ff6CFDAE</color>
       </LineStyle>
     </Style>
