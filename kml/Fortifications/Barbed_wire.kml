@@ -5,7 +5,7 @@
 		<Style id="1">
       <LineStyle>
         <width>1</width>
-        <color>ffff0000</color>
+        <color>ffccccc</color>
       </LineStyle>
     </Style>
 		<Placemark>
@@ -40543,4 +40543,5 @@
 				</MultiGeometry>
 		</Placemark>
 	</Document>
+
 	</kml>
