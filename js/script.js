@@ -765,7 +765,7 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup, styleM
         // Если у нас DEFAULT и есть мультигеометрия без description, используем STYLE_MG
         const hasMultiGeometry = placemark.querySelector('MultiGeometry') !== null;
         if (placemarkStyleMode === window.kmlStyleModes.DEFAULT && hasMultiGeometry && !descriptionStyleMode) {
-            placemarkStyleMode = window.kmlStyleModes.STYLE_MG;
+            // placemarkStyleMode = window.kmlStyleModes.STYLE_MG;
         }
         
         // Получаем стиль для Placemark из KML
