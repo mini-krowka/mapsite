@@ -757,7 +757,7 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup, styleM
     
     kmlDoc.querySelectorAll('Placemark').forEach(placemark => {
         // Получаем описание для определения стиля
-        const descriptionElement = placemark.querySelector('description');
+        const descriptionElement = placemark.querySelector('description') || placemark.querySelector('tessellate');
         const descriptionStyleMode = getStyleModeFromDescription(descriptionElement);
         
         // Определяем финальный стиль для этого placemark
