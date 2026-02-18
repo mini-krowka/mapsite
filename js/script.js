@@ -1687,14 +1687,13 @@ async function initFortificationLayer(kmlFilePaths) {
     // Создаём новую группу слоёв для фортификаций
     const fortificationLayerGroup = L.layerGroup();
     
-    // Загружаем все KML-файлы фортификаций в группу, 
-    // принудительно используя режим DEFAULT (стили из файла)
+    // Загружаем все KML-файлы фортификаций в группу
     for (const path of kmlFilePaths) {
         await loadKmlToLayer(path, fortificationLayerGroup, {
             isPermanent: false,
             preserveZoom: true,
-            fitBounds: false,
-            styleMode: window.kmlStyleModes.DEFAULT   // ← важно!
+            fitBounds: false
+            // styleMode не указываем — используется DEFAULT, т.е. стили из KML
         });
     }
     
