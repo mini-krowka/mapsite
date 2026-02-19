@@ -94,7 +94,7 @@ window.yandexLayer = L.tileLayer(yandexUrl, {
 
 
 // Инициализация карты
-const map = L.map('map').setView([48.257381, 37.134785], 10);
+const map = L.map('map', {preferCanvas: true}).setView([48.257381, 37.134785], 10);
 // L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     // attribution: '© OpenStreetMap'
 // }).addTo(map);
@@ -561,4 +561,5 @@ map.whenReady(function() {
             console.log('Панель рисования инициализирована автоматически');
         }
     }, 1000);
+
 });
