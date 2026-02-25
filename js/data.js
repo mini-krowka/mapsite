@@ -144,13 +144,14 @@ window.attacksOnUaLayers = [];
 
 
 window.fortificationKmlPaths = ["kml/Fortifications/Trenches_Pokrovsk.kml",
-                                "kml/Fortifications/Dragons_teeth.geojson"];
+                                "kml/Fortifications/Geojson/Dragons_teeth.geojson"];
 								// "kml/Fortifications/Trenches_ Mezhevaya.kml",
 								// "kml/Fortifications/Trenches_Kramatorsk.kml",
 								// "kml/Fortifications/Ditches.kml",
 								// "kml/Fortifications/Barbed_wire.kml",
                                 // "kml/Fortifications/Dragons_teeth.kml"];
 window.fortificationLayers = [];
+
 
 
 
