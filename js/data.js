@@ -143,13 +143,12 @@ window.attacksOnUaKmlPaths = ["kml/Geolocations/osint_alarm_2025.kml",
 window.attacksOnUaLayers = [];
 
 
-window.fortificationKmlPaths = ["kml/Fortifications/Trenches_Pokrovsk.kml",
+window.fortificationKmlPaths = ["kml/Fortifications/Geojson/Trenches_Pokrovsk.geojson",
+								"kml/Fortifications/Geojson/Trenches_ Mezhevaya.geojson",
+								"kml/Fortifications/Geojson/Trenches_Kramatorsk.geojson",
+								"kml/Fortifications/Geojson/Ditches.geojson",
+								"kml/Fortifications/Geojson/Barbed_wire.geojson",
                                 "kml/Fortifications/Geojson/Dragons_teeth.geojson"];
-								// "kml/Fortifications/Trenches_ Mezhevaya.kml",
-								// "kml/Fortifications/Trenches_Kramatorsk.kml",
-								// "kml/Fortifications/Ditches.kml",
-								// "kml/Fortifications/Barbed_wire.kml",
-                                // "kml/Fortifications/Dragons_teeth.kml"];
 window.fortificationLayers = [];
 
 
