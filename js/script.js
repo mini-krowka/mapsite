@@ -2780,6 +2780,8 @@ async function init() {
         window.osm.addTo(map); // Активируйте OSM слой
         window.initialLayerSet = true;
     });
+    
+    initFullscreenControl();
         
   } catch (error) {
     console.error('Ошибка инициализации:', error);

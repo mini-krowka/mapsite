@@ -546,6 +546,44 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 
+let fullscreenToggle;
+
+function initFullscreenControl() {
+    fullscreenToggle = L.control({ position: 'topright' });
+    fullscreenToggle.onAdd = function(map) {
+        this._div = L.DomUtil.create('div', 'leaflet-bar leaflet-control leaflet-control-fullscreen-toggle');
+        const link = L.DomUtil.create('a', 'leaflet-control-fullscreen-toggle-btn', this._div);
+        link.href = '#';
+        link.title = translations[currentLang].fullscreenTitle || 'Полноэкранный режим';
+        link.innerHTML = '⛶'; // символ полноэкранного режима (можно заменить на иконку)
+        return this._div;
+    };
+    fullscreenToggle.addTo(map);
+
+    fullscreenToggle.getContainer().querySelector('a').addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        toggleFullscreen();
+    });
+}
+
+function toggleFullscreen() {
+    document.body.classList.toggle('fullscreen');
+    // Обновим размер карты после изменения отображения top-bar
+    setTimeout(() => {
+        map.invalidateSize();
+    }, 100);
+}
+
+
+
+
+
+
+
+
+
+
 
 
 
