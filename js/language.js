@@ -23,6 +23,9 @@ const translations = {
         
         showAttacksOnUa: 'Показать удары по территории Украины',
         hideAttacksOnUa: 'Скрыть удары по территории Украины',
+		
+        showFortifications: 'Показать фортификации (Playfra map) Зеленый - Рвы, Белый - Надолбы, Голубой - Колючая проволока',
+        hideFortifications: 'Скрыть фортификации (Playfra map) Зеленый - Рвы, Белый - Надолбы, Голубой - Колючая проволока',
         
         ruBtnTitle: "Текущий язык: Русский",
         enBtnTitle: "Переключить на Английский",
@@ -78,7 +81,10 @@ const translations = {
         hideEquipment: 'Hide equipment',
         
         showAttacksOnUa: 'Show attacks on Ukraine',
-        hideAttacksOnUa: 'Hide attacks on Ukraine',
+        hideAttacksOnUa: 'Hide attacks on Ukraine',		
+		
+        showFortifications: 'Show fortifications (Playfra map) Green - Ditches, White - Dragons teeth, Blue - Barbed wire',
+        hideFortifications: 'Hide fortifications (Playfra map) Green - Ditches, White - Dragons teeth, Blue - Barbed wire',
         
         ruBtnTitle: "Switch to Russian",
         enBtnTitle: "Current language: English",

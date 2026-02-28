@@ -1957,10 +1957,8 @@ function updateFortificationButtonTitle() {
         const t = translations[currentLang];
         if (t) {
             fortificationBtn.title = isFortificationVisible ? 
-                (t.hideFortifications || 'Скрыть фортификации (Playfra map)') : 
-                (t.showFortifications || 'Показать фортификации (Playfra map)');
-        } else {
-            fortificationBtn.title = isFortificationVisible ? 'Скрыть фортификации (Playfra map)' : 'Показать фортификации (Playfra map)';
+                (t.hideFortifications) : 
+                (t.showFortifications);
         }
     }
 }
