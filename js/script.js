@@ -2750,6 +2750,9 @@ async function init() {
             });
         }
     }, 300);
+	
+    // Кнопка полноэкранного режима
+    initFullscreenControl();
     
     // Инициализация поиска по названию
     initSearchFunctionality();
@@ -2778,8 +2781,6 @@ async function init() {
         window.osm.addTo(map); // Активируйте OSM слой
         window.initialLayerSet = true;
     });
-    
-    initFullscreenControl();
         
   } catch (error) {
     console.error('Ошибка инициализации:', error);
@@ -2871,18 +2872,6 @@ document.addEventListener('DOMContentLoaded', function() {
     
     switchMapStatViewByBtn(mapBtn, stats1Btn, stats2Btn);
     
-});
-
-// Обработчик изменения языка
-document.addEventListener('languageChanged', function(event) {
-    currentLang = event.detail;
-    if (datePicker) {
-        datePicker.destroy();
-    }
-        initDatePicker();
-    
-    populateCitiesDropdown(); // Обновляем основной список
-    initDartMenu(); // Перестраиваем дартс-меню
 });
 
 // Закрываем меню при клике на карту

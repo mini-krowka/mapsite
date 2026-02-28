@@ -278,6 +278,25 @@ function setLanguage(lang) {
     // updateButtons();
 }
 
+
+// Обработчик изменения языка из script.js
+document.addEventListener('languageChanged', function(event) {
+    currentLang = event.detail;
+    if (datePicker) {
+        datePicker.destroy();
+    }
+        initDatePicker();
+    
+    populateCitiesDropdown(); // Обновляем основной список
+    initDartMenu(); // Перестраиваем дартс-меню
+	
+	// Обновляем заголовки кнопок фильтров (с учётом состояния показано/скрыто)
+    updateMilEquipButtonTitle();
+    updateAttacksOnUaButtonTitle();
+    updateFortificationButtonTitle();
+    updateDateRangeButtonTitle();
+});
+
 // Обработчики кнопок переключения языка
 // мобильный
 document.getElementById('lang-ru').addEventListener('click', () => {
