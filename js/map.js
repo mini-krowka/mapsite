@@ -555,16 +555,33 @@ function initFullscreenControl() {
         const link = L.DomUtil.create('a', 'leaflet-control-fullscreen-toggle-btn', this._div);
         link.href = '#';
         link.title = translations[currentLang].fullscreenTitle || 'Полноэкранный режим';
-        link.innerHTML = '⛶'; // символ полноэкранного режима (можно заменить на иконку)
+        link.innerHTML = '⛶'; // начальный символ
+
+        // Функция обновления символа в зависимости от состояния fullscreen
+        function updateFullscreenIcon() {
+            const isFullscreen = document.fullscreenElement ||
+                                 document.webkitFullscreenElement ||
+                                 document.mozFullScreenElement ||
+                                 document.msFullscreenElement;
+            link.innerHTML = isFullscreen ? '✕' : '⛶';
+        }
+
+        // Слушаем изменения полноэкранного режима (кросс-браузерно)
+        document.addEventListener('fullscreenchange', updateFullscreenIcon);
+        document.addEventListener('webkitfullscreenchange', updateFullscreenIcon);
+        document.addEventListener('mozfullscreenchange', updateFullscreenIcon);
+        document.addEventListener('MSFullscreenChange', updateFullscreenIcon);
+
+        // Обработчик клика — вызывает существующую функцию toggleFullscreen
+        L.DomEvent.on(link, 'click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            toggleFullscreen(); // предполагается, что эта функция определена глобально
+        });
+
         return this._div;
     };
     fullscreenToggle.addTo(map);
-
-    fullscreenToggle.getContainer().querySelector('a').addEventListener('click', function(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        toggleFullscreen();
-    });
 }
 
 function toggleFullscreen() {
