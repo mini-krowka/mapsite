@@ -254,6 +254,15 @@ function setLanguage(lang) {
         rangeOptions[3].textContent = t.range6Months;
         rangeOptions[4].textContent = t.rangeYear;
     }
+	
+	// Обновляем заголовок кнопки фильтра дат
+	if (typeof updateDateRangeButtonTitle === 'function') {
+		updateDateRangeButtonTitle();
+	}
+	
+	if (typeof updateMilEquipButtonTitle === 'function') updateMilEquipButtonTitle();
+	if (typeof updateAttacksOnUaButtonTitle === 'function') updateAttacksOnUaButtonTitle();
+	if (typeof updateFortificationButtonTitle === 'function') updateFortificationButtonTitle();
     
     // Обновляем title кнопки переключения слоев
     const layersToggleLink = document.querySelector('.leaflet-control-layers-toggle a');
@@ -312,13 +321,7 @@ document.addEventListener('languageChanged', function(event) {
         initDatePicker();
     
     populateCitiesDropdown(); // Обновляем основной список
-    initDartMenu(); // Перестраиваем дартс-меню
-	
-	// Обновляем заголовки кнопок фильтров (с учётом состояния показано/скрыто)
-    updateMilEquipButtonTitle();
-    updateAttacksOnUaButtonTitle();
-    updateFortificationButtonTitle();
-    updateDateRangeButtonTitle();
+    initDartMenu(); // Перестраиваем дартс-меню	
 });
 
 // Обработчики кнопок переключения языка
