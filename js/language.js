@@ -17,7 +17,14 @@ const translations = {
         prevBtnTitle: "Предыдущий",
         nextBtnTitle: "Следующий",
         lastBtnTitle: "Сегодня",
-        
+        		
+        // Переводы для выпадающего списка диапазонов
+        rangeWeek: "1 неделя",
+        rangeMonth: "1 месяц",
+        range3Months: "3 месяца",
+        range6Months: "6 месяцев",
+        rangeYear: "1 год",
+		
         showEquipment: 'Показать технику',
         hideEquipment: 'Скрыть технику',        
         
@@ -77,6 +84,12 @@ const translations = {
         nextBtnTitle: "Next",
         lastBtnTitle: "Today",
         
+		rangeWeek: "1 week",
+        rangeMonth: "1 month",
+        range3Months: "3 months",
+        range6Months: "6 months",
+        rangeYear: "1 year",
+		
         showEquipment: 'Show equipment',
         hideEquipment: 'Hide equipment',
         
@@ -230,6 +243,17 @@ function setLanguage(lang) {
     document.getElementById('prev-btn').title = t.prevBtnTitle;
     document.getElementById('next-btn').title = t.nextBtnTitle;
     document.getElementById('last-btn').title = t.lastBtnTitle;
+	
+	// Обновление текста в выпадающем списке диапазонов дат
+    const rangeOptions = document.querySelectorAll('#date-range-dropdown .range-option');
+    if (rangeOptions.length >= 5) {
+        // Порядок: неделя, месяц, 3 месяца, 6 месяцев, год
+        rangeOptions[0].textContent = t.rangeWeek;
+        rangeOptions[1].textContent = t.rangeMonth;
+        rangeOptions[2].textContent = t.range3Months;
+        rangeOptions[3].textContent = t.range6Months;
+        rangeOptions[4].textContent = t.rangeYear;
+    }
     
     // Обновляем title кнопки переключения слоев
     const layersToggleLink = document.querySelector('.leaflet-control-layers-toggle a');
