@@ -553,9 +553,16 @@
 }
 
 
+/* Переопределение стандартных */
+
 .leaflet-touch .leaflet-control-layers-toggle {
 	width: 30px;
 	height: 30px;
+}
+.leaflet-touch .leaflet-control-layers, .leaflet-touch .leaflet-bar
+{
+	border: none;
+	box-shadow: 0 1px 5px rgba(0,0,0,0.65);
 }
 
 
