@@ -548,6 +548,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
 let fullscreenToggle;
 
+// Функция обновления символа в зависимости от состояния fullscreen
+function updateFullscreenIcon() {
+	const isFullscreen = document.fullscreenElement ||
+						 document.webkitFullscreenElement ||
+						 document.mozFullScreenElement ||
+						 document.msFullscreenElement;
+	link.innerHTML = isFullscreen ? '✕' : '⛶';
+}
 function initFullscreenControl() {
     fullscreenToggle = L.control({ position: 'topright' });
     fullscreenToggle.onAdd = function(map) {
@@ -557,14 +565,6 @@ function initFullscreenControl() {
         link.title = translations[currentLang].fullscreenTitle || 'Полноэкранный режим';
         link.innerHTML = '⛶'; // начальный символ
 
-        // Функция обновления символа в зависимости от состояния fullscreen
-        function updateFullscreenIcon() {
-            const isFullscreen = document.fullscreenElement ||
-                                 document.webkitFullscreenElement ||
-                                 document.mozFullScreenElement ||
-                                 document.msFullscreenElement;
-            link.innerHTML = isFullscreen ? '✕' : '⛶';
-        }
 
         // Слушаем изменения полноэкранного режима (кросс-браузерно)
         document.addEventListener('fullscreenchange', updateFullscreenIcon);
@@ -589,6 +589,7 @@ function toggleFullscreen() {
     // Обновим размер карты после изменения отображения top-bar
     setTimeout(() => {
         map.invalidateSize();
+		updateFullscreenIcon();
     }, 100);
 }
 
