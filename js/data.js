@@ -51,8 +51,8 @@ window.kmlFiles = (window.dateList || []).map(dateStr => {
         switch(type) {
             case "ControlZones":
                 return `kml/ControlZones/Control_${formattedDate}.kml`;
-            case "FrontLine":
-                return `kml/FrontLine/FrontLine_${formattedDate}.kml`;
+           // case "FrontLine":
+            //    return `kml/FrontLine/FrontLine_${formattedDate}.kml`;
             //case "ProgressRuAF":
             //    return `kml/Progress/RuAF/ProgressRuAF_${formattedDate}.kml`;
             //case "ProgressAFU":
@@ -82,7 +82,7 @@ window.permanentLayers = [
 		{ name: "Области",        path: "kml/PermanentObjects/Области.kml" },
 	
     // Текущая ЛБС
-     { name: "Current_frontline",      path: "kml/FrontLine/FrontLine_26_02_10.kml" },
+     { name: "Current_frontline",      path: "kml/FrontLine/FrontLine_26_02_26.kml" },
 	
 	    // Граница ЛДНР без Ростовской области
     // { name: "LDPR",                   path: "kml/PermanentObjects/LDPR_line3.kml" },
@@ -152,6 +152,7 @@ window.fortificationKmlPaths = ["kml/Fortifications/Geojson/Trenches_Pokrovsk2.g
                                 //"kml/Fortifications/Geojson/Dragons_teeth.geojson",
 							    "kml/Fortifications/Geojson/teeth.geojson"];
 window.fortificationLayers = [];
+
 
 
 
