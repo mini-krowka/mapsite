@@ -569,6 +569,10 @@
   font-size: 1.75rem;
 }
 
+.leaflet-marker-icon.leaflet-zoom-animated.leaflet-interactive { /* Убрать стрелки на линиях */
+    display: none;
+}
 
-
-
+.leaflet-marker-pane .polyline-measure-tooltip:first-child { /* Убрать первый тултип с +0 */
+    display: none;
+}
