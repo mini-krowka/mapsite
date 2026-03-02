@@ -80,28 +80,21 @@ window.kmlFiles = (window.dateList || []).map(dateStr => {
 window.permanentLayers = [
 	// Области
 		{ name: "Области",        path: "kml/PermanentObjects/Области.kml" },
-	
-    // Текущая ЛБС
+	    // Текущая ЛБС
      { name: "Current_frontline",      path: "kml/FrontLine/FrontLine_26_02_26.kml" },
-	
-	    // Граница ЛДНР без Ростовской области
+		    // Граница ЛДНР без Ростовской области
     // { name: "LDPR",                   path: "kml/PermanentObjects/LDPR_line3.kml" },
 	{ name: "LDPR",                   path: "kml/PermanentObjects/LDPR_Border.kml" },
-	
-    //Конституционная граница РФ
+	    //Конституционная граница РФ
     { name: "RuUaBorder",             path: "kml/PermanentObjects/RuUaBorder.kml" },
-	
-        //Единая линия на 10.10.23
+	        //Единая линия на 10.10.23
     { name: "Offensive_23_10_10",     path: "kml/PermanentObjects/OffensiveLine_2023_10_10.kml" },
-	
-	// { name: "Offensive_23_10_10",     path: "kml/PermanentObjects/FrontLine_2023_10_10.kml" },
+		// { name: "Offensive_23_10_10",     path: "kml/PermanentObjects/FrontLine_2023_10_10.kml" },
     //Линия максимального продвижения ВСУ в Курской области.
     { name: "AFU_advance_Kursk2024",  path: "kml/PermanentObjects/AFU_advance_Kursk2024.kml" },
-	
-    // Контур максимального продвижения в Доброполье
+	    // Контур максимального продвижения в Доброполье
      { name: "Добропольский прорыв",  path: "kml/PermanentObjects/Доброполье.kml" },
-	
-	// Мультиполигон
+		// Мультиполигон
     { name: "Мультиполигон",         path: "kml/PermanentObjects/CitiesBorders.kml" }
 		
 ];
@@ -154,6 +147,7 @@ window.fortificationKmlPaths = ["kml/Fortifications/Geojson/Trenches_Pokrovsk2.g
                                 //"kml/Fortifications/Geojson/Dragons_teeth.geojson",
 							    "kml/Fortifications/Geojson/teeth.geojson"];
 window.fortificationLayers = [];
+
 
 
 
