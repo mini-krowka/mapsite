@@ -124,10 +124,10 @@ window.cities = [
 
 // Управление точками
 // Путь к файлу с точками
-window.pointsKmlPaths = ["kml/Geolocations/2026 год январь.kml",
+// window.pointsKmlPaths = ["kml/Geolocations/2026 год январь.kml",
 						  "kml/Geolocations/2023-2025.kml"];
-// window.pointsKmlPaths = ["kml/Geolocations/lastPoint.kml",
-//                          "kml/Geolocations/oldesPoint.kml"];
+ window.pointsKmlPaths = ["kml/Geolocations/lastPoint.kml",
+                          "kml/Geolocations/oldesPoint.kml"];
 // window.pointsKmlPaths = ["kml/Geolocations/exportToKML.kml"];
 // window.pointsKmlPaths = [];
  window.pointLayers = [];
@@ -154,6 +154,7 @@ window.fortificationKmlPaths = ["kml/Fortifications/Geojson/Trenches_Pokrovsk2.g
                                 //"kml/Fortifications/Geojson/Dragons_teeth.geojson",
 							    "kml/Fortifications/Geojson/teeth.geojson"];
 window.fortificationLayers = [];
+
 
 
 
