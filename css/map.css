@@ -569,10 +569,10 @@
   font-size: 1.75rem;
 }
 
-div.leaflet-marker-icon.leaflet-zoom-animated.leaflet-interactive { /* Убрать стрелки на линиях */ /* div - чтобы скрывались стрелки, но не точки (флаги, техника и т.д.), у которых img */
+.leaflet-marker-icon.leaflet-zoom-animated.leaflet-interactive { /* Убрать стрелки на линиях */
     display: none;
 }
 
-.leaflet-marker-pane .polyline-measure-tooltip:first-child { /* Убрать первый тултип с +0 */
-    display: none;
-}
+/* .polyline-measure-tooltip:first-child { /* Убрать первый тултип с +0 */ */
+    /* display: none; */
+/* } */
