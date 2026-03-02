@@ -573,6 +573,6 @@
     display: none;
 }
 
-.leaflet-marker-pane .polyline-measure-tooltip:first-child { /* Убрать первый тултип с +0 */
+.polyline-measure-tooltip:first-child { /* Убрать первый тултип с +0 */
     display: none;
 }
