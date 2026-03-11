@@ -2199,6 +2199,8 @@ function getStartDateByRange(rangeType, baseDate = null) {
             result.setDate(result.getDate() - 7); // По умолчанию 1 неделя
     }
     
+    result.setDate(result.getDate() + 1); // включаем сегодня
+    
     return result;
 }
 
