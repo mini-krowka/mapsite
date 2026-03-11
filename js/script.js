@@ -3362,7 +3362,7 @@ function initDartMenu() {
     
     // Обработчик изменения размера окна
     function handleResize() {
-        if (window.innerWidth < 1838) {
+        if (window.innerWidth < 1201) {
             hideableItems.forEach(item => item.style.display = 'none');
             navMenuToggle.style.display = 'flex';
         } else {
