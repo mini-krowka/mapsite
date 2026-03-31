@@ -4031,20 +4031,6 @@ document.addEventListener('click', function(e) {
     }
 });
 
-
-// Создание списка чекбоксов категорий
-function buildEquipmentFilterMenu() {
-    const container = document.getElementById('equip-category-list');
-    if (!container) return;
-    
-    container.innerHTML = '';
-    EQUIPMENT_CATEGORIES.forEach(cat => {
-        const div = document.createElement('div');
-        div.innerHTML = `<label><input type="checkbox" class="equip-cat-checkbox" value="${cat}" checked> ${cat}</label>`;
-        container.appendChild(div);
-    });
-}
-
 // Обновление состояния чекбоксов и фильтра
 function updateEquipmentFilter() {
     const selectAll = document.getElementById('equip-select-all');
