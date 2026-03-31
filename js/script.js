@@ -1071,96 +1071,71 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup, styleM
         }
 
         // Обновленная функция parseAndAddPoint с использованием новой функции
-        function parseAndAddPoint(pointElement, date, position, descriptionUrl, iconGetter = getPointIcon) {
-            const coordinates = parseCoordinates(pointElement, map.options.crs);
-            if (coordinates.length < 1) {
-                if (LOG_STYLES) console.log(`Point skipped - insufficient coordinates: ${coordinates.length}`);
-                return null;
-            }
+        function parseAndAddPoint(pointElement, date, position, descriptionUrl, name, extendedData, iconGetter) {
+			const coordinates = parseCoordinates(pointElement, map.options.crs);
+			if (coordinates.length < 1) {
+				if (LOG_STYLES) console.log(`Point skipped - insufficient coordinates: ${coordinates.length}`);
+				return null;
+			}
 
-            const [lat, lng] = coordinates[0];
-            
-            // Проверяем, попадает ли точка в диапазон дат (только для обычных точек)
-            // Не применяем фильтр для техники (getMilEquipIcon) и атак по Украине (getAttacksOnUaIcon)
-            if (iconGetter !== getMilEquipIcon && 
-                iconGetter !== getAttacksOnUaIcon && 
-                date && window.pointsDateRange && 
-                !isDateInRange(date, window.pointsDateRange.start, window.pointsDateRange.end)) {
-                return null; // Пропускаем точку, если она не в диапазоне
-            }
+			const [lat, lng] = coordinates[0];
+			
+			// Фильтр по дате (для обычных точек)
+			if (iconGetter !== getMilEquipIcon && 
+				iconGetter !== getAttacksOnUaIcon && 
+				date && window.pointsDateRange && 
+				!isDateInRange(date, window.pointsDateRange.start, window.pointsDateRange.end)) {
+				return null;
+			}
 
-            // Парсим extendedData для всех точек
-            const extendedData = parseExtendedData(placemark);
+			// Определяем категорию
+			let category;
+			if (iconGetter === getMilEquipIcon) {
+				category = extendedData['Тип техники'] || extendedData['equipment_type'] || position;
+			} else if (iconGetter === getAttacksOnUaIcon) {
+				category = extendedData['Тип объекта'] || extendedData['object_type'] || position;
+			} else {
+				category = position;
+			}
+			
+			// Получаем иконку
+			const icon = iconGetter(category);
+			
+			// Создаём маркер
+			const marker = L.marker([lat, lng], { icon: icon }).addTo(layerGroup);
+			
+			// Для техники сохраняем в глобальный массив
+			if (iconGetter === getMilEquipIcon) {
+				if (!window.allEquipmentMarkers) window.allEquipmentMarkers = [];
+				window.allEquipmentMarkers.push({ marker: marker, category: category });
+				marker.category = category;
+			}
+			
+			// Форматируем название и создаём popup
+			const formattedName = formatNameWithLinks(name);
+			const coordsString = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+			const isEquipment = iconGetter === getMilEquipIcon;
+			const isAttackOnUa = iconGetter === getAttacksOnUaIcon;
 
-            // Определяем категорию в зависимости от типа иконки
-            let category;
-            if (iconGetter === getMilEquipIcon) {
-                // Для техники используем поле "Тип техники"
-                const marker = L.marker([lat, lng], {icon: icon}).addTo(layerGroup);
-
-                // Определяем категорию
-                const category = extendedData['Тип техники'] || extendedData['equipment_type'] || position;
-
-                // Сохраняем маркер и категорию
-                if (!window.allEquipmentMarkers) window.allEquipmentMarkers = [];
-                window.allEquipmentMarkers.push({ marker: marker, category: category });
-
-                // Прикрепляем категорию к самому маркеру (для удобства)
-                marker.category = category;
-            } else if (iconGetter === getAttacksOnUaIcon) {
-                // Для атак по Украине используем поле "Тип объекта"
-                category = extendedData['Тип объекта'] || extendedData['object_type'] || position;
-            } else {
-                // Для обычных точек используем position
-                category = position;
-            }
-            
-            // Получаем иконку для точки с помощью переданной функции
-            const icon = iconGetter(category);
-            
-            // Создаем маркер с иконкой
-            const marker = L.marker([lat, lng], {icon: icon}).addTo(layerGroup);
-            
-            // Форматируем название - заменяем ссылки на кликабельные
-            const formattedName = formatNameWithLinks(name);
-            
-            // Создаем контент для popup
-            const coordsString = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
-            
-            // Определяем тип точки для отображения в popup
-            const isEquipment = iconGetter === getMilEquipIcon;
-            const isAttackOnUa = iconGetter === getAttacksOnUaIcon;
-
-            // Используем категорию как equipmentType для popup
-            const popupContent = createPopupContent({
-                formattedName,
-                date,
-                equipmentType: category, // Используем определенную категорию
-                coordsString,
-                descriptionUrl,
-                isEquipment: isEquipment,
-                isAttackOnUa: isAttackOnUa, // Передаем флаг для атак на Украину
-                extendedData: isEquipment || isAttackOnUa ? extendedData : {} // Передаем extendedData для техники и атак
-            });
-            
-            marker.bindPopup(popupContent);
-            
-            
-            if (LOG_STYLES) {
-                console.log(`Point added:`, { 
-                    name, 
-                    date, 
-                    category: category,
-                    descriptionUrl, 
-                    coordinates: [lat, lng], 
-                    iconGetter: iconGetter.name,
-                    isEquipment: isEquipment,
-                    isAttackOnUa: isAttackOnUa
-                });
-            }
-            
-            return marker;
-        }
+			const popupContent = createPopupContent({
+				formattedName,
+				date,
+				equipmentType: category,
+				coordsString,
+				descriptionUrl,
+				isEquipment,
+				isAttackOnUa,
+				extendedData: isEquipment || isAttackOnUa ? extendedData : {}
+			});
+			
+			marker.bindPopup(popupContent);
+			
+			if (LOG_STYLES) {
+				console.log(`Point added:`, { name, date, category, descriptionUrl, coordinates: [lat, lng], iconGetter: iconGetter.name });
+			}
+			
+			return marker;
+		}
 
         // Функция для форматирования названия с заменой ссылок на кликабельные
         function formatNameWithLinks(name) 
@@ -1215,10 +1190,10 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup, styleM
                     equipmentType : 
                     (extendedData['позиция'] || extendedData['position']);
                     
-                const pnt = parseAndAddPoint(point, date, position, descriptionUrl, iconGetter);
+                const pnt = parseAndAddPoint(point, date, position, descriptionUrl, name, extendedData, iconGetter);
             });
         }
-
+		
         // Обработка Polygon (не в MultiGeometry)
         const polygon = placemark.querySelector('Polygon');
         if (polygon && !multiGeometry) {                
@@ -1232,21 +1207,18 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup, styleM
         }
         
         // Обработка Point (не в MultiGeometry)
-        const point = placemark.querySelector('Point');
-        if (point && !multiGeometry) {
-            const extendedData = parseExtendedData(placemark);
-            const date = extendedData['дата'] || extendedData['date'];
-            // Для техники используем категорию из "Тип техники"
-            const equipmentType = extendedData['Тип техники'] || extendedData['equipment_type'];
-            const descriptionUrl = extendedData['описание'] || extendedData['description'];
-            
-            // Если это слой техники и есть категорию, используем ее
-            const position = (iconGetter === getMilEquipIcon && equipmentType) ? 
-                equipmentType : 
-                (extendedData['позиция'] || extendedData['position']);
-            
-            const pnt = parseAndAddPoint(point, date, position, descriptionUrl, iconGetter);
-        }
+		const point = placemark.querySelector('Point');
+		if (point && !multiGeometry) {
+			const extendedData = parseExtendedData(placemark);
+			const date = extendedData['дата'] || extendedData['date'];
+			const equipmentType = extendedData['Тип техники'] || extendedData['equipment_type'];
+			const descriptionUrl = extendedData['описание'] || extendedData['description'];
+			const position = (iconGetter === getMilEquipIcon && equipmentType) ? 
+				equipmentType : 
+				(extendedData['позиция'] || extendedData['position']);
+			
+			const pnt = parseAndAddPoint(point, date, position, descriptionUrl, name, extendedData, iconGetter);
+		}
         
         if (LOG_STYLES) console.groupEnd(); // Закрываем группу Placemark
     });
