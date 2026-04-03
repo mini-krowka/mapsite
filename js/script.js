@@ -37,6 +37,13 @@ window.allEquipmentMarkers = []; // { marker, category }
 // Текущий фильтр: null — все, иначе массив выбранных категорий
 window.selectedEquipmentCategories = null;
 
+document.addEventListener('DOMContentLoaded', function() {
+    const equipMenu = document.getElementById('equipment-filter-menu');
+    if (equipMenu && equipMenu.parentNode !== document.body) {
+        document.body.appendChild(equipMenu);
+    }
+});
+
 
 // Получаем массив доступных дат из kmlFiles
 const availableDates = kmlFiles.map(file => file.name);
@@ -4089,9 +4096,9 @@ function toggleEquipmentMenu() {
     const isVisible = menu.style.display === 'block';
     
     if (!isVisible) {
-        // Позиционируем меню под кнопкой
         const btn = document.getElementById('mil-equip-btn');
         const rect = btn.getBoundingClientRect();
+        // Теперь меню находится в body, поэтому используем координаты относительно окна
         menu.style.top = (rect.bottom + window.scrollY) + 'px';
         menu.style.left = (rect.left + window.scrollX) + 'px';
         menu.style.display = 'block';
