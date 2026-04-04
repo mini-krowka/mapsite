@@ -38,7 +38,7 @@ const equipmentCategories = [
 // Хранилище всех маркеров техники
 window.allEquipmentMarkers = []; // { marker, category }
 // Текущий фильтр: null — все, иначе массив выбранных категорий
-window.selectedEquipmentCategories = null;
+window.selectedEquipmentCategories = [];
 
 document.addEventListener('DOMContentLoaded', function() {
     const equipMenu = document.getElementById('equipment-filter-menu');
@@ -1682,7 +1682,7 @@ function buildEquipmentFilterMenu() {
     container.innerHTML = '';
     equipmentCategories.forEach(cat => {
         const div = document.createElement('div');
-        div.innerHTML = `<label><input type="checkbox" class="equip-cat-checkbox" value="${cat.value}" checked> ${cat.label}</label>`;
+        div.innerHTML = `<label><input type="checkbox" class="equip-cat-checkbox" value="${cat.value}"> ${cat.label}</label>`;
         container.appendChild(div);
     });
 }
@@ -1693,8 +1693,13 @@ function restoreEquipmentFilterState() {
     const catCheckboxes = document.querySelectorAll('.equip-cat-checkbox');
     
     if (window.selectedEquipmentCategories === null) {
+        // все категории выбраны
         selectAll.checked = true;
         catCheckboxes.forEach(cb => cb.checked = true);
+    } else if (window.selectedEquipmentCategories.length === 0) {
+        // ничего не выбрано
+        selectAll.checked = false;
+        catCheckboxes.forEach(cb => cb.checked = false);
     } else {
         selectAll.checked = false;
         catCheckboxes.forEach(cb => {
@@ -1720,7 +1725,11 @@ function updateEquipmentFilter() {
     }
     
     const milEquipBtn = document.getElementById('mil-equip-btn');
-    if (window.selectedEquipmentCategories && window.selectedEquipmentCategories.length === 0) {
+    if (window.selectedEquipmentCategories === null) {
+        window.isMilEquipVisible = true;
+        milEquipBtn.classList.add('active');
+        applyEquipmentFilter();
+    } else if (window.selectedEquipmentCategories.length === 0) {
         window.isMilEquipVisible = false;
         milEquipBtn.classList.remove('active');
         hideAllEquipmentMarkers();
@@ -1730,11 +1739,10 @@ function updateEquipmentFilter() {
         applyEquipmentFilter();
     }
     
-    // Синхронизация "Все" с чекбоксами
+    // синхронизация состояния чекбокса "Все"
     const allChecked = Array.from(catCheckboxes).every(cb => cb.checked);
-    if (allChecked) {
-        selectAll.checked = true;
-    }
+    if (allChecked && !selectAll.checked) selectAll.checked = true;
+    if (!allChecked && selectAll.checked) selectAll.checked = false;
 }
 
 // Применить текущий фильтр к видимости маркеров
@@ -1796,12 +1804,12 @@ function toggleEquipmentMenu() {
         
         // Если техника ещё не загружена, загружаем
         if (window.allEquipmentMarkers.length === 0) {
-            initMilequipLayer(window.milequipKmlPaths).then(() => {
-                applyEquipmentFilter();
-            });
-        } else {
-            applyEquipmentFilter();
-        }
+			initMilequipLayer(window.milequipKmlPaths).then(() => {
+				applyEquipmentFilter();   // применит текущий фильтр (скорее всего пустой)
+			});
+		} else {
+			applyEquipmentFilter();
+		}
     } else {
         menu.style.display = 'none';
     }
@@ -2961,6 +2969,7 @@ async function init() {
     // Построить меню фильтра техники
     buildEquipmentFilterMenu();
     initEquipmentFilterListeners();
+	restoreEquipmentFilterState();
     // обработчик для кнопки атак на Украину
     const attacksOnUaBtn = document.getElementById('attacks-on-ua-btn');
     if (attacksOnUaBtn) {
