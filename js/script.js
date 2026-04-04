@@ -1693,11 +1693,9 @@ function restoreEquipmentFilterState() {
     const catCheckboxes = document.querySelectorAll('.equip-cat-checkbox');
     
     if (window.selectedEquipmentCategories === null) {
-        // все категории выбраны
         selectAll.checked = true;
         catCheckboxes.forEach(cb => cb.checked = true);
     } else if (window.selectedEquipmentCategories.length === 0) {
-        // ничего не выбрано
         selectAll.checked = false;
         catCheckboxes.forEach(cb => cb.checked = false);
     } else {
@@ -1792,24 +1790,25 @@ function toggleEquipmentMenu() {
     const isVisible = menu.style.display === 'block';
     
     if (!isVisible) {
-        // Позиционируем меню под кнопкой
         const btn = document.getElementById('mil-equip-btn');
         const rect = btn.getBoundingClientRect();
         menu.style.top = (rect.bottom + window.scrollY) + 'px';
         menu.style.left = (rect.left + window.scrollX) + 'px';
         menu.style.display = 'block';
         
-        // Восстанавливаем состояние чекбоксов
+        // Восстанавливаем состояние чекбоксов из глобальной переменной
         restoreEquipmentFilterState();
         
-        // Если техника ещё не загружена, загружаем
+        // Если техника ещё не загружена, загружаем её, но не меняем фильтр
         if (window.allEquipmentMarkers.length === 0) {
-			initMilequipLayer(window.milequipKmlPaths).then(() => {
-				applyEquipmentFilter();   // применит текущий фильтр (скорее всего пустой)
-			});
-		} else {
-			applyEquipmentFilter();
-		}
+            initMilequipLayer(window.milequipKmlPaths).then(() => {
+                // Применяем текущий фильтр (который пустой, если ничего не выбрано)
+                applyEquipmentFilter();
+            });
+        } else {
+            // Просто применяем текущий фильтр
+            applyEquipmentFilter();
+        }
     } else {
         menu.style.display = 'none';
     }
@@ -4022,6 +4021,7 @@ document.addEventListener('click', function(e) {
     }
 });
 
+/*
 // Обновление состояния чекбоксов и фильтра
 function updateEquipmentFilter() {
     const selectAll = document.getElementById('equip-select-all');
@@ -4166,6 +4166,6 @@ function initEquipmentFilterListeners() {
 }
 
 
-
+*/
 
 
