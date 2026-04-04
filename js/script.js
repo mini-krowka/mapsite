@@ -27,7 +27,7 @@ const equipmentCategories = [
     { value: 'БПЛА',                      label: 'БПЛА' },
     { value: 'Бронированный транспорт',   label: 'Бронемашины' },
     { value: 'ПВО',                       label: 'ПВО' },
-    { value: 'Танк',                      label: 'Танк' },
+    { value: 'Танки',                     label: 'Танк' },
     { value: 'Небронированный транспорт', label: 'Транспорт' },
     { value: 'Другое',                    label: 'Другое' },
     { value: 'Другое/Нет данных',         label: 'Нет данных' }
