@@ -22,15 +22,15 @@ let isFortificationVisible = false; // Флаг видимости слоя фо
 
 // Единый список категорий техники: порядок, оригинальное значение, отображаемое название
 const equipmentCategories = [
-    { value: 'Авиация',                   label: 'Авиация' },
-    { value: 'Артиллерия',                label: 'Артиллерия' },
-    { value: 'БПЛА',                      label: 'БПЛА' },
-    { value: 'Бронированный транспорт',   label: 'Бронемашины' },
-    { value: 'ПВО',                       label: 'ПВО' },
-    { value: 'Танк',                      label: 'Танки' },
-    { value: 'Небронированный транспорт', label: 'Транспорт' },
-    { value: 'Другое',                    label: 'Другое' },
-    { value: 'Другое/Нет данных',         label: 'Нет данных' }
+    { tag: 'Авиация',                   labelRu: 'Авиация',      labelEn: 'Aircraft' },
+    { tag: 'Артиллерия',                labelRu: 'Артиллерия',   labelEn: 'Artillery' },
+    { tag: 'БПЛА',                      labelRu: 'БПЛА',         labelEn: 'UAV' },
+    { tag: 'Бронированный транспорт',   labelRu: 'Бронемашины',  labelEn: 'AFV' },
+    { tag: 'ПВО',                       labelRu: 'ПВО',          labelEn: 'GBAD' },
+    { tag: 'Танк',                      labelRu: 'Танки',        labelEn: 'Tanks' },
+    { tag: 'Небронированный транспорт', labelRu: 'Транспорт',    labelEn: 'Vehicles' },
+    { tag: 'Другое',                    labelRu: 'Другое',       labelEn: 'Other' },
+    { tag: 'Другое/Нет данных',         labelRu: 'Нет данных',   labelEn: 'No data' }
 ];
 // Категории техники (ключи из getMilEquipIcon)
 // Для обратной совместимости с кодом, который использует массив значений

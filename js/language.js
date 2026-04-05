@@ -322,6 +322,13 @@ document.addEventListener('languageChanged', function(event) {
     
     populateCitiesDropdown(); // Обновляем основной список
     initDartMenu(); // Перестраиваем дартс-меню	
+	
+	// фильтр техники
+	initEquipmentFilter();
+    if (window.isMilEquipVisible) {
+        applyEquipmentFilter();
+    }
+	
 });
 
 // Обработчики кнопок переключения языка
