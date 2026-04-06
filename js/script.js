@@ -1835,7 +1835,7 @@ function toggleEquipmentMenu() {
         menu.style.display = 'block';
         
         // Восстанавливаем состояние чекбоксов из глобальной переменной
-        restoreEquipmentFilterState();
+        // restoreEquipmentFilterState();
         
         // Если техника ещё не загружена, загружаем её, но не меняем фильтр
         if (window.allEquipmentMarkers.length === 0) {
