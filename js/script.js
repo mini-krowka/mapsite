@@ -2972,7 +2972,7 @@ async function init() {
     }
     // Построить меню фильтра техники
     initEquipmentFilter();
-	restoreEquipmentFilterState();
+	// restoreEquipmentFilterState();
     // обработчик для кнопки атак на Украину
     const attacksOnUaBtn = document.getElementById('attacks-on-ua-btn');
     if (attacksOnUaBtn) {
