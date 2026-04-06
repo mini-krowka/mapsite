@@ -22,15 +22,15 @@ let isFortificationVisible = false; // Флаг видимости слоя фо
 
 // Единый список категорий техники: порядок, оригинальное значение, отображаемое название
 const equipmentCategories = [
-    { tag: 'Авиация',                   labelRu: 'Авиация',      labelEn: 'Aircraft' },
-    { tag: 'Артиллерия',                labelRu: 'Артиллерия',   labelEn: 'Artillery' },
-    { tag: 'БПЛА',                      labelRu: 'БПЛА',         labelEn: 'UAV' },
-    { tag: 'Бронированный транспорт',   labelRu: 'Бронемашины',  labelEn: 'AFV' },
-    { tag: 'ПВО',                       labelRu: 'ПВО',          labelEn: 'GBAD' },
-    { tag: 'Танк',                      labelRu: 'Танки',        labelEn: 'Tanks' },
-    { tag: 'Небронированный транспорт', labelRu: 'Транспорт',    labelEn: 'Vehicles' },
-    { tag: 'Другое',                    labelRu: 'Другое',       labelEn: 'Other' },
-    { tag: 'Другое/Нет данных',         labelRu: 'Нет данных',   labelEn: 'No data' }
+    { tag: 'Авиация',                   labelRu: 'Авиация',     labelEn: 'Aircraft' },
+    { tag: 'Артиллерия',                labelRu: 'Артиллерия',  labelEn: 'Artillery' },
+    { tag: 'БПЛА',                      labelRu: 'БПЛА',        labelEn: 'UAV' },
+    { tag: 'Бронированный транспорт',   labelRu: 'Бронемашины', labelEn: 'AFV' },
+    { tag: 'ПВО',                       labelRu: 'ПВО',         labelEn: 'GBAD' },
+    { tag: 'Танк',                      labelRu: 'Танки',       labelEn: 'Tanks' },
+    { tag: 'Небронированный транспорт', labelRu: 'Транспорт',   labelEn: 'Vehicles' },
+    { tag: 'Другое',                    labelRu: 'Другое',      labelEn: 'Other' },
+    { tag: 'Другое/Нет данных',         labelRu: 'Нет данных',  labelEn: 'No data' }
 ];
 // Категории техники (ключи из getMilEquipIcon)
 // Для обратной совместимости с кодом, который использует массив значений
@@ -1674,8 +1674,58 @@ async function initMilequipLayer(kmlFilePaths) {
     return milequipLayerGroup;
 }
 
+// единая функция initEquipmentFilter, которая строит меню с учётом текущего языка и восстанавливает состояние фильтра:
+function initEquipmentFilter() {
+    const container = document.getElementById('equip-category-list');
+    if (!container) return;
+    
+    // Строим чекбоксы на текущем языке
+    container.innerHTML = '';
+    equipmentCategories.forEach(cat => {
+        const label = currentLang === 'ru' ? cat.labelRu : cat.labelEn;
+        const div = document.createElement('div');
+        div.innerHTML = `<label><input type="checkbox" class="equip-cat-checkbox" value="${cat.tag}"> ${label}</label>`;
+        container.appendChild(div);
+    });
+    
+    // Восстанавливаем предыдущее состояние выбора
+    const selectAll = document.getElementById('equip-select-all');
+    const catCheckboxes = document.querySelectorAll('.equip-cat-checkbox');
+    
+    if (window.selectedEquipmentCategories === null) {
+        selectAll.checked = true;
+        catCheckboxes.forEach(cb => cb.checked = true);
+    } else if (window.selectedEquipmentCategories.length === 0) {
+        selectAll.checked = false;
+        catCheckboxes.forEach(cb => cb.checked = false);
+    } else {
+        selectAll.checked = false;
+        catCheckboxes.forEach(cb => {
+            cb.checked = window.selectedEquipmentCategories.includes(cb.value);
+        });
+    }
+    
+    // Навешиваем обработчики
+    selectAll.addEventListener('change', function() {
+        if (this.checked) {
+            catCheckboxes.forEach(cb => cb.checked = true);
+        } else {
+            catCheckboxes.forEach(cb => cb.checked = false);
+        }
+        updateEquipmentFilter();
+    });
+    
+    catCheckboxes.forEach(cb => {
+        cb.addEventListener('change', function() {
+            const allChecked = Array.from(catCheckboxes).every(c => c.checked);
+            selectAll.checked = allChecked;
+            updateEquipmentFilter();
+        });
+    });
+}
 
 // Создание списка чекбоксов категорий
+/*
 function buildEquipmentFilterMenu() {
     const container = document.getElementById('equip-category-list');
     if (!container) return;
@@ -1686,6 +1736,7 @@ function buildEquipmentFilterMenu() {
         container.appendChild(div);
     });
 }
+*/
 
 // Восстановление состояния чекбоксов из глобальных переменных
 function restoreEquipmentFilterState() {
@@ -1815,6 +1866,7 @@ function toggleEquipmentMenu() {
 }
 
 // Инициализация обработчиков для чекбоксов
+/*
 function initEquipmentFilterListeners() {
     const selectAll = document.getElementById('equip-select-all');
     const catCheckboxes = document.querySelectorAll('.equip-cat-checkbox');
@@ -1846,6 +1898,7 @@ function initEquipmentFilterListeners() {
     });
 }
 
+*/
 
 // Функция для инициализации слоя с атаками на Украину
 async function initAttacksOnUaLayer(kmlFilePaths) {
@@ -2966,8 +3019,7 @@ async function init() {
         updateMilEquipButtonTitle(); // Инициализируем заголовок
     }
     // Построить меню фильтра техники
-    buildEquipmentFilterMenu();
-    initEquipmentFilterListeners();
+    initEquipmentFilter();
 	restoreEquipmentFilterState();
     // обработчик для кнопки атак на Украину
     const attacksOnUaBtn = document.getElementById('attacks-on-ua-btn');

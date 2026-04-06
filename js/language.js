@@ -26,7 +26,9 @@ const translations = {
         rangeYear: "1 год",
 		
         showEquipment: 'Показать технику',
-        hideEquipment: 'Скрыть технику',        
+        hideEquipment: 'Скрыть технику',
+        
+        selectAll: "Все",
         
         showAttacksOnUa: 'Показать удары по территории Украины',
         hideAttacksOnUa: 'Скрыть удары по территории Украины',
@@ -92,6 +94,8 @@ const translations = {
 		
         showEquipment: 'Show equipment',
         hideEquipment: 'Hide equipment',
+        
+        selectAll: "All",
         
         showAttacksOnUa: 'Show attacks on Ukraine',
         hideAttacksOnUa: 'Hide attacks on Ukraine',		
