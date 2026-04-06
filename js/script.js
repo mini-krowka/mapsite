@@ -1676,12 +1676,21 @@ async function initMilequipLayer(kmlFilePaths) {
     return milequipLayerGroup;
 }
 
+// Синхронизация чекбокса "Всё" на основе выбранных категорий
+function syncSelectAllState() {
+    const selectAll = document.getElementById('equip-select-all');
+    const catCheckboxes = document.querySelectorAll('.equip-cat-checkbox');
+    if (!selectAll) return;
+    
+    const allChecked = Array.from(catCheckboxes).every(cb => cb.checked);
+    selectAll.checked = allChecked;
+}
+
 // единая функция initEquipmentFilter, которая строит меню с учётом текущего языка и восстанавливает состояние фильтра:
 function initEquipmentFilter() {
     const container = document.getElementById('equip-category-list');
     if (!container) return;
     
-    // Построение чекбоксов на текущем языке
     container.innerHTML = '';
     equipmentCategories.forEach(cat => {
         const label = currentLang === 'ru' ? cat.labelRu : cat.labelEn;
@@ -1707,10 +1716,19 @@ function initEquipmentFilter() {
         });
     }
     
-    // Обработчики – только вызов updateEquipmentFilter
-    selectAll.addEventListener('change', () => updateEquipmentFilter());
+    // Обработчик для "Всё"
+    selectAll.addEventListener('change', function() {
+        const isChecked = this.checked;
+        catCheckboxes.forEach(cb => cb.checked = isChecked);
+        updateEquipmentFilter(); // применить фильтр
+    });
+    
+    // Обработчик для каждой категории
     catCheckboxes.forEach(cb => {
-        cb.addEventListener('change', () => updateEquipmentFilter());
+        cb.addEventListener('change', function() {
+            syncSelectAllState();   // обновить состояние "Всё"
+            updateEquipmentFilter(); // применить фильтр
+        });
     });
 }
 
@@ -1742,39 +1760,25 @@ function updateEquipmentFilter() {
     const catCheckboxes = document.querySelectorAll('.equip-cat-checkbox');
     const milEquipBtn = document.getElementById('mil-equip-btn');
     
-    // Если чекбокс "Все" отмечен – выбираем все категории, сбрасываем фильтр
     if (selectAll.checked) {
         window.selectedEquipmentCategories = null;
         window.isMilEquipVisible = true;
         milEquipBtn.classList.add('active');
-        // Отмечаем все категории (если вдруг какие-то сняты)
-        catCheckboxes.forEach(cb => cb.checked = true);
-        applyEquipmentFilter(); // показываем все маркеры
-    } 
-    else {
-        // "Все" не отмечен – собираем выбранные категории
+        applyEquipmentFilter();
+    } else {
         const selected = Array.from(catCheckboxes)
             .filter(cb => cb.checked)
             .map(cb => cb.value);
+        window.selectedEquipmentCategories = selected;
         
-        // Если выбраны все категории, переключаем "Все" в true и обрабатываем как "все"
-        if (selected.length === catCheckboxes.length) {
-            selectAll.checked = true;
-            // Рекурсивный вызов с новым состоянием – выходим из текущего
-            isUpdatingFilter = false;
-            updateEquipmentFilter();
-            return;
-        }
-        
-        window.selectedEquipmentCategories = selected.length > 0 ? selected : [];
-        if (window.selectedEquipmentCategories.length === 0) {
+        if (selected.length === 0) {
             window.isMilEquipVisible = false;
             milEquipBtn.classList.remove('active');
-            hideAllEquipmentMarkers(); // скрываем всю технику
+            hideAllEquipmentMarkers();
         } else {
             window.isMilEquipVisible = true;
             milEquipBtn.classList.add('active');
-            applyEquipmentFilter(); // показываем только выбранные категории
+            applyEquipmentFilter();
         }
     }
     
