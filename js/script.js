@@ -39,6 +39,8 @@ const equipmentCategories = [
 window.allEquipmentMarkers = []; // { marker, category }
 // Текущий фильтр: null — все, иначе массив выбранных категорий
 window.selectedEquipmentCategories = [];
+// Глобальный флаг для предотвращения рекурсии
+let isUpdatingFilter = false;
 
 document.addEventListener('DOMContentLoaded', function() {
     const equipMenu = document.getElementById('equipment-filter-menu');
@@ -1679,7 +1681,7 @@ function initEquipmentFilter() {
     const container = document.getElementById('equip-category-list');
     if (!container) return;
     
-    // Строим чекбоксы на текущем языке
+    // Построение чекбоксов на текущем языке
     container.innerHTML = '';
     equipmentCategories.forEach(cat => {
         const label = currentLang === 'ru' ? cat.labelRu : cat.labelEn;
@@ -1688,10 +1690,10 @@ function initEquipmentFilter() {
         container.appendChild(div);
     });
     
-    // Восстанавливаем предыдущее состояние выбора
     const selectAll = document.getElementById('equip-select-all');
     const catCheckboxes = document.querySelectorAll('.equip-cat-checkbox');
     
+    // Восстановление состояния из глобальных переменных
     if (window.selectedEquipmentCategories === null) {
         selectAll.checked = true;
         catCheckboxes.forEach(cb => cb.checked = true);
@@ -1705,38 +1707,12 @@ function initEquipmentFilter() {
         });
     }
     
-    // Навешиваем обработчики
-    selectAll.addEventListener('change', function() {
-        if (this.checked) {
-            catCheckboxes.forEach(cb => cb.checked = true);
-        } else {
-            catCheckboxes.forEach(cb => cb.checked = false);
-        }
-        updateEquipmentFilter();
-    });
-    
+    // Обработчики – только вызов updateEquipmentFilter
+    selectAll.addEventListener('change', () => updateEquipmentFilter());
     catCheckboxes.forEach(cb => {
-        cb.addEventListener('change', function() {
-            const allChecked = Array.from(catCheckboxes).every(c => c.checked);
-            selectAll.checked = allChecked;
-            updateEquipmentFilter();
-        });
+        cb.addEventListener('change', () => updateEquipmentFilter());
     });
 }
-
-// Создание списка чекбоксов категорий
-/*
-function buildEquipmentFilterMenu() {
-    const container = document.getElementById('equip-category-list');
-    if (!container) return;
-    container.innerHTML = '';
-    equipmentCategories.forEach(cat => {
-        const div = document.createElement('div');
-        div.innerHTML = `<label><input type="checkbox" class="equip-cat-checkbox" value="${cat.value}"> ${cat.label}</label>`;
-        container.appendChild(div);
-    });
-}
-*/
 
 // Восстановление состояния чекбоксов из глобальных переменных
 function restoreEquipmentFilterState() {
@@ -1759,39 +1735,50 @@ function restoreEquipmentFilterState() {
 
 // Обновление фильтра при изменении чекбоксов
 function updateEquipmentFilter() {
+    if (isUpdatingFilter) return;
+    isUpdatingFilter = true;
+    
     const selectAll = document.getElementById('equip-select-all');
     const catCheckboxes = document.querySelectorAll('.equip-cat-checkbox');
+    const milEquipBtn = document.getElementById('mil-equip-btn');
     
-    const selected = Array.from(catCheckboxes)
-        .filter(cb => cb.checked)
-        .map(cb => cb.value);
-    
+    // Если чекбокс "Все" отмечен – выбираем все категории, сбрасываем фильтр
     if (selectAll.checked) {
         window.selectedEquipmentCategories = null;
+        window.isMilEquipVisible = true;
+        milEquipBtn.classList.add('active');
+        // Отмечаем все категории (если вдруг какие-то сняты)
         catCheckboxes.forEach(cb => cb.checked = true);
-    } else {
+        applyEquipmentFilter(); // показываем все маркеры
+    } 
+    else {
+        // "Все" не отмечен – собираем выбранные категории
+        const selected = Array.from(catCheckboxes)
+            .filter(cb => cb.checked)
+            .map(cb => cb.value);
+        
+        // Если выбраны все категории, переключаем "Все" в true и обрабатываем как "все"
+        if (selected.length === catCheckboxes.length) {
+            selectAll.checked = true;
+            // Рекурсивный вызов с новым состоянием – выходим из текущего
+            isUpdatingFilter = false;
+            updateEquipmentFilter();
+            return;
+        }
+        
         window.selectedEquipmentCategories = selected.length > 0 ? selected : [];
+        if (window.selectedEquipmentCategories.length === 0) {
+            window.isMilEquipVisible = false;
+            milEquipBtn.classList.remove('active');
+            hideAllEquipmentMarkers(); // скрываем всю технику
+        } else {
+            window.isMilEquipVisible = true;
+            milEquipBtn.classList.add('active');
+            applyEquipmentFilter(); // показываем только выбранные категории
+        }
     }
     
-    const milEquipBtn = document.getElementById('mil-equip-btn');
-    if (window.selectedEquipmentCategories === null) {
-        window.isMilEquipVisible = true;
-        milEquipBtn.classList.add('active');
-        applyEquipmentFilter();
-    } else if (window.selectedEquipmentCategories.length === 0) {
-        window.isMilEquipVisible = false;
-        milEquipBtn.classList.remove('active');
-        hideAllEquipmentMarkers();
-    } else {
-        window.isMilEquipVisible = true;
-        milEquipBtn.classList.add('active');
-        applyEquipmentFilter();
-    }
-    
-    // синхронизация состояния чекбокса "Все"
-    const allChecked = Array.from(catCheckboxes).every(cb => cb.checked);
-    if (allChecked && !selectAll.checked) selectAll.checked = true;
-    if (!allChecked && selectAll.checked) selectAll.checked = false;
+    isUpdatingFilter = false;
 }
 
 // Применить текущий фильтр к видимости маркеров
@@ -1864,41 +1851,6 @@ function toggleEquipmentMenu() {
         menu.style.display = 'none';
     }
 }
-
-// Инициализация обработчиков для чекбоксов
-/*
-function initEquipmentFilterListeners() {
-    const selectAll = document.getElementById('equip-select-all');
-    const catCheckboxes = document.querySelectorAll('.equip-cat-checkbox');
-    
-    selectAll.addEventListener('change', function() {
-        if (this.checked) {
-            catCheckboxes.forEach(cb => cb.checked = true);
-        } else {
-            catCheckboxes.forEach(cb => cb.checked = false);
-        }
-        updateEquipmentFilter();
-    });
-    
-    catCheckboxes.forEach(cb => {
-        cb.addEventListener('change', function() {
-            const allChecked = Array.from(catCheckboxes).every(c => c.checked);
-            selectAll.checked = allChecked;
-            updateEquipmentFilter();
-        });
-    });
-    
-    // Закрытие меню при клике вне его
-    document.addEventListener('click', function(e) {
-        const menu = document.getElementById('equipment-filter-menu');
-        const btn = document.getElementById('mil-equip-btn');
-        if (menu && btn && !menu.contains(e.target) && !btn.contains(e.target)) {
-            menu.style.display = 'none';
-        }
-    });
-}
-
-*/
 
 // Функция для инициализации слоя с атаками на Украину
 async function initAttacksOnUaLayer(kmlFilePaths) {
