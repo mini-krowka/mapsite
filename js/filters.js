@@ -54,6 +54,19 @@ const attackGroups = [
             'Склад боеприпасов'
             
          ]
+        
+    },
+    {
+        tag: 'group3',
+        labelRu: 'ГТС',
+        labelEn: 'GTS',
+        categories: [
+            'Газовая инфраструктура',
+            'ППД',
+            'Склад боеприпасов'
+            
+         ]
+        
     },
     {
         tag: 'group4',
@@ -97,7 +110,7 @@ const attackGroups = [
         labelEn: 'Warehouses',
         categories: [
             'Склад',
-            'Склад ГСМ'            
+            'Склад ГСМ'   
         ]
     },
     {
