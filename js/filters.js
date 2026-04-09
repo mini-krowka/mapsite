@@ -106,9 +106,8 @@ const attackGroups = [
         tag: 'group8',
         labelRu: 'Склады',
         labelEn: 'Warehouses',
-        categories: [
-            'Склад',
-            'Склад ГСМ',
+       categories: [
+            'Объект неустановленного назначения',
             'Склад',
             'Склад ГСМ'
             
