@@ -102,10 +102,11 @@ const attackGroups = [
             'Предприятие гражданского или двойного назначения'
         ]
     },
+    
     {
         tag: 'group8',
         labelRu: 'Склады',
-        labelEn: 'Factory',
+        labelEn: 'Warehouses',
         categories: [
             'Склад',
             'Склад ГСМ'
