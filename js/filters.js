@@ -48,8 +48,8 @@ const attackGroups = [
     },
     {
         tag: 'group2',
-        labelRu: 'Группа 2',
-        labelEn: 'Group 2',
+        labelRu: 'Военные объекты',
+        labelEn: 'Military sites',
         categories: [
             'ЖД инфраструктура',
             'Аэродром',
