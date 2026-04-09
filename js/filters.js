@@ -124,6 +124,18 @@ const attackGroups = [
             'Склад ГСМ'
             
         ]
+    },
+    {
+        tag: 'group10',
+        labelRu: 'Энергетика',
+        labelEn: 'Energy',
+        categories: [
+            'Энергогенерация',
+            'Подстанция',
+            'Склад',
+            'Склад ГСМ'
+            
+        ]
     }
 ];
 
