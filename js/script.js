@@ -15,32 +15,10 @@ let selectedDate = null; // Глобальная переменная для х�
 const LOG_STYLES = true; // Можно менять на false для отключения
 
 let currentDateRange = 'week'; // 'week', 'month', '3months', '6months', 'year'
-let isMilEquipVisible     = false; // Флаг видимости слоя техники
-let isAttacksOnUaVisible  = false; // Флаг видимости слоя атак по территории
+// let isMilEquipVisible     = false; // Флаг видимости слоя техники
+// let isAttacksOnUaVisible  = false; // Флаг видимости слоя атак по территории
 let isFortificationVisible = false; // Флаг видимости слоя фортификаций
 
-
-// Единый список категорий техники: порядок, оригинальное значение, отображаемое название
-const equipmentCategories = [
-    { tag: 'Авиация',                   labelRu: 'Авиация',     labelEn: 'Aircraft' },
-    { tag: 'Артиллерия',                labelRu: 'Артиллерия',  labelEn: 'Artillery' },
-    { tag: 'БПЛА',                      labelRu: 'БПЛА',        labelEn: 'UAV' },
-    { tag: 'Бронированный транспорт',   labelRu: 'Бронемашины', labelEn: 'AFV' },
-    { tag: 'ПВО',                       labelRu: 'ПВО',         labelEn: 'GBAD' },
-    { tag: 'Танк',                      labelRu: 'Танки',       labelEn: 'Tanks' },
-    { tag: 'Небронированный транспорт', labelRu: 'Транспорт',   labelEn: 'Vehicles' },
-    { tag: 'Другое',                    labelRu: 'Другое',      labelEn: 'Other' },
-    { tag: 'Другое/Нет данных',         labelRu: 'Нет данных',  labelEn: 'No data' }
-];
-// Категории техники (ключи из getMilEquipIcon)
-// Для обратной совместимости с кодом, который использует массив значений
-// const EQUIPMENT_CATEGORIES = equipmentCategories.map(cat => cat.value);
-// Хранилище всех маркеров техники
-window.allEquipmentMarkers = []; // { marker, category }
-// Текущий фильтр: null — все, иначе массив выбранных категорий
-window.selectedEquipmentCategories = [];
-// Глобальный флаг для предотвращения рекурсии
-let isUpdatingFilter = false;
 
 document.addEventListener('DOMContentLoaded', function() {
     const equipMenu = document.getElementById('equipment-filter-menu');
@@ -1122,6 +1100,11 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup, styleM
 				window.allEquipmentMarkers.push({ marker: marker, category: category });
 				marker.category = category;
 			}
+            if (iconGetter === getAttacksOnUaIcon) {
+                if (!window.allAttacksMarkers) window.allAttacksMarkers = [];
+                window.allAttacksMarkers.push({ marker: marker, category: category });
+                marker.category = category;
+            }
 			
 			// Форматируем название и создаём popup
 			const formattedName = formatNameWithLinks(name);
@@ -1676,185 +1659,6 @@ async function initMilequipLayer(kmlFilePaths) {
     return milequipLayerGroup;
 }
 
-// Синхронизация чекбокса "Всё" на основе выбранных категорий
-function syncSelectAllState() {
-    const selectAll = document.getElementById('equip-select-all');
-    const catCheckboxes = document.querySelectorAll('.equip-cat-checkbox');
-    if (!selectAll) return;
-    
-    const allChecked = Array.from(catCheckboxes).every(cb => cb.checked);
-    selectAll.checked = allChecked;
-}
-
-// единая функция initEquipmentFilter, которая строит меню с учётом текущего языка и восстанавливает состояние фильтра:
-function initEquipmentFilter() {
-    const container = document.getElementById('equip-category-list');
-    if (!container) return;
-    
-    container.innerHTML = '';
-    equipmentCategories.forEach(cat => {
-        const label = currentLang === 'ru' ? cat.labelRu : cat.labelEn;
-        const div = document.createElement('div');
-        div.innerHTML = `<label><input type="checkbox" class="equip-cat-checkbox" value="${cat.tag}"> ${label}</label>`;
-        container.appendChild(div);
-    });
-    
-    const selectAll = document.getElementById('equip-select-all');
-    const catCheckboxes = document.querySelectorAll('.equip-cat-checkbox');
-    
-    // Восстановление состояния из глобальных переменных
-    if (window.selectedEquipmentCategories === null) {
-        selectAll.checked = true;
-        catCheckboxes.forEach(cb => cb.checked = true);
-    } else if (window.selectedEquipmentCategories.length === 0) {
-        selectAll.checked = false;
-        catCheckboxes.forEach(cb => cb.checked = false);
-    } else {
-        selectAll.checked = false;
-        catCheckboxes.forEach(cb => {
-            cb.checked = window.selectedEquipmentCategories.includes(cb.value);
-        });
-    }
-    
-    // Обработчик для "Всё"
-    selectAll.addEventListener('change', function() {
-        const isChecked = this.checked;
-        catCheckboxes.forEach(cb => cb.checked = isChecked);
-        updateEquipmentFilter(); // применить фильтр
-    });
-    
-    // Обработчик для каждой категории
-    catCheckboxes.forEach(cb => {
-        cb.addEventListener('change', function() {
-            syncSelectAllState();   // обновить состояние "Всё"
-            updateEquipmentFilter(); // применить фильтр
-        });
-    });
-}
-
-// Восстановление состояния чекбоксов из глобальных переменных
-function restoreEquipmentFilterState() {
-    const selectAll = document.getElementById('equip-select-all');
-    const catCheckboxes = document.querySelectorAll('.equip-cat-checkbox');
-    
-    if (window.selectedEquipmentCategories === null) {
-        selectAll.checked = true;
-        catCheckboxes.forEach(cb => cb.checked = true);
-    } else if (window.selectedEquipmentCategories.length === 0) {
-        selectAll.checked = false;
-        catCheckboxes.forEach(cb => cb.checked = false);
-    } else {
-        selectAll.checked = false;
-        catCheckboxes.forEach(cb => {
-            cb.checked = window.selectedEquipmentCategories.includes(cb.value);
-        });
-    }
-}
-
-// Обновление фильтра при изменении чекбоксов
-function updateEquipmentFilter() {
-    if (isUpdatingFilter) return;
-    isUpdatingFilter = true;
-    
-    const selectAll = document.getElementById('equip-select-all');
-    const catCheckboxes = document.querySelectorAll('.equip-cat-checkbox');
-    const milEquipBtn = document.getElementById('mil-equip-btn');
-    
-    if (selectAll.checked) {
-        window.selectedEquipmentCategories = null;
-        window.isMilEquipVisible = true;
-        milEquipBtn.classList.add('active');
-        applyEquipmentFilter();
-    } else {
-        const selected = Array.from(catCheckboxes)
-            .filter(cb => cb.checked)
-            .map(cb => cb.value);
-        window.selectedEquipmentCategories = selected;
-        
-        if (selected.length === 0) {
-            window.isMilEquipVisible = false;
-            milEquipBtn.classList.remove('active');
-            hideAllEquipmentMarkers();
-        } else {
-            window.isMilEquipVisible = true;
-            milEquipBtn.classList.add('active');
-            applyEquipmentFilter();
-        }
-    }
-    
-    isUpdatingFilter = false;
-}
-
-// Применить текущий фильтр к видимости маркеров
-function applyEquipmentFilter() {
-    if (!window.isMilEquipVisible) {
-        hideAllEquipmentMarkers();
-        return;
-    }
-    
-    window.allEquipmentMarkers.forEach(item => {
-        const marker = item.marker;
-        const category = item.category;
-        let shouldShow = false;
-        
-        if (window.selectedEquipmentCategories === null) {
-            shouldShow = true;
-        } else {
-            shouldShow = window.selectedEquipmentCategories.includes(category);
-        }
-        
-        if (shouldShow) {
-            if (!map.hasLayer(marker)) {
-                marker.addTo(map);
-            }
-        } else {
-            if (map.hasLayer(marker)) {
-                map.removeLayer(marker);
-            }
-        }
-    });
-}
-
-// Скрыть все маркеры техники
-function hideAllEquipmentMarkers() {
-    window.allEquipmentMarkers.forEach(item => {
-        if (map.hasLayer(item.marker)) {
-            map.removeLayer(item.marker);
-        }
-    });
-}
-
-// Переключение меню фильтра техники
-function toggleEquipmentMenu() {
-    const menu = document.getElementById('equipment-filter-menu');
-    if (!menu) return;
-    
-    const isVisible = menu.style.display === 'block';
-    
-    if (!isVisible) {
-        const btn = document.getElementById('mil-equip-btn');
-        const rect = btn.getBoundingClientRect();
-        menu.style.top = (rect.bottom + window.scrollY) + 'px';
-        menu.style.left = (rect.left + window.scrollX) + 'px';
-        menu.style.display = 'block';
-        
-        // Восстанавливаем состояние чекбоксов из глобальной переменной
-        // restoreEquipmentFilterState();
-        
-        // Если техника ещё не загружена, загружаем её, но не меняем фильтр
-        if (window.allEquipmentMarkers.length === 0) {
-            initMilequipLayer(window.milequipKmlPaths).then(() => {
-                // Применяем текущий фильтр (который пустой, если ничего не выбрано)
-                applyEquipmentFilter();
-            });
-        } else {
-            // Просто применяем текущий фильтр
-            applyEquipmentFilter();
-        }
-    } else {
-        menu.style.display = 'none';
-    }
-}
 
 // Функция для инициализации слоя с атаками на Украину
 async function initAttacksOnUaLayer(kmlFilePaths) {
@@ -1886,6 +1690,12 @@ async function initAttacksOnUaLayer(kmlFilePaths) {
             iconGetter: getAttacksOnUaIcon,
             isEquipment: true // Можно использовать тот же флаг или создать отдельный
         });
+    }
+    
+    if (window.isAttacksVisible) {
+        window.applyAttacksFilter();
+    } else {
+        window.hideAllAttacksMarkers();
     }
     
     console.log(`Загружено слоев атак: ${window.attacksOnUaLayers.length}, точек: ${attacksOnUaLayerGroup.getLayers().length}`);
@@ -1972,110 +1782,6 @@ async function initFortificationLayer(kmlFilePaths) {
 }
 
 
-// Функция для переключения отображения техники
-function toggleMilEquipVisibility() {
-    const milEquipBtn = document.getElementById('mil-equip-btn');
-    
-    // Переключаем флаг
-    isMilEquipVisible = !isMilEquipVisible;
-    
-    if (isMilEquipVisible) {
-        // Показываем технику
-        milEquipBtn.classList.add('active');
-        
-        // Если слои техники еще не загружены, загружаем их
-        if (!window.milequipLayers || window.milequipLayers.length === 0) {
-            console.log('Загрузка техники...');
-            initMilequipLayer(window.milequipKmlPaths).then(() => {
-                // После загрузки добавляем на карту
-                window.milequipLayers.forEach(layer => {
-                    if (layer && !map.hasLayer(layer)) {
-                        layer.addTo(map);
-                    }
-                });
-            });
-        } else {
-            // Если уже загружены, просто добавляем на карту
-            window.milequipLayers.forEach(layer => {
-                if (layer && !map.hasLayer(layer)) {
-                    layer.addTo(map);
-                }
-            });
-        }
-        
-        console.log('Техника показана');
-    } else {
-        // Скрываем технику
-        milEquipBtn.classList.remove('active');
-        
-        // Убираем слои техники с карты
-        if (window.milequipLayers && window.milequipLayers.length) {
-            window.milequipLayers.forEach(layer => {
-                if (layer && map.hasLayer(layer)) {
-                    map.removeLayer(layer);
-                }
-            });
-        }
-        
-        console.log('Техника скрыта');
-    }
-    
-    // Обновляем title кнопки
-    updateMilEquipButtonTitle();
-}
-
-// Функция для переключения отображения атак на Украину
-function toggleAttacksOnUaVisibility() {
-    const attacksOnUaBtn = document.getElementById('attacks-on-ua-btn');
-    
-    // Переключаем флаг
-    isAttacksOnUaVisible = !isAttacksOnUaVisible;
-    
-    if (isAttacksOnUaVisible) {
-        // Показываем атаки
-        attacksOnUaBtn.classList.add('active');
-        
-        // Если слои атак еще не загружены, загружаем их
-        if (!window.attacksOnUaLayers || window.attacksOnUaLayers.length === 0) {
-            console.log('Загрузка атак на Украину...');
-            initAttacksOnUaLayer(window.attacksOnUaKmlPaths).then(() => {
-                // После загрузки добавляем на карту
-                window.attacksOnUaLayers.forEach(layer => {
-                    if (layer && !map.hasLayer(layer)) {
-                        layer.addTo(map);
-                    }
-                });
-            });
-        } else {
-            // Если уже загружены, просто добавляем на карту
-            window.attacksOnUaLayers.forEach(layer => {
-                if (layer && !map.hasLayer(layer)) {
-                    layer.addTo(map);
-                }
-            });
-        }
-        
-        console.log('Атаки на Украину показаны');
-    } else {
-        // Скрываем атаки
-        attacksOnUaBtn.classList.remove('active');
-        
-        // Убираем слои атак с карты
-        if (window.attacksOnUaLayers && window.attacksOnUaLayers.length) {
-            window.attacksOnUaLayers.forEach(layer => {
-                if (layer && map.hasLayer(layer)) {
-                    map.removeLayer(layer);
-                }
-            });
-        }
-        
-        console.log('Атаки на Украину скрыты');
-    }
-    
-    // Обновляем title кнопки
-    updateAttacksOnUaButtonTitle();
-}
-
 // Функция для переключения отображения фортификаций
 function toggleFortificationVisibility() {
     const fortificationBtn = document.getElementById('fortification-btn');
@@ -2126,36 +1832,6 @@ function toggleFortificationVisibility() {
     
     // Обновляем title кнопки
     updateFortificationButtonTitle();
-}
-
-// Функция для обновления заголовка кнопки техники
-function updateMilEquipButtonTitle() {
-    const milEquipBtn = document.getElementById('mil-equip-btn');
-    if (milEquipBtn) {
-        const t = translations[currentLang];
-        if (t) {
-            milEquipBtn.title = isMilEquipVisible ? 
-                (t.hideEquipment || 'Скрыть технику') : 
-                (t.showEquipment || 'Показать технику');
-        } else {
-            milEquipBtn.title = isMilEquipVisible ? 'Скрыть технику' : 'Показать технику';
-        }
-    }
-}
-
-// Функция для обновления заголовка кнопки атак на Украину
-function updateAttacksOnUaButtonTitle() {
-    const attacksOnUaBtn = document.getElementById('attacks-on-ua-btn');
-    if (attacksOnUaBtn) {
-        const t = translations[currentLang];
-        if (t) {
-            attacksOnUaBtn.title = isAttacksOnUaVisible ? 
-                (t.hideAttacksOnUa || 'Скрыть удары по Украине') : 
-                (t.showAttacksOnUa || 'Показать удары по Украине');
-        } else {
-            attacksOnUaBtn.title = isAttacksOnUaVisible ? 'Скрыть удары по Украине' : 'Показать удары по Украине';
-        }
-    }
 }
 
 // Функция для обновления заголовка кнопки фортификаций
@@ -2970,19 +2646,15 @@ async function init() {
     // обработчик для кнопки техники
     const milEquipBtn = document.getElementById('mil-equip-btn');
     if (milEquipBtn) {
-        milEquipBtn.removeEventListener('click', toggleMilEquipVisibility); // убираем старый
-        milEquipBtn.addEventListener('click', toggleEquipmentMenu);
-        updateMilEquipButtonTitle(); // Инициализируем заголовок
-    }
-    // Построить меню фильтра техники
-    initEquipmentFilter();
-	// restoreEquipmentFilterState();
-    // обработчик для кнопки атак на Украину
+        milEquipBtn.addEventListener('click', window.toggleEquipmentMenu);
+    }    
     const attacksOnUaBtn = document.getElementById('attacks-on-ua-btn');
     if (attacksOnUaBtn) {
-        attacksOnUaBtn.addEventListener('click', toggleAttacksOnUaVisibility);
-        updateAttacksOnUaButtonTitle(); // Инициализируем заголовок
+        attacksOnUaBtn.addEventListener('click', window.toggleAttacksMenu);
     }
+    // Построить меню фильтра техники
+    window.initFilters();
+
     // обработчик для кнопки фортификаций
     const fortificationBtn = document.getElementById('fortification-btn');
     if (fortificationBtn) {
