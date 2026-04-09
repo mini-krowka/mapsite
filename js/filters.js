@@ -35,6 +35,72 @@ const attackCategories = [
     { tag: 'Поезда и локомотивы',                              labelRu: 'Поезда и локомотивы',                labelEn: 'Trains and locomotives' }
 ];
 
+// Группы атак – каждая группа содержит несколько категорий
+const attackGroups = [
+    {
+        tag: 'group1',
+        labelRu: 'Группа 1',
+        labelEn: 'Group 1',
+        categories: [
+            'Подстанция',
+            'Энергогенерация',
+            'Тяговая подстанция',
+            'Газовая инфраструктура'
+        ]
+    },
+    {
+        tag: 'group2',
+        labelRu: 'Группа 2',
+        labelEn: 'Group 2',
+        categories: [
+            'ЖД инфраструктура',
+            'Аэродром',
+            'Мост',
+            'Судно',
+            'Поезда и локомотивы',
+            'Стоянка грузового транспорта'
+        ]
+    },
+    {
+        tag: 'group3',
+        labelRu: 'Группа 3',
+        labelEn: 'Group 3',
+        categories: [
+            'Предприятие ВПК',
+            'ПВО, РЛС и ракетное вооружение',
+            'Склад боеприпасов',
+            'ППД'
+        ]
+    },
+    {
+        tag: 'group4',
+        labelRu: 'Группа 4',
+        labelEn: 'Group 4',
+        categories: [
+            'Склад',
+            'Склад ГСМ'
+        ]
+    },
+    {
+        tag: 'group5',
+        labelRu: 'Группа 5',
+        labelEn: 'Group 5',
+        categories: [
+            'Объект неустановленного назначения',
+            'Предприятие гражданского или двойного назначения'
+        ]
+    }
+];
+
+// Отображение категории -> группа (для быстрой проверки)
+const categoryToGroupTag = {};
+attackGroups.forEach(group => {
+    group.categories.forEach(cat => {
+        categoryToGroupTag[cat] = group.tag;
+    });
+});
+
+
 // Глобальные переменные для фильтров
 window.allEquipmentMarkers = [];     // { marker, category }
 // начальное состояние – ничего не выбрано (пустой массив)
@@ -43,7 +109,7 @@ window.isMilEquipVisible = false;
 
 window.allAttacksMarkers = [];
 // начальное состояние – ничего не выбрано (пустой массив)
-window.selectedAttacksCategories = [];
+window.selectedAttacksCategories = []; // хранит массив tag групп (или null)
 window.isAttacksVisible = false;
 
 // Вспомогательный флаг для предотвращения рекурсии
@@ -192,17 +258,18 @@ function initAttacksFilter() {
     const container = document.getElementById('attacks-category-list');
     if (!container) return;
     container.innerHTML = '';
-    attackCategories.forEach(cat => {
-        const label = currentLang === 'ru' ? cat.labelRu : cat.labelEn;
+    
+    // Строим чекбоксы для групп
+    attackGroups.forEach(group => {
+        const label = currentLang === 'ru' ? group.labelRu : group.labelEn;
         const div = document.createElement('div');
-        div.innerHTML = `<label><input type="checkbox" class="attacks-cat-checkbox" value="${cat.tag}"> ${label}</label>`;
+        div.innerHTML = `<label><input type="checkbox" class="attacks-cat-checkbox" value="${group.tag}"> ${label}</label>`;
         container.appendChild(div);
     });
     
     const selectAll = document.getElementById('attacks-select-all');
     const catCheckboxes = document.querySelectorAll('.attacks-cat-checkbox');
     
-    // Восстановление состояния – пустой массив означает ничего не выбрано
     if (window.selectedAttacksCategories === null) {
         selectAll.checked = true;
         catCheckboxes.forEach(cb => cb.checked = true);
@@ -229,7 +296,6 @@ function initAttacksFilter() {
         });
     });
     
-    // Применяем начальное состояние фильтра (скрываем всё)
     updateAttacksFilter();
 }
 
@@ -269,9 +335,20 @@ function applyAttacksFilter() {
         hideAllAttacksMarkers();
         return;
     }
+    
+    // Если выбраны все группы (null) – показываем всё
+    if (window.selectedAttacksCategories === null) {
+        window.allAttacksMarkers.forEach(item => {
+            if (!map.hasLayer(item.marker)) item.marker.addTo(map);
+        });
+        return;
+    }
+    
+    // Иначе показываем только те маркеры, чья категория входит в выбранные группы
+    const selectedGroupsSet = new Set(window.selectedAttacksCategories);
     window.allAttacksMarkers.forEach(item => {
-        const shouldShow = (window.selectedAttacksCategories === null) ||
-                           window.selectedAttacksCategories.includes(item.category);
+        const groupTag = categoryToGroupTag[item.category];
+        const shouldShow = groupTag && selectedGroupsSet.has(groupTag);
         if (shouldShow) {
             if (!map.hasLayer(item.marker)) item.marker.addTo(map);
         } else {
