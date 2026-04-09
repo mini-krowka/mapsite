@@ -56,7 +56,7 @@ const attackGroups = [
          ]
     },
     {
-        tag: 'group3',
+        tag: 'group4',
         labelRu: 'ЖД',
         labelEn: 'Railways',
         categories: [
@@ -66,7 +66,7 @@ const attackGroups = [
         ]
     },
     {
-        tag: 'group4',
+        tag: 'group5',
         labelRu: 'Логистика',
         labelEn: 'Logistics',
         categories: [
@@ -75,7 +75,7 @@ const attackGroups = [
         ]
     },
     {
-        tag: 'group5',
+        tag: 'group6',
         labelRu: 'ПВО',
         labelEn: 'Air-defense',
         categories: [
@@ -83,7 +83,7 @@ const attackGroups = [
         ]
     },
     {
-        tag: 'group6',
+        tag: 'group7',
         labelRu: 'Производство',
         labelEn: 'Factory',
         categories: [
@@ -92,14 +92,23 @@ const attackGroups = [
         ]
     },
     {
-        tag: 'group7',
+        tag: 'group8',
         labelRu: 'Склады',
         labelEn: 'Warehouses',
         categories: [
             'Склад',
-            'Склад ГСМ',
-            'Предприятие ВПК',
-            'Предприятие гражданского или двойного назначения'
+            'Склад ГСМ'            
+        ]
+    },
+    {
+        tag: 'group9',
+        labelRu: 'Транспорт',
+        labelEn: 'Transport',
+        categories: [
+            'Судно',
+            'Поезда и локомотивы',
+            'Склад',
+            'Склад ГСМ'
             
         ]
     }
