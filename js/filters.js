@@ -47,7 +47,7 @@ const attackGroups = [
     },
     {
         tag: 'group2',
-        labelRu: 'Военные объекты',
+        labelRu: 'Военные базы',
         labelEn: 'Military sites',
         categories: [
             'ППД',
@@ -108,9 +108,9 @@ const attackGroups = [
         tag: 'group8',
         labelRu: 'Склады',
         labelEn: 'Warehouses',
-        categories: [
-            'Склад',
-            'Склад ГСМ'   
+        categories: ['Склад',
+            'Склад ГСМ'
+            
         ]
     },
     {
