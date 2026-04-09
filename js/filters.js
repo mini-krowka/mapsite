@@ -72,6 +72,7 @@ const attackGroups = [
         labelEn: 'Railways',
         categories: [
             'ЖД инфраструктура',
+            'Поезда и локомотивы',
             'Тяговая подстанция'
             
         ]
