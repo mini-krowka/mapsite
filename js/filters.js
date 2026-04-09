@@ -61,9 +61,11 @@ const attackGroups = [
     },
     {
         tag: 'group3',
-        labelRu: 'Группа 3',
-        labelEn: 'Group 3',
+        labelRu: 'ЖД',
+        labelEn: 'Railways',
         categories: [
+            'ЖД инфраструктура',
+            'Тяговая подстанция',
             'Предприятие ВПК',
             'ПВО, РЛС и ракетное вооружение',
             'Склад боеприпасов',
