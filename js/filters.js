@@ -42,6 +42,7 @@ const attackGroups = [
         labelRu: 'Аэродромы',
         labelEn: 'Airfields',
         categories: [
+            'Аэродром',
             'Аэродром'
         ]
     },
