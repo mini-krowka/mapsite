@@ -39,13 +39,10 @@ const attackCategories = [
 const attackGroups = [
     {
         tag: 'group1',
-        labelRu: 'Группа 1',
-        labelEn: 'Group 1',
+        labelRu: 'Аэродромы',
+        labelEn: 'Airfields',
         categories: [
-            'Подстанция',
-            'Энергогенерация',
-            'Тяговая подстанция',
-            'Газовая инфраструктура'
+            'Аэродром'
         ]
     },
     {
