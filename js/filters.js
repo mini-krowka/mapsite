@@ -108,7 +108,8 @@ const attackGroups = [
         tag: 'group8',
         labelRu: 'Склады',
         labelEn: 'Warehouses',
-        categories: ['Склад',
+        categories: [
+            'Склад',
             'Склад ГСМ'
             
         ]
@@ -119,10 +120,7 @@ const attackGroups = [
         labelEn: 'Transport',
         categories: [
             'Судно',
-            'Поезда и локомотивы',
-            'Склад',
-            'Склад ГСМ'
-            
+            'Поезда и локомотивы'            
         ]
     },
     {
