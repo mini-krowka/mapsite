@@ -42,8 +42,8 @@ const attackGroups = [
         labelRu: 'Аэродромы',
         labelEn: 'Airfields',
         categories: [
+            'ЖД инфраструктура',
             'Аэродром',
-            'Аэродром'
         ]
     },
     {
@@ -51,13 +51,11 @@ const attackGroups = [
         labelRu: 'Военные объекты',
         labelEn: 'Military sites',
         categories: [
-            'ЖД инфраструктура',
             'Аэродром',
             'Мост',
             'Судно',
             'Поезда и локомотивы',
-            'Стоянка грузового транспорта'
-        ]
+         ]
     },
     {
         tag: 'group3',
