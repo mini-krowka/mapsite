@@ -114,6 +114,17 @@ const attackGroups = [
         ]
     },
     {
+        tag: 'group12',
+        labelRu: 'Склады+',
+        labelEn: 'Warehouses+',
+        categories: [
+            'Объект неустановленного назначения',
+            'Склад',
+            'Склад ГСМ'
+            
+        ]
+    },
+    {
         tag: 'group9',
         labelRu: 'Транспорт',
         labelEn: 'Transport',
