@@ -381,3 +381,18 @@ window.applyEquipmentFilter = applyEquipmentFilter;
 window.applyAttacksFilter = applyAttacksFilter;
 window.hideAllEquipmentMarkers = hideAllEquipmentMarkers;
 window.hideAllAttacksMarkers = hideAllAttacksMarkers;
+
+//
+document.addEventListener('DOMContentLoaded', function() {
+    // Перемещаем меню техники в body
+    const equipMenu = document.getElementById('equipment-filter-menu');
+    if (equipMenu && equipMenu.parentNode !== document.body) {
+        document.body.appendChild(equipMenu);
+    }
+    
+    // Перемещаем меню атак в body
+    const attacksMenu = document.getElementById('attacks-filter-menu');
+    if (attacksMenu && attacksMenu.parentNode !== document.body) {
+        document.body.appendChild(attacksMenu);
+    }
+});

@@ -19,15 +19,6 @@ let currentDateRange = 'week'; // 'week', 'month', '3months', '6months', 'year'
 // let isAttacksOnUaVisible  = false; // Флаг видимости слоя атак по территории
 let isFortificationVisible = false; // Флаг видимости слоя фортификаций
 
-
-document.addEventListener('DOMContentLoaded', function() {
-    const equipMenu = document.getElementById('equipment-filter-menu');
-    if (equipMenu && equipMenu.parentNode !== document.body) {
-        document.body.appendChild(equipMenu);
-    }
-});
-
-
 // Получаем массив доступных дат из kmlFiles
 const availableDates = kmlFiles.map(file => file.name);
 
