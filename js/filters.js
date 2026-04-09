@@ -108,6 +108,8 @@ const attackGroups = [
         labelEn: 'Warehouses',
         categories: [
             'Склад',
+            'Склад ГСМ',
+            'Склад',
             'Склад ГСМ'
             
         ]
