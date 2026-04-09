@@ -37,11 +37,13 @@ const attackCategories = [
 
 // Глобальные переменные для фильтров
 window.allEquipmentMarkers = [];     // { marker, category }
-window.selectedEquipmentCategories = null;  // null = все, иначе массив
+// начальное состояние – ничего не выбрано (пустой массив)
+window.selectedEquipmentCategories = [];  // null = все, иначе массив
 window.isMilEquipVisible = false;
 
 window.allAttacksMarkers = [];
-window.selectedAttacksCategories = null;
+// начальное состояние – ничего не выбрано (пустой массив)
+window.selectedAttacksCategories = [];
 window.isAttacksVisible = false;
 
 // Вспомогательный флаг для предотвращения рекурсии
@@ -71,8 +73,9 @@ function initEquipmentFilter() {
     const selectAll = document.getElementById('equip-select-all');
     const catCheckboxes = document.querySelectorAll('.equip-cat-checkbox');
     
-    // Восстановление состояния
+    // Восстановление состояния – пустой массив означает ничего не выбрано
     if (window.selectedEquipmentCategories === null) {
+        // null означает «все», но при инициализации такого быть не должно
         selectAll.checked = true;
         catCheckboxes.forEach(cb => cb.checked = true);
     } else if (window.selectedEquipmentCategories.length === 0) {
@@ -97,6 +100,9 @@ function initEquipmentFilter() {
             updateEquipmentFilter();
         });
     });
+    
+    // Применяем начальное состояние фильтра (скрываем всё)
+    updateEquipmentFilter();
 }
 
 function updateEquipmentFilter() {
@@ -196,6 +202,7 @@ function initAttacksFilter() {
     const selectAll = document.getElementById('attacks-select-all');
     const catCheckboxes = document.querySelectorAll('.attacks-cat-checkbox');
     
+    // Восстановление состояния – пустой массив означает ничего не выбрано
     if (window.selectedAttacksCategories === null) {
         selectAll.checked = true;
         catCheckboxes.forEach(cb => cb.checked = true);
@@ -221,6 +228,9 @@ function initAttacksFilter() {
             updateAttacksFilter();
         });
     });
+    
+    // Применяем начальное состояние фильтра (скрываем всё)
+    updateAttacksFilter();
 }
 
 function updateAttacksFilter() {
@@ -305,62 +315,6 @@ function updateAttacksOnUaButtonTitle() {
             (t.showAttacksOnUa || 'Показать удары по Украине');
     }
 }
-
-
-
-// Функция для переключения отображения атак на Украину
-/*
-function toggleAttacksOnUaVisibility() {
-    const attacksOnUaBtn = document.getElementById('attacks-on-ua-btn');
-    
-    // Переключаем флаг
-    isAttacksOnUaVisible = !isAttacksOnUaVisible;
-    
-    if (isAttacksOnUaVisible) {
-        // Показываем атаки
-        attacksOnUaBtn.classList.add('active');
-        
-        // Если слои атак еще не загружены, загружаем их
-        if (!window.attacksOnUaLayers || window.attacksOnUaLayers.length === 0) {
-            console.log('Загрузка атак на Украину...');
-            initAttacksOnUaLayer(window.attacksOnUaKmlPaths).then(() => {
-                // После загрузки добавляем на карту
-                window.attacksOnUaLayers.forEach(layer => {
-                    if (layer && !map.hasLayer(layer)) {
-                        layer.addTo(map);
-                    }
-                });
-            });
-        } else {
-            // Если уже загружены, просто добавляем на карту
-            window.attacksOnUaLayers.forEach(layer => {
-                if (layer && !map.hasLayer(layer)) {
-                    layer.addTo(map);
-                }
-            });
-        }
-        
-        console.log('Атаки на Украину показаны');
-    } else {
-        // Скрываем атаки
-        attacksOnUaBtn.classList.remove('active');
-        
-        // Убираем слои атак с карты
-        if (window.attacksOnUaLayers && window.attacksOnUaLayers.length) {
-            window.attacksOnUaLayers.forEach(layer => {
-                if (layer && map.hasLayer(layer)) {
-                    map.removeLayer(layer);
-                }
-            });
-        }
-        
-        console.log('Атаки на Украину скрыты');
-    }
-    
-    // Обновляем title кнопки
-    updateAttacksOnUaButtonTitle();
-}
-*/
 
 // ========== ИНИЦИАЛИЗАЦИЯ ВСЕХ ФИЛЬТРОВ ==========
 function initFilters() {
