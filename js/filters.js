@@ -42,8 +42,7 @@ const attackGroups = [
         labelRu: 'Аэродромы',
         labelEn: 'Airfields',
         categories: [
-            'Склад',
-            'Склад ГСМ'
+            'Аэродром'
         ]
     },
     {
@@ -68,9 +67,11 @@ const attackGroups = [
     },
     {
         tag: 'group4',
-        labelRu: 'Группа 4',
-        labelEn: 'Group 4',
+        labelRu: 'Логистика',
+        labelEn: 'Logistics',
         categories: [
+            'Стоянка грузового транспорта',
+            'Мост',
             'Склад',
             'Склад ГСМ'
         ]
