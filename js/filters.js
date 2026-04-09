@@ -134,6 +134,17 @@ const attackGroups = [
             'Склад ГСМ'
             
         ]
+    },
+    {
+        tag: 'group11',
+        labelRu: 'Не определено',
+        labelEn: 'Indeterminate',
+        categories: [
+            'Объект неустановленного назначения',
+            'Склад',
+            'Склад ГСМ'
+            
+        ]
     }
 ];
 
