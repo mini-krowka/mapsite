@@ -40,7 +40,7 @@ const attackGroups = [
     {
         tag: 'group1',
         labelRu: 'Аэродромы',
-        labelEn: 'Airfields',
+        labelEn: 'Airdromes',
         categories: [
             'Аэродром'
         ]
@@ -95,7 +95,7 @@ const attackGroups = [
     {
         tag: 'group7',
         labelRu: 'Производство',
-        labelEn: 'Factory',
+        labelEn: 'Factories',
         categories: [
             'Предприятие ВПК',
             'Предприятие гражданского или двойного назначения'
@@ -134,7 +134,7 @@ const attackGroups = [
     {
         tag: 'group11',
         labelRu: 'Не определено',
-        labelEn: 'Indeterminate',
+        labelEn: 'Undefined',
         categories: [
             'Объект неустановленного назначения',
                        
