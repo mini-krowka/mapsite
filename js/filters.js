@@ -467,7 +467,7 @@ function getFortificationDisplayName(filePath, lang = currentLang) {
     if (fortificationFileNames[name] && fortificationFileNames[name][lang]) {
         return fortificationFileNames[name][lang];
     }
-    return name; // fallback
+    // return name; // fallback
 }
 
 // Инициализация меню фильтра фортификаций
