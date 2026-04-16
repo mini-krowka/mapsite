@@ -3825,7 +3825,9 @@
 1:33  `48.8452792, 37.9252882`
 
 Согласно https://t.me/creamy_caprice/11583?comment=75211
-#ru #add</name>
+#ru #add
+
+</name>
             <description>https://t.me/creamy_caprice/11583</description>
             <ExtendedData>
                 <Data name="описание">
@@ -4541,7 +4543,7 @@
                     <value>https://t.me/creamy_caprice/11658</value>
                 </Data>
                 <Data name="позиция">
-                    <value>ВС РФ*</value>
+                    <value>ВС РФ</value>
                 </Data>
                 <Data name="дата">
                     <value>2026.04.05</value>
@@ -4999,7 +5001,7 @@
                     <value>https://t.me/creamy_caprice/11656</value>
                 </Data>
                 <Data name="позиция">
-                    <value>ВС РФ*</value>
+                    <value>ВС РФ</value>
                 </Data>
                 <Data name="дата">
                     <value>2026.04.09</value>
@@ -5653,6 +5655,29 @@
             </Point>
         </Placemark>
         <Placemark id="45213">
+            <name>15.04.26 Дополнительно. В населённом пункте Каленики поднят флаг РФ
+
+ `48.845217, 37.925186` 
+
+Согласно https://t.me/creamy_caprice/11583?comment=75379
+#ru #add</name>
+            <description>https://t.me/creamy_caprice/11583</description>
+            <ExtendedData>
+                <Data name="описание">
+                    <value>https://t.me/creamy_caprice/11583</value>
+                </Data>
+                <Data name="позиция">
+                    <value>ВС РФ</value>
+                </Data>
+                <Data name="дата">
+                    <value>2026.04.15</value>
+                </Data>
+            </ExtendedData>
+            <Point id="45212">
+                <coordinates>37.925186,48.845217,0.0</coordinates>
+            </Point>
+        </Placemark>
+        <Placemark id="45219">
             <name>15.04.26 Константиновка - Ильиновка
 
 Позиционные боевые действия в районе Горловки.
@@ -5675,8 +5700,62 @@
                     <value>2026.04.15</value>
                 </Data>
             </ExtendedData>
-            <Point id="45212">
+            <Point id="45218">
                 <coordinates>37.662131,48.489687,0.0</coordinates>
+            </Point>
+        </Placemark>
+        <Placemark id="45225">
+            <name>15.04.26 Красный Лиман
+
+Активные боевые действия в районе Красного Лимана.
+Атака ВСУ пехотными подразделениями восточнее города. Малые пехотные группы под огнём ВС РФ. Продвижение ВСУ в зону контроля ВС РФ около 4 км.
+
+ `48.978964, 37.885873` 
+
+Источник https://t.me/Molodoy_37_msp/59
+Геопривязка https://x.com/ZoamSc2
+#ua #add</name>
+            <description>https://t.me/creamy_caprice/11698</description>
+            <ExtendedData>
+                <Data name="описание">
+                    <value>https://t.me/creamy_caprice/11698</value>
+                </Data>
+                <Data name="позиция">
+                    <value>ВСУ</value>
+                </Data>
+                <Data name="дата">
+                    <value>2026.04.15</value>
+                </Data>
+            </ExtendedData>
+            <Point id="45224">
+                <coordinates>37.885873,48.978964,0.0</coordinates>
+            </Point>
+        </Placemark>
+        <Placemark id="45231">
+            <name>15.04.26 Покровское - Терновое
+
+Позиционные боевые действия в Днепропетровской зоне безопасности.
+ВС РФ продвинулись в Терновом более 600 метров и заняли новые позиции в северной части населённого пункта. Передовая позиция ВС РФ в жилой застройке под огнём ВСУ.
+
+0:12 `47.892183, 36.536191`
+
+Источник 21+ https://x.com/425skala/status/2044325123033854379
+Геопривязка https://t.me/domikpetra
+#ru</name>
+            <description>https://t.me/creamy_caprice/11700</description>
+            <ExtendedData>
+                <Data name="описание">
+                    <value>https://t.me/creamy_caprice/11700</value>
+                </Data>
+                <Data name="позиция">
+                    <value>ВС РФ*</value>
+                </Data>
+                <Data name="дата">
+                    <value>2026.04.15</value>
+                </Data>
+            </ExtendedData>
+            <Point id="45230">
+                <coordinates>36.536191,47.892183,0.0</coordinates>
             </Point>
         </Placemark>
     </Document>
