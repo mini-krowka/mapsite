@@ -373,6 +373,12 @@ document.addEventListener('languageChanged', function(event) {
         applyAttacksFilter();
     }
 	
+	// фильтр фортификаций
+    if (typeof initFortificationFilter === 'function') {
+        initFortificationFilter();
+        if (window.isFortificationVisible) applyFortificationFilter();
+    }
+	
 });
 
 // Обработчики кнопок переключения языка

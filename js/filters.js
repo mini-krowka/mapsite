@@ -449,19 +449,25 @@ window.allFortificationLayers = [];    // массив { layerGroup, filePath, d
 window.selectedFortificationFiles = null; // null = все, иначе массив выбранных путей
 window.isFortificationVisible = false; // переопределим, чтобы управлять через кнопку
 
+// Названия файлов фортификаций на разных языках
+const fortificationFileNames = {
+    'CK_Trenches':   { ru: 'Траншеи',      en: 'Trenches' },
+    'CK_Teeth':      { ru: 'Надолбы',      en: 'Dragon\'s teeth' },
+    'CK_Ditches':    { ru: 'Рвы',          en: 'Ditches' },
+    'CK_Wire':       { ru: 'Колючка',      en: 'Barbed wire' }
+    // 'ditches3':      { ru: 'Рвы (старые)', en: 'Ditches (old)' },
+    // 'Barbed_wire':   { ru: 'Колючка (старая)', en: 'Barbed wire (old)' },
+    // 'teeth':         { ru: 'Надолбы (старые)', en: 'Dragon\'s teeth (old)' }
+};
+
 // Функция для получения отображаемого имени файла
-function getFortificationDisplayName(filePath) {
-    // Извлекаем имя файла без расширения и пути
+function getFortificationDisplayName(filePath, lang = currentLang) {
     let name = filePath.split('/').pop();
     name = name.replace(/\.(kml|geojson)$/i, '');
-    // Можно сделать более понятные названия для конкретных файлов
-    const nameMap = {
-        'CK_Trenches': 'Траншеи',
-        'ditches3': 'Рвы',
-        'Barbed_wire': 'Колючка',
-        'teeth': 'Надолбы'
-    };
-    return nameMap[name] || name;
+    if (fortificationFileNames[name] && fortificationFileNames[name][lang]) {
+        return fortificationFileNames[name][lang];
+    }
+    return name; // fallback
 }
 
 // Инициализация меню фильтра фортификаций
@@ -477,7 +483,7 @@ function initFortificationFilter() {
     
     // Создаём чекбоксы для каждого файла
     window.fortificationKmlPaths.forEach(filePath => {
-        const displayName = getFortificationDisplayName(filePath);
+        const displayName = getFortificationDisplayName(filePath, currentLang);
         const div = document.createElement('div');
         div.innerHTML = `<label><input type="checkbox" class="fortif-cat-checkbox" value="${filePath.replace(/"/g, '&quot;')}"> ${displayName}</label>`;
         container.appendChild(div);
