@@ -729,4 +729,10 @@ document.addEventListener('DOMContentLoaded', function() {
     if (attacksMenu && attacksMenu.parentNode !== document.body) {
         document.body.appendChild(attacksMenu);
     }
+    
+    // Перемещаем меню фортификаций в body
+    const fortificationMenu = document.getElementById('fortification-filter-menu');
+    if (fortificationMenu && fortificationMenu.parentNode !== document.body) {
+        document.body.appendChild(fortificationMenu);
+    }
 });
