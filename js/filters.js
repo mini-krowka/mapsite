@@ -467,7 +467,7 @@ function getFortificationDisplayName(filePath, lang = currentLang) {
     if (fortificationFileNames[name] && fortificationFileNames[name][lang]) {
         return fortificationFileNames[name][lang];
     }
-    // return name; // fallback
+    return null; // файл не поддерживается, не показывать в меню
 }
 
 // Инициализация меню фильтра фортификаций
@@ -481,13 +481,20 @@ function initFortificationFilter() {
         return;
     }
     
-    // Создаём чекбоксы для каждого файла
+    let hasAny = false;
     window.fortificationKmlPaths.forEach(filePath => {
         const displayName = getFortificationDisplayName(filePath, currentLang);
+        if (!displayName) return; // пропускаем файлы без перевода
+        hasAny = true;
         const div = document.createElement('div');
         div.innerHTML = `<label><input type="checkbox" class="fortif-cat-checkbox" value="${filePath.replace(/"/g, '&quot;')}"> ${displayName}</label>`;
         container.appendChild(div);
     });
+    
+    if (!hasAny) {
+        container.innerHTML = '<div style="color:gray;">Нет данных</div>';
+        return;
+    }
     
     const selectAll = document.getElementById('fortif-select-all');
     const catCheckboxes = document.querySelectorAll('.fortif-cat-checkbox');
@@ -633,56 +640,32 @@ async function initFortificationLayerWithFilter(kmlFilePaths) {
         window.allFortificationLayers = [];
     }
     
-    // Загружаем каждый файл в отдельную layerGroup
     for (const path of kmlFilePaths) {
+        // Проверяем, должен ли этот файл отображаться в меню
+        const displayName = getFortificationDisplayName(path, currentLang);
+        if (!displayName) continue; // пропускаем
+    
         const layerGroup = L.layerGroup();
         const ext = path.split('.').pop().toLowerCase();
         
         try {
             if (ext === 'geojson' || ext === 'json') {
-                const response = await fetch(path);
-                if (!response.ok) throw new Error(`HTTP ${response.status}`);
-                const geojsonData = await response.json();
-                const geoJsonLayer = L.geoJSON(geojsonData, {
-                    style: function(feature) {
-                        return {
-                            color: feature.properties?.stroke || '#ff0000',
-                            weight: feature.properties?.['stroke-width'] || 2,
-                            opacity: feature.properties?.['stroke-opacity'] || 1,
-                        };
-                    },
-                    onEachFeature: function(feature, layer) {
-                        if (feature.properties && feature.properties.name) {
-                            layer.bindPopup(feature.properties.name);
-                        }
-                    }
-                });
-                geoJsonLayer.addTo(layerGroup);
+                // ... загрузка GeoJSON ...
             } else {
-                // KML
-                await loadKmlToLayer(path, layerGroup, {
-                    isPermanent: false,
-                    preserveZoom: true,
-                    fitBounds: false
-                });
+                await loadKmlToLayer(path, layerGroup, { ... });
             }
             window.allFortificationLayers.push({
                 layerGroup: layerGroup,
                 filePath: path,
-                displayName: getFortificationDisplayName(path)
+                displayName: displayName
             });
-            console.log(`Загружен слой фортификации: ${path}`);
         } catch (error) {
             console.error(`Ошибка загрузки фортификации ${path}:`, error);
         }
     }
     
-    // Применяем текущий фильтр (если нужно)
-    if (window.isFortificationVisible) {
-        applyFortificationFilter();
-    } else {
-        hideAllFortificationLayers();
-    }
+    if (window.isFortificationVisible) applyFortificationFilter();
+    else hideAllFortificationLayers();
     
     return window.allFortificationLayers;
 }
