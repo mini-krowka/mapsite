@@ -456,10 +456,10 @@ function getFortificationDisplayName(filePath) {
     name = name.replace(/\.(kml|geojson)$/i, '');
     // Можно сделать более понятные названия для конкретных файлов
     const nameMap = {
-        'CK_Trenches': 'Окопы (CK)',
+        'CK_Trenches': 'Траншеи',
         'ditches3': 'Рвы',
-        'Barbed_wire': 'Колючая проволока',
-        'teeth': 'Зубы дракона'
+        'Barbed_wire': 'Колючка',
+        'teeth': 'Надолбы'
     };
     return nameMap[name] || name;
 }
