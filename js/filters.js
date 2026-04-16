@@ -443,25 +443,278 @@ function updateAttacksOnUaButtonTitle() {
     }
 }
 
+// ========== ФИЛЬТР ФОРТИФИКАЦИЙ ==========
+// Глобальные переменные
+window.allFortificationLayers = [];    // массив { layerGroup, filePath, displayName }
+window.selectedFortificationFiles = null; // null = все, иначе массив выбранных путей
+window.isFortificationVisible = false; // переопределим, чтобы управлять через кнопку
+
+// Функция для получения отображаемого имени файла
+function getFortificationDisplayName(filePath) {
+    // Извлекаем имя файла без расширения и пути
+    let name = filePath.split('/').pop();
+    name = name.replace(/\.(kml|geojson)$/i, '');
+    // Можно сделать более понятные названия для конкретных файлов
+    const nameMap = {
+        'CK_Trenches': 'Окопы (CK)',
+        'ditches3': 'Рвы',
+        'Barbed_wire': 'Колючая проволока',
+        'teeth': 'Зубы дракона'
+    };
+    return nameMap[name] || name;
+}
+
+// Инициализация меню фильтра фортификаций
+function initFortificationFilter() {
+    const container = document.getElementById('fortif-category-list');
+    if (!container) return;
+    container.innerHTML = '';
+    
+    if (!window.fortificationKmlPaths || !window.fortificationKmlPaths.length) {
+        container.innerHTML = '<div style="color:gray;">Нет данных</div>';
+        return;
+    }
+    
+    // Создаём чекбоксы для каждого файла
+    window.fortificationKmlPaths.forEach(filePath => {
+        const displayName = getFortificationDisplayName(filePath);
+        const div = document.createElement('div');
+        div.innerHTML = `<label><input type="checkbox" class="fortif-cat-checkbox" value="${filePath.replace(/"/g, '&quot;')}"> ${displayName}</label>`;
+        container.appendChild(div);
+    });
+    
+    const selectAll = document.getElementById('fortif-select-all');
+    const catCheckboxes = document.querySelectorAll('.fortif-cat-checkbox');
+    
+    // Восстановление состояния (по умолчанию ничего не выбрано)
+    if (window.selectedFortificationFiles === null) {
+        selectAll.checked = true;
+        catCheckboxes.forEach(cb => cb.checked = true);
+    } else if (window.selectedFortificationFiles.length === 0) {
+        selectAll.checked = false;
+        catCheckboxes.forEach(cb => cb.checked = false);
+    } else {
+        selectAll.checked = false;
+        catCheckboxes.forEach(cb => {
+            cb.checked = window.selectedFortificationFiles.includes(cb.value);
+        });
+    }
+    
+    selectAll.addEventListener('change', () => {
+        const isChecked = selectAll.checked;
+        catCheckboxes.forEach(cb => cb.checked = isChecked);
+        updateFortificationFilter();
+    });
+    
+    catCheckboxes.forEach(cb => {
+        cb.addEventListener('change', () => {
+            syncSelectAllState('fortif-select-all', 'fortif-cat-checkbox');
+            updateFortificationFilter();
+        });
+    });
+    
+    // Применяем начальное состояние
+    updateFortificationFilter();
+}
+
+// Обновление фильтра (вызывается при изменении чекбоксов)
+function updateFortificationFilter() {
+    if (isUpdatingFilter) return;
+    isUpdatingFilter = true;
+    
+    const selectAll = document.getElementById('fortif-select-all');
+    const catCheckboxes = document.querySelectorAll('.fortif-cat-checkbox');
+    const fortifBtn = document.getElementById('fortification-btn');
+    
+    if (selectAll.checked) {
+        window.selectedFortificationFiles = null;
+        window.isFortificationVisible = true;
+        fortifBtn.classList.add('active');
+        applyFortificationFilter();
+    } else {
+        const selected = Array.from(catCheckboxes)
+            .filter(cb => cb.checked)
+            .map(cb => cb.value);
+        window.selectedFortificationFiles = selected;
+        if (selected.length === 0) {
+            window.isFortificationVisible = false;
+            fortifBtn.classList.remove('active');
+            hideAllFortificationLayers();
+        } else {
+            window.isFortificationVisible = true;
+            fortifBtn.classList.add('active');
+            applyFortificationFilter();
+        }
+    }
+    isUpdatingFilter = false;
+}
+
+// Применение текущего фильтра к слоям
+function applyFortificationFilter() {
+    if (!window.allFortificationLayers.length) return;
+    
+    if (!window.isFortificationVisible) {
+        hideAllFortificationLayers();
+        return;
+    }
+    
+    // Если выбраны все файлы (null) – показываем все слои
+    if (window.selectedFortificationFiles === null) {
+        window.allFortificationLayers.forEach(item => {
+            if (!map.hasLayer(item.layerGroup)) item.layerGroup.addTo(map);
+        });
+        return;
+    }
+    
+    // Иначе показываем только выбранные
+    const selectedSet = new Set(window.selectedFortificationFiles);
+    window.allFortificationLayers.forEach(item => {
+        const shouldShow = selectedSet.has(item.filePath);
+        if (shouldShow) {
+            if (!map.hasLayer(item.layerGroup)) item.layerGroup.addTo(map);
+        } else {
+            if (map.hasLayer(item.layerGroup)) map.removeLayer(item.layerGroup);
+        }
+    });
+}
+
+function hideAllFortificationLayers() {
+    window.allFortificationLayers.forEach(item => {
+        if (map.hasLayer(item.layerGroup)) map.removeLayer(item.layerGroup);
+    });
+}
+
+// Переключение видимости меню фильтра фортификаций
+function toggleFortificationMenu() {
+    const menu = document.getElementById('fortification-filter-menu');
+    if (!menu) return;
+    const isVisible = menu.style.display === 'block';
+    if (!isVisible) {
+        const btn = document.getElementById('fortification-btn');
+        const rect = btn.getBoundingClientRect();
+        menu.style.top = (rect.bottom + window.scrollY) + 'px';
+        menu.style.left = (rect.left + window.scrollX) + 'px';
+        menu.style.display = 'block';
+        // Если слои ещё не загружены, загружаем их
+        if (window.allFortificationLayers.length === 0 && window.fortificationKmlPaths) {
+            initFortificationLayerWithFilter(window.fortificationKmlPaths).then(() => applyFortificationFilter());
+        } else {
+            applyFortificationFilter();
+        }
+    } else {
+        menu.style.display = 'none';
+    }
+}
+
+// Обновление заголовка кнопки
+function updateFortificationButtonTitle() {
+    const btn = document.getElementById('fortification-btn');
+    if (btn) {
+        const t = translations[currentLang];
+        btn.title = window.isFortificationVisible ? 
+            (t.hideFortifications || 'Скрыть фортификации') : 
+            (t.showFortifications || 'Показать фортификации');
+    }
+}
+
+// Новая функция загрузки фортификаций с поддержкой отдельных слоёв
+async function initFortificationLayerWithFilter(kmlFilePaths) {
+    // Очищаем старые данные
+    if (window.allFortificationLayers.length) {
+        window.allFortificationLayers.forEach(item => {
+            if (map.hasLayer(item.layerGroup)) map.removeLayer(item.layerGroup);
+        });
+        window.allFortificationLayers = [];
+    }
+    
+    // Загружаем каждый файл в отдельную layerGroup
+    for (const path of kmlFilePaths) {
+        const layerGroup = L.layerGroup();
+        const ext = path.split('.').pop().toLowerCase();
+        
+        try {
+            if (ext === 'geojson' || ext === 'json') {
+                const response = await fetch(path);
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                const geojsonData = await response.json();
+                const geoJsonLayer = L.geoJSON(geojsonData, {
+                    style: function(feature) {
+                        return {
+                            color: feature.properties?.stroke || '#ff0000',
+                            weight: feature.properties?.['stroke-width'] || 2,
+                            opacity: feature.properties?.['stroke-opacity'] || 1,
+                        };
+                    },
+                    onEachFeature: function(feature, layer) {
+                        if (feature.properties && feature.properties.name) {
+                            layer.bindPopup(feature.properties.name);
+                        }
+                    }
+                });
+                geoJsonLayer.addTo(layerGroup);
+            } else {
+                // KML
+                await loadKmlToLayer(path, layerGroup, {
+                    isPermanent: false,
+                    preserveZoom: true,
+                    fitBounds: false
+                });
+            }
+            window.allFortificationLayers.push({
+                layerGroup: layerGroup,
+                filePath: path,
+                displayName: getFortificationDisplayName(path)
+            });
+            console.log(`Загружен слой фортификации: ${path}`);
+        } catch (error) {
+            console.error(`Ошибка загрузки фортификации ${path}:`, error);
+        }
+    }
+    
+    // Применяем текущий фильтр (если нужно)
+    if (window.isFortificationVisible) {
+        applyFortificationFilter();
+    } else {
+        hideAllFortificationLayers();
+    }
+    
+    return window.allFortificationLayers;
+}
+
+// Экспортируем новые функции
+
 // ========== ИНИЦИАЛИЗАЦИЯ ВСЕХ ФИЛЬТРОВ ==========
 function initFilters() {
     initEquipmentFilter();
     initAttacksFilter();
+    initFortificationFilter();
     // Обновим заголовки кнопок
     updateMilEquipButtonTitle();
     updateAttacksOnUaButtonTitle();
+    updateFortificationButtonTitle();
 }
 
 // Экспортируем функции, которые будут нужны в script.js
 window.initFilters = initFilters;
+window.initFortificationFilter = initFortificationFilter;
+window.initFortificationLayerWithFilter = initFortificationLayerWithFilter;
+
 window.toggleEquipmentMenu = toggleEquipmentMenu;
 window.toggleAttacksMenu = toggleAttacksMenu;
+window.toggleFortificationMenu = toggleFortificationMenu;
+
 window.updateMilEquipButtonTitle = updateMilEquipButtonTitle;
 window.updateAttacksOnUaButtonTitle = updateAttacksOnUaButtonTitle;
+window.updateFortificationButtonTitle = updateFortificationButtonTitle;
+
 window.applyEquipmentFilter = applyEquipmentFilter;
 window.applyAttacksFilter = applyAttacksFilter;
+window.applyFortificationFilter = applyFortificationFilter;
+
 window.hideAllEquipmentMarkers = hideAllEquipmentMarkers;
 window.hideAllAttacksMarkers = hideAllAttacksMarkers;
+window.hideAllFortificationLayers = hideAllFortificationLayers;
+
 
 //
 document.addEventListener('DOMContentLoaded', function() {
