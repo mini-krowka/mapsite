@@ -150,6 +150,8 @@ window.attacksOnUaLayers = [];
 
 window.fortificationKmlPaths = ["kml/Fortifications/Geojson/CK_Trenches.geojson",
 								"kml/Fortifications/Geojson/CK_Teeth.geojson",
+								"kml/Fortifications/Geojson/CK_Ditches.geojson",
+								"kml/Fortifications/Geojson/CK_Wire.geojson",
 								//"kml/Fortifications/Geojson/Trenches_ Mezhevaya.geojson",
 								//"kml/Fortifications/Geojson/Trenches_Kramatorsk.geojson",
 								//"kml/Fortifications/Geojson/Ditches.geojson",
