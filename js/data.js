@@ -149,13 +149,15 @@ window.attacksOnUaLayers = [];
 
 
 window.fortificationKmlPaths = ["kml/Fortifications/Geojson/CK_Trenches.geojson",
+								"kml/Fortifications/Geojson/CK_Teeth.geojson",
 								//"kml/Fortifications/Geojson/Trenches_ Mezhevaya.geojson",
 								//"kml/Fortifications/Geojson/Trenches_Kramatorsk.geojson",
 								//"kml/Fortifications/Geojson/Ditches.geojson",
 								"kml/Fortifications/Geojson/ditches3.geojson",
-								"kml/Fortifications/Geojson/Barbed_wire.geojson",
+								"kml/Fortifications/Geojson/Barbed_wire.geojson"
                                 //"kml/Fortifications/Geojson/Dragons_teeth.geojson",
-							    "kml/Fortifications/Geojson/teeth.geojson"];
+							    //"kml/Fortifications/Geojson/teeth.geojson"
+								];
 window.fortificationLayers = [];
 
 
