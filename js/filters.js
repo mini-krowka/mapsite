@@ -650,15 +650,38 @@ async function initFortificationLayerWithFilter(kmlFilePaths) {
         
         try {
             if (ext === 'geojson' || ext === 'json') {
-                // ... загрузка GeoJSON ...
+                const response = await fetch(path);
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                const geojsonData = await response.json();
+                const geoJsonLayer = L.geoJSON(geojsonData, {
+                    style: function(feature) {
+                        return {
+                            color: feature.properties?.stroke || '#ff0000',
+                            weight: feature.properties?.['stroke-width'] || 2,
+                            opacity: feature.properties?.['stroke-opacity'] || 1,
+                        };
+                    },
+                    onEachFeature: function(feature, layer) {
+                        if (feature.properties && feature.properties.name) {
+                            layer.bindPopup(feature.properties.name);
+                        }
+                    }
+                });
+                geoJsonLayer.addTo(layerGroup);
             } else {
-                await loadKmlToLayer(path, layerGroup, { ... });
+                // KML
+                await loadKmlToLayer(path, layerGroup, {
+                    isPermanent: false,
+                    preserveZoom: true,
+                    fitBounds: false
+                });
             }
             window.allFortificationLayers.push({
                 layerGroup: layerGroup,
                 filePath: path,
                 displayName: displayName
             });
+            console.log(`Загружен слой фортификации: ${path}`);
         } catch (error) {
             console.error(`Ошибка загрузки фортификации ${path}:`, error);
         }
