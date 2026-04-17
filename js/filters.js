@@ -446,7 +446,7 @@ function updateAttacksOnUaButtonTitle() {
 // ========== ФИЛЬТР ФОРТИФИКАЦИЙ ==========
 // Глобальные переменные
 window.allFortificationLayers = [];    // массив { layerGroup, filePath, displayName }
-window.selectedFortificationFiles = null; // null = все, иначе массив выбранных путей
+window.selectedFortificationFiles = []; // пустой массив – ничего не выбрано // null = все, иначе массив выбранных путей
 window.isFortificationVisible = false; // переопределим, чтобы управлять через кнопку
 
 // Названия файлов фортификаций на разных языках
