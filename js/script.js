@@ -2482,14 +2482,13 @@ async function init() {
     window.pointsDateRange.end = currentDate;
     
     // Загружаем точки с фильтром по дате
-    await initPointsLayer(window.pointsKmlPaths);    
-    // Загружаем технику (без фильтра по дате)
-    // await initMilequipLayer(window.milequipKmlPaths);
-    // загружаем по кнопке
+    await initPointsLayer(window.pointsKmlPaths);
     
     // Шаг 5: Инициализация кнопок фильтров
     initFilterButtons();
     initMobileFilterMenu();
+    
+    initUnitsUaButton();
         
     // Шаг 6: Инициализируем другие UI компоненты
     populateCitiesDropdown();

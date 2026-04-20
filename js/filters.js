@@ -693,6 +693,145 @@ async function initFortificationLayerWithFilter(kmlFilePaths) {
     return window.allFortificationLayers;
 }
 
+// ========== СЛОЙ ПОДРАЗДЕЛЕНИЙ ВСУ ИЗ CSV ==========
+window.unitsUaMarkers = [];     // массив маркеров
+window.isUnitsUaVisible = false; // флаг видимости
+window.unitsUaLayer = null;      // групп-слой
+
+// Парсинг CSV строки с учётом возможных кавычек и пробелов
+function parseUnitsCsvRow(row) {
+    // Простой разбив по запятой (если значения не содержат запятых)
+    const parts = row.split(',');
+    if (parts.length < 6) return null;
+    return {
+        id: parts[0].trim(),
+        profileId: parts[1].trim(),
+        date: parts[2].trim(),
+        lat: parseFloat(parts[3].trim()),
+        lng: parseFloat(parts[4].trim()),
+        characteristic: parts[5].trim(),
+        link: parts[6] ? parts[6].trim() : ''
+    };
+}
+
+// Загрузка и отображение точек из CSV
+async function loadUnitsUaFromCsv() {
+    if (!window.unitsUaCsvPath) {
+        console.error('Путь к CSV не задан в data.js');
+        return;
+    }
+    try {
+        const response = await fetch(window.unitsUaCsvPath);
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const csvText = await response.text();
+        const lines = csvText.split(/\r?\n/).filter(line => line.trim().length > 0);
+        if (lines.length === 0) return;
+
+        // Удаляем заголовок (первая строка)
+        const dataLines = lines.slice(1);
+        
+        // Создаём группу для маркеров, если ещё не создана
+        if (!window.unitsUaLayer) {
+            window.unitsUaLayer = L.layerGroup();
+        }
+        window.unitsUaLayer.clearLayers();
+        window.unitsUaMarkers = [];
+
+        // Иконка по умолчанию
+        const defaultIcon = L.icon({
+            iconUrl: 'img/attack types/Взрывчик.png',
+            iconSize: [28, 28],
+            iconAnchor: [14, 14],
+            popupAnchor: [0, 0]
+        });
+
+        for (const line of dataLines) {
+            const data = parseUnitsCsvRow(line);
+            if (!data) continue;
+            if (isNaN(data.lat) || isNaN(data.lng)) continue;
+
+            // Создаём маркер
+            const marker = L.marker([data.lat, data.lng], { icon: defaultIcon });
+            
+            // Формируем содержимое всплывающего окна
+            const popupContent = `
+                <div style="font-size:14px;">
+                    <strong>Подразделение ВСУ</strong><br>
+                    <strong>Дата:</strong> ${data.date}<br>
+                    <strong>Характеристика:</strong> ${data.characteristic}<br>
+                    <strong>Координаты:</strong> ${data.lat}, ${data.lng}<br>
+                    ${data.link ? `<a href="${data.link}" target="_blank">Источник</a>` : ''}
+                </div>
+            `;
+            marker.bindPopup(popupContent);
+            
+            marker.addTo(window.unitsUaLayer);
+            window.unitsUaMarkers.push(marker);
+        }
+        
+        console.log(`Загружено ${window.unitsUaMarkers.length} точек подразделений ВСУ`);
+    } catch (error) {
+        console.error('Ошибка загрузки CSV подразделений ВСУ:', error);
+    }
+}
+
+// Показать слой
+function showUnitsUaMarkers() {
+    if (!window.unitsUaLayer) return;
+    if (!map.hasLayer(window.unitsUaLayer)) {
+        window.unitsUaLayer.addTo(map);
+    }
+    window.isUnitsUaVisible = true;
+}
+
+// Скрыть слой
+function hideUnitsUaMarkers() {
+    if (!window.unitsUaLayer) return;
+    if (map.hasLayer(window.unitsUaLayer)) {
+        map.removeLayer(window.unitsUaLayer);
+    }
+    window.isUnitsUaVisible = false;
+}
+
+// Переключение видимости
+async function toggleUnitsUa() {
+    if (!window.unitsUaLayer || window.unitsUaMarkers.length === 0) {
+        // Ленивая загрузка: если слой пуст – загружаем данные
+        await loadUnitsUaFromCsv();
+    }
+    
+    if (window.isUnitsUaVisible) {
+        hideUnitsUaMarkers();
+        document.getElementById('units-ua-btn').classList.remove('active');
+    } else {
+        showUnitsUaMarkers();
+        document.getElementById('units-ua-btn').classList.add('active');
+    }
+    
+    // Обновляем заголовок кнопки (если нужен мультиязык)
+    const btn = document.getElementById('units-ua-btn');
+    if (btn) {
+        const t = translations[currentLang];
+        btn.title = window.isUnitsUaVisible ? 
+            (t.hideUnitsUa || 'Скрыть подразделения ВСУ') : 
+            (t.showUnitsUa || 'Показать подразделения ВСУ');
+    }
+}
+
+// Инициализация кнопки (вызывается при загрузке страницы)
+function initUnitsUaButton() {
+    const btn = document.getElementById('units-ua-btn');
+    if (!btn) return;
+    btn.addEventListener('click', toggleUnitsUa);
+    // Устанавливаем начальное состояние (скрыто)
+    window.isUnitsUaVisible = false;
+    btn.classList.remove('active');
+    // Заголовок кнопки
+    const t = translations[currentLang];
+    btn.title = t.showUnitsUa || 'Показать подразделения ВСУ';
+}
+
+
 // Экспортируем новые функции
 
 // ========== ИНИЦИАЛИЗАЦИЯ ВСЕХ ФИЛЬТРОВ ==========
