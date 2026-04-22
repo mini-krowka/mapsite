@@ -782,6 +782,7 @@ async function loadUnitsUaFromCsv() {
 
             // ---------- Содержимое всплывающего окна ----------
             const coordsString = `${data.lat.toFixed(6)}, ${data.lng.toFixed(6)}`;
+            /*
             const popupContent = `
                 <div style="font-size:14px;">
                     <strong>${unitTitle}</strong><br>
@@ -794,6 +795,12 @@ async function loadUnitsUaFromCsv() {
                         ⎘
                     </button><br>
                     ${data.link ? `<a href="${data.link}" target="_blank">Источник</a>` : ''}
+                </div>
+            `;
+            */
+            const popupContent = `
+                <div style="font-size:14px;">
+                    <strong>${unitTitle}</strong><br>
                 </div>
             `;
             marker.bindPopup(popupContent);
