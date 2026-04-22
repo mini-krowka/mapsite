@@ -775,6 +775,17 @@ async function loadUnitsUaIcons() {
     }
 }
 
+// Парсинг даты из CSV (формат YYYY.MM.DD)
+function parseCsvDate(dateStr) {
+    if (!dateStr) return null;
+    const parts = dateStr.split('.');
+    if (parts.length !== 3) return null;
+    const year = parseInt(parts[0], 10);
+    const month = parseInt(parts[1], 10) - 1; // месяцы в JS 0-11
+    const day = parseInt(parts[2], 10);
+    return new Date(year, month, day);
+}
+
 // Парсинг строки CSV
 function parseUnitsCsvRow(row) {
     const parts = row.split(',');
@@ -833,7 +844,7 @@ async function loadUnitsUaWithDateFilter(targetDateStr) {
             const rows = byProfile[profileId];
             // Фильтруем даты <= targetDate
             const validRows = rows.filter(row => {
-                const rowDate = parseCustomDate(row.date);
+                const rowDate = parseCsvDate(row.date);
                 return rowDate <= targetDate;
             });
 
@@ -841,8 +852,8 @@ async function loadUnitsUaWithDateFilter(targetDateStr) {
 
             // Находим строку с максимальной датой (ближайшая к целевой, но не позже)
             const latestRow = validRows.reduce((a, b) => {
-                const dateA = parseCustomDate(a.date);
-                const dateB = parseCustomDate(b.date);
+                const dateA = parseCsvDate(a.date);
+                const dateB = parseCsvDate(b.date);
                 return dateA > dateB ? a : b;
             });
 
