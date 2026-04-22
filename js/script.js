@@ -118,10 +118,12 @@ function initDatePicker() {
         dateFormat: "d.m.y",
         allowInput: true,
         defaultDate: defaultDate, // Используем сохраненную дату
-        disableMobile: true, // ВАЖНО: Отключаем нативный picker на мобильных
-        disableMobile: "true", // Дополнительно для совместимости
-        static: true, // Статическое отображение календаря
-        inline: false, // Не показываем календарь всегда
+        disableMobile: true,      // ВАЖНО: Отключаем нативный picker на мобильных
+        disableMobile: "true",    // Дополнительно для совместимости
+        static: true,             // Статическое отображение календаря
+        inline: false,            // Не показываем календарь всегда
+        minDate: new Date(2022, 0, 1),      // ограничение от 2022
+        maxDate: new Date(2030, 11, 31),    // ограничение до 2030
         // Убираем ограничение, чтобы можно было выбрать любую дату
         onChange: function(selectedDates, dateStr) {
             console.log('Дата выбрана в календаре:', dateStr);
