@@ -693,134 +693,20 @@ async function initFortificationLayerWithFilter(kmlFilePaths) {
     return window.allFortificationLayers;
 }
 
-// ========== СЛОЙ ПОДРАЗДЕЛЕНИЙ ВСУ ИЗ CSV ==========
+// ========== СЛОЙ ПОДРАЗДЕЛЕНИЙ ВСУ ==========
+
+// Глобальные переменные для слоя
 window.unitsUaMarkers = [];          // массив маркеров
 window.isUnitsUaVisible = false;     // флаг видимости
 window.unitsUaLayer = null;          // групп-слой
 window.unitsUaIconsMap = {};         // словарь id → { photo, title }
 window.unitsUaIconsLoaded = false;   // загружен ли result.json
 
-// Парсинг CSV строки с учётом возможных кавычек и пробелов
-function parseUnitsCsvRow(row) {
-    // Простой разбив по запятой (если значения не содержат запятых)
-    const parts = row.split(',');
-    if (parts.length < 6) return null;
-    return {
-        id: parts[0].trim(),
-        profileId: parts[1].trim(),
-        date: parts[2].trim(),
-        lat: parseFloat(parts[3].trim()),
-        lng: parseFloat(parts[4].trim()),
-        characteristic: parts[5].trim(),
-        link: parts[6] ? parts[6].trim() : ''
-    };
-}
-
-// Загрузка точек из CSV с учётом иконок и фильтра "ПВД"
-async function loadUnitsUaFromCsv() {
-    if (!window.unitsUaCsvPath) {
-        console.error('Путь к CSV не задан в data.js');
-        return;
-    }
-
-    // Сначала убедимся, что иконки загружены
-    await loadUnitsUaIcons();
-
-    try {
-        const response = await fetch(window.unitsUaCsvPath);
-        if (!response.ok) throw new Error(`HTTP ${response.status}`);
-        const csvText = await response.text();
-        const lines = csvText.split(/\r?\n/).filter(line => line.trim().length > 0);
-        if (lines.length === 0) return;
-
-        // Удаляем заголовок (первая строка)
-        const dataLines = lines.slice(1);
-
-        // Создаём группу для маркеров, если ещё не создана
-        if (!window.unitsUaLayer) {
-            window.unitsUaLayer = L.layerGroup();
-        }
-        window.unitsUaLayer.clearLayers();
-        window.unitsUaMarkers = [];
-
-        // Иконка по умолчанию (используется, если нет фото)
-        const defaultIcon = L.icon({
-            iconUrl: 'img/attack types/Взрывчик.png',
-            iconSize: [28, 28],
-            iconAnchor: [14, 14],
-            popupAnchor: [0, 0]
-        });
-
-        for (const line of dataLines) {
-            const data = parseUnitsCsvRow(line);
-            if (!data) continue;
-            if (isNaN(data.lat) || isNaN(data.lng)) continue;
-
-            // ---------- Фильтр по характеристике ----------
-            if (data.characteristic !== 'ПВД') continue;
-
-            // ---------- Получаем иконку ----------
-            let icon = defaultIcon;
-            let unitTitle = '';
-
-            const iconInfo = window.unitsUaIconsMap[data.profileId];
-            if (iconInfo) {
-                const photoPath = `units/ua/${iconInfo.photo}`;  // полный путь от корня сайта
-                icon = L.icon({
-                    iconUrl: photoPath,
-                    iconSize: [28, 28],
-                    iconAnchor: [14, 14],
-                    popupAnchor: [0, 0]
-                });
-                unitTitle = iconInfo.title;
-            } else {
-                unitTitle = `ID:${data.profileId}`;
-            }
-
-            // ---------- Создаём маркер ----------
-            const marker = L.marker([data.lat, data.lng], { icon: icon });
-
-            // ---------- Содержимое всплывающего окна ----------
-            const coordsString = `${data.lat.toFixed(6)}, ${data.lng.toFixed(6)}`;
-            /*
-            const popupContent = `
-                <div style="font-size:14px;">
-                    <strong>${unitTitle}</strong><br>
-                    <strong>Дата:</strong> ${data.date}<br>
-                    <strong>Характеристика:</strong> ${data.characteristic}<br>
-                    <strong>Координаты:</strong> 
-                    <span style="font-family: monospace;">${coordsString}</span>
-                    <button class="copy-coords-popup-btn" data-coords="${coordsString}" 
-                            style="cursor: pointer; background: #007bff; color: white; border: none; border-radius: 3px; padding: 2px 6px; font-size: 12px; margin-left: 8px;">
-                        ⎘
-                    </button><br>
-                    ${data.link ? `<a href="${data.link}" target="_blank">Источник</a>` : ''}
-                </div>
-            `;
-            */
-            const popupContent = `
-                <div style="font-size:14px;">
-                    <strong>${unitTitle}</strong><br>
-                </div>
-            `;
-            marker.bindPopup(popupContent);
-
-            marker.addTo(window.unitsUaLayer);
-            window.unitsUaMarkers.push(marker);
-        }
-
-        console.log(`Загружено ${window.unitsUaMarkers.length} точек ПВД`);
-
-    } catch (error) {
-        console.error('Ошибка загрузки CSV подразделений ВСУ:', error);
-    }
-}
-
-// Загрузка иконок и названий из result.json
+// Загрузка иконок и названий из result.json (поддержка photo и file_name)
 async function loadUnitsUaIcons() {
     if (window.unitsUaIconsLoaded) return;
 
-    const jsonPath = window.unitsUaJsonPath;  // должен быть определён в data.js
+    const jsonPath = window.unitsUaJsonPath;
     if (!jsonPath) {
         console.error('Путь к units/ua/result.json не задан (window.unitsUaJsonPath)');
         return;
@@ -831,17 +717,28 @@ async function loadUnitsUaIcons() {
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
         const data = await response.json();
 
-        // data.messages – массив объектов
         for (const msg of data.messages) {
-            // Нас интересуют только сообщения с фото и с явным ID в тексте
-            if (!msg.photo) continue;
+            // Определяем путь к изображению
+            let imagePath = null;
+
+            // Вариант 1: стандартное поле "photo"
+            if (msg.photo && typeof msg.photo === 'string') {
+                imagePath = msg.photo;   // например "photos/photo_1@11-03-2026_15-36-45.jpg"
+            }
+            // Вариант 2: прикреплённый файл (file_name / file)
+            else if (msg.file_name && typeof msg.file_name === 'string') {
+                imagePath = 'photos/' + msg.file_name;
+            } else if (msg.file && typeof msg.file === 'string') {
+                imagePath = 'photos/' + msg.file;
+            }
+
+            if (!imagePath) continue;
 
             // Извлекаем ID из текста (формат "ID:7" в начале)
             let text = '';
             if (typeof msg.text === 'string') {
                 text = msg.text;
             } else if (Array.isArray(msg.text)) {
-                // текст может быть массивом объектов (как в примере)
                 text = msg.text.map(part => (typeof part === 'string' ? part : part.text)).join('');
             } else {
                 continue;
@@ -863,9 +760,8 @@ async function loadUnitsUaIcons() {
                 }
             }
 
-            // Сохраняем в карту
             window.unitsUaIconsMap[profileId] = {
-                photo: msg.photo,                   // "photos/photo_1@11-03-2026_15-36-45.jpg"
+                photo: imagePath,
                 title: title || `Подразделение ID:${profileId}`
             };
         }
@@ -875,45 +771,187 @@ async function loadUnitsUaIcons() {
 
     } catch (error) {
         console.error('Ошибка загрузки units/ua/result.json:', error);
-        // fallback – карта останется пустой
-        window.unitsUaIconsLoaded = true; // чтобы не пытаться бесконечно
+        window.unitsUaIconsLoaded = true;
     }
 }
 
-// Показать слой
-function showUnitsUaMarkers() {
-    if (!window.unitsUaLayer) return;
-    if (!map.hasLayer(window.unitsUaLayer)) {
-        window.unitsUaLayer.addTo(map);
-    }
-    window.isUnitsUaVisible = true;
+// Парсинг строки CSV
+function parseUnitsCsvRow(row) {
+    const parts = row.split(',');
+    if (parts.length < 6) return null;
+    return {
+        id: parts[0].trim(),
+        profileId: parts[1].trim(),
+        date: parts[2].trim(),
+        lat: parseFloat(parts[3].trim()),
+        lng: parseFloat(parts[4].trim()),
+        characteristic: parts[5].trim(),
+        link: parts[6] ? parts[6].trim() : ''
+    };
 }
 
-// Скрыть слой
-function hideUnitsUaMarkers() {
-    if (!window.unitsUaLayer) return;
-    if (map.hasLayer(window.unitsUaLayer)) {
-        map.removeLayer(window.unitsUaLayer);
+// Функция загрузки точек с фильтром по дате (только ПВД, не более одной на ID)
+async function loadUnitsUaWithDateFilter(targetDateStr) {
+    if (!window.unitsUaCsvPath) {
+        console.error('Путь к CSV не задан в data.js');
+        return;
     }
-    window.isUnitsUaVisible = false;
+
+    try {
+        const response = await fetch(window.unitsUaCsvPath);
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const csvText = await response.text();
+        const lines = csvText.split(/\r?\n/).filter(line => line.trim().length > 0);
+        if (lines.length === 0) return;
+
+        const dataLines = lines.slice(1); // без заголовка
+
+        // Парсим все строки
+        const allRows = [];
+        for (const line of dataLines) {
+            const data = parseUnitsCsvRow(line);
+            if (!data) continue;
+            if (isNaN(data.lat) || isNaN(data.lng)) continue;
+            if (data.characteristic !== 'ПВД') continue;
+            allRows.push(data);
+        }
+
+        // Группируем по profileId
+        const byProfile = {};
+        allRows.forEach(row => {
+            if (!byProfile[row.profileId]) byProfile[row.profileId] = [];
+            byProfile[row.profileId].push(row);
+        });
+
+        // Целевая дата (из календаря)
+        const targetDate = parseCustomDate(targetDateStr);
+
+        // Для каждого ID выбираем точку с датой <= targetDate и максимальной
+        const selectedRows = [];
+
+        for (const profileId in byProfile) {
+            const rows = byProfile[profileId];
+            // Фильтруем даты <= targetDate
+            const validRows = rows.filter(row => {
+                const rowDate = parseCustomDate(row.date);
+                return rowDate <= targetDate;
+            });
+
+            if (validRows.length === 0) continue;
+
+            // Находим строку с максимальной датой (ближайшая к целевой, но не позже)
+            const latestRow = validRows.reduce((a, b) => {
+                const dateA = parseCustomDate(a.date);
+                const dateB = parseCustomDate(b.date);
+                return dateA > dateB ? a : b;
+            });
+
+            selectedRows.push(latestRow);
+        }
+
+        // Загружаем иконки (если ещё не загружены)
+        await loadUnitsUaIcons();
+
+        // Очищаем слой
+        if (window.unitsUaLayer) {
+            window.unitsUaLayer.clearLayers();
+        } else {
+            window.unitsUaLayer = L.layerGroup();
+        }
+        window.unitsUaMarkers = [];
+
+        // Иконка по умолчанию
+        const defaultIcon = L.icon({
+            iconUrl: 'img/attack types/Взрывчик.png',
+            iconSize: [28, 28],
+            iconAnchor: [14, 14],
+            popupAnchor: [0, 0]
+        });
+
+        // Создаём маркеры
+        for (const row of selectedRows) {
+            let icon = defaultIcon;
+            let unitTitle = '';
+            const iconInfo = window.unitsUaIconsMap[row.profileId];
+            if (iconInfo) {
+                icon = L.icon({
+                    iconUrl: `units/ua/${iconInfo.photo}`,
+                    iconSize: [28, 28],
+                    iconAnchor: [14, 14],
+                    popupAnchor: [0, 0]
+                });
+                unitTitle = iconInfo.title;
+            } else {
+                unitTitle = `ID:${row.profileId}`;
+            }
+
+            const marker = L.marker([row.lat, row.lng], { icon: icon });
+            const coordsString = `${row.lat.toFixed(6)}, ${row.lng.toFixed(6)}`;
+            /*
+            const popupContent = `
+                <div style="font-size:14px;">
+                    <strong>${unitTitle}</strong><br>
+                    <strong>Дата:</strong> ${row.date}<br>
+                    <strong>Характеристика:</strong> ${row.characteristic}<br>
+                    <strong>Координаты:</strong> 
+                    <span style="font-family: monospace;">${coordsString}</span>
+                    <button class="copy-coords-popup-btn" data-coords="${coordsString}" 
+                            style="cursor: pointer; background: #007bff; color: white; border: none; border-radius: 3px; padding: 2px 6px; font-size: 12px; margin-left: 8px;">
+                        ⎘
+                    </button><br>
+                    ${row.link ? `<a href="${row.link}" target="_blank">Источник</a>` : ''}
+                </div>
+            `;
+            */
+            const popupContent = `
+                <div style="font-size:14px;">
+                    <strong>${unitTitle}</strong><br>
+                </div>
+            `;            
+            
+            marker.bindPopup(popupContent);
+            marker.addTo(window.unitsUaLayer);
+            window.unitsUaMarkers.push(marker);
+        }
+
+        console.log(`Загружено ${window.unitsUaMarkers.length} точек ПВД для даты ${targetDateStr}`);
+
+    } catch (error) {
+        console.error('Ошибка загрузки CSV подразделений ВСУ:', error);
+    }
 }
 
-// Переключение видимости (загружает иконки перед CSV)
-async function toggleUnitsUa() {
-    if (!window.unitsUaLayer || window.unitsUaMarkers.length === 0) {
-        // Ленивая загрузка: сначала подгружаем иконки, потом CSV
-        await loadUnitsUaFromCsv();
-    }
-
+// Перезагрузка слоя с учётом текущей selectedDate
+function reloadUnitsUaLayer() {
     if (window.isUnitsUaVisible) {
-        hideUnitsUaMarkers();
-        document.getElementById('units-ua-btn').classList.remove('active');
-    } else {
-        showUnitsUaMarkers();
+        const currentDate = window.selectedDate || getCurrentDateFormatted();
+        loadUnitsUaWithDateFilter(currentDate).then(() => {
+            // Убедимся, что слой на карте
+            if (!map.hasLayer(window.unitsUaLayer)) {
+                window.unitsUaLayer.addTo(map);
+            }
+        });
+    }
+}
+
+// Переключение видимости слоя
+async function toggleUnitsUa() {
+    if (!window.isUnitsUaVisible) {
+        // Показать слой: загрузить данные с фильтром по текущей дате
+        const currentDate = window.selectedDate || getCurrentDateFormatted();
+        await loadUnitsUaWithDateFilter(currentDate);
+        window.unitsUaLayer.addTo(map);
+        window.isUnitsUaVisible = true;
         document.getElementById('units-ua-btn').classList.add('active');
+    } else {
+        // Скрыть
+        if (map.hasLayer(window.unitsUaLayer)) {
+            map.removeLayer(window.unitsUaLayer);
+        }
+        window.isUnitsUaVisible = false;
+        document.getElementById('units-ua-btn').classList.remove('active');
     }
 
-    // Обновляем заголовок кнопки (мультиязычность)
     const btn = document.getElementById('units-ua-btn');
     if (btn) {
         const t = translations[currentLang];
@@ -923,19 +961,16 @@ async function toggleUnitsUa() {
     }
 }
 
-// Инициализация кнопки (вызывается при загрузке страницы)
+// Инициализация кнопки
 function initUnitsUaButton() {
     const btn = document.getElementById('units-ua-btn');
     if (!btn) return;
     btn.addEventListener('click', toggleUnitsUa);
-    // Устанавливаем начальное состояние (скрыто)
     window.isUnitsUaVisible = false;
     btn.classList.remove('active');
-    // Заголовок кнопки
     const t = translations[currentLang];
     btn.title = t.showUnitsUa || 'Показать подразделения ВСУ';
 }
-
 
 // Экспортируем новые функции
 
@@ -970,6 +1005,8 @@ window.applyFortificationFilter = applyFortificationFilter;
 window.hideAllEquipmentMarkers = hideAllEquipmentMarkers;
 window.hideAllAttacksMarkers = hideAllAttacksMarkers;
 window.hideAllFortificationLayers = hideAllFortificationLayers;
+
+window.reloadUnitsUaLayer = reloadUnitsUaLayer;
 
 
 //

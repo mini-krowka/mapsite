@@ -213,6 +213,11 @@ function updatePointsDateFilterForSelectedDate() {
     // Обновляем диапазон дат
     window.pointsDateRange.start = startDate;
     window.pointsDateRange.end = currentDate;
+    
+    // Если слой подразделений активен, обновляем его с новой датой
+    if (window.reloadUnitsUaLayer) {
+        window.reloadUnitsUaLayer();
+    }
 }
 
 // Функция для проверки валидности координат
@@ -2112,6 +2117,10 @@ async function navigateTo(index) {
         console.error("Ошибка навигации:", error);
     } finally {
         updateButtons();
+        // Обновляем слой подразделений при смене даты
+        if (window.reloadUnitsUaLayer) {
+            window.reloadUnitsUaLayer();
+        }
     }
 }
 
