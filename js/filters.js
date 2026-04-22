@@ -694,9 +694,11 @@ async function initFortificationLayerWithFilter(kmlFilePaths) {
 }
 
 // ========== СЛОЙ ПОДРАЗДЕЛЕНИЙ ВСУ ИЗ CSV ==========
-window.unitsUaMarkers = [];     // массив маркеров
-window.isUnitsUaVisible = false; // флаг видимости
-window.unitsUaLayer = null;      // групп-слой
+window.unitsUaMarkers = [];          // массив маркеров
+window.isUnitsUaVisible = false;     // флаг видимости
+window.unitsUaLayer = null;          // групп-слой
+window.unitsUaIconsMap = {};         // словарь id → { photo, title }
+window.unitsUaIconsLoaded = false;   // загружен ли result.json
 
 // Парсинг CSV строки с учётом возможных кавычек и пробелов
 function parseUnitsCsvRow(row) {
@@ -714,12 +716,16 @@ function parseUnitsCsvRow(row) {
     };
 }
 
-// Загрузка и отображение точек из CSV
+// Загрузка точек из CSV с учётом иконок и фильтра "ПВД"
 async function loadUnitsUaFromCsv() {
     if (!window.unitsUaCsvPath) {
         console.error('Путь к CSV не задан в data.js');
         return;
     }
+
+    // Сначала убедимся, что иконки загружены
+    await loadUnitsUaIcons();
+
     try {
         const response = await fetch(window.unitsUaCsvPath);
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
@@ -729,7 +735,7 @@ async function loadUnitsUaFromCsv() {
 
         // Удаляем заголовок (первая строка)
         const dataLines = lines.slice(1);
-        
+
         // Создаём группу для маркеров, если ещё не создана
         if (!window.unitsUaLayer) {
             window.unitsUaLayer = L.layerGroup();
@@ -737,7 +743,7 @@ async function loadUnitsUaFromCsv() {
         window.unitsUaLayer.clearLayers();
         window.unitsUaMarkers = [];
 
-        // Иконка по умолчанию
+        // Иконка по умолчанию (используется, если нет фото)
         const defaultIcon = L.icon({
             iconUrl: 'img/attack types/Взрывчик.png',
             iconSize: [28, 28],
@@ -750,28 +756,120 @@ async function loadUnitsUaFromCsv() {
             if (!data) continue;
             if (isNaN(data.lat) || isNaN(data.lng)) continue;
 
-            // Создаём маркер
-            const marker = L.marker([data.lat, data.lng], { icon: defaultIcon });
-            
-            // Формируем содержимое всплывающего окна
+            // ---------- Фильтр по характеристике ----------
+            if (data.characteristic !== 'ПВД') continue;
+
+            // ---------- Получаем иконку ----------
+            let icon = defaultIcon;
+            let unitTitle = '';
+
+            const iconInfo = window.unitsUaIconsMap[data.profileId];
+            if (iconInfo) {
+                const photoPath = `units/ua/${iconInfo.photo}`;  // полный путь от корня сайта
+                icon = L.icon({
+                    iconUrl: photoPath,
+                    iconSize: [28, 28],
+                    iconAnchor: [14, 14],
+                    popupAnchor: [0, 0]
+                });
+                unitTitle = iconInfo.title;
+            } else {
+                unitTitle = `ID:${data.profileId}`;
+            }
+
+            // ---------- Создаём маркер ----------
+            const marker = L.marker([data.lat, data.lng], { icon: icon });
+
+            // ---------- Содержимое всплывающего окна ----------
+            const coordsString = `${data.lat.toFixed(6)}, ${data.lng.toFixed(6)}`;
             const popupContent = `
                 <div style="font-size:14px;">
-                    <strong>Подразделение ВСУ</strong><br>
+                    <strong>${unitTitle}</strong><br>
                     <strong>Дата:</strong> ${data.date}<br>
                     <strong>Характеристика:</strong> ${data.characteristic}<br>
-                    <strong>Координаты:</strong> ${data.lat}, ${data.lng}<br>
+                    <strong>Координаты:</strong> 
+                    <span style="font-family: monospace;">${coordsString}</span>
+                    <button class="copy-coords-popup-btn" data-coords="${coordsString}" 
+                            style="cursor: pointer; background: #007bff; color: white; border: none; border-radius: 3px; padding: 2px 6px; font-size: 12px; margin-left: 8px;">
+                        ⎘
+                    </button><br>
                     ${data.link ? `<a href="${data.link}" target="_blank">Источник</a>` : ''}
                 </div>
             `;
             marker.bindPopup(popupContent);
-            
+
             marker.addTo(window.unitsUaLayer);
             window.unitsUaMarkers.push(marker);
         }
-        
-        console.log(`Загружено ${window.unitsUaMarkers.length} точек подразделений ВСУ`);
+
+        console.log(`Загружено ${window.unitsUaMarkers.length} точек ПВД`);
+
     } catch (error) {
         console.error('Ошибка загрузки CSV подразделений ВСУ:', error);
+    }
+}
+
+// Загрузка иконок и названий из result.json
+async function loadUnitsUaIcons() {
+    if (window.unitsUaIconsLoaded) return;
+
+    const jsonPath = window.unitsUaJsonPath;  // должен быть определён в data.js
+    if (!jsonPath) {
+        console.error('Путь к units/ua/result.json не задан (window.unitsUaJsonPath)');
+        return;
+    }
+
+    try {
+        const response = await fetch(jsonPath);
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const data = await response.json();
+
+        // data.messages – массив объектов
+        for (const msg of data.messages) {
+            // Нас интересуют только сообщения с фото и с явным ID в тексте
+            if (!msg.photo) continue;
+
+            // Извлекаем ID из текста (формат "ID:7" в начале)
+            let text = '';
+            if (typeof msg.text === 'string') {
+                text = msg.text;
+            } else if (Array.isArray(msg.text)) {
+                // текст может быть массивом объектов (как в примере)
+                text = msg.text.map(part => (typeof part === 'string' ? part : part.text)).join('');
+            } else {
+                continue;
+            }
+
+            const idMatch = text.match(/^ID\s*:\s*(\d+)/m);
+            if (!idMatch) continue;
+
+            const profileId = idMatch[1];
+
+            // Название подразделения – первая непустая строка после ID
+            const lines = text.split('\n');
+            let title = '';
+            for (let i = 1; i < lines.length; i++) {
+                const line = lines[i].trim();
+                if (line && !line.startsWith('http')) {
+                    title = line;
+                    break;
+                }
+            }
+
+            // Сохраняем в карту
+            window.unitsUaIconsMap[profileId] = {
+                photo: msg.photo,                   // "photos/photo_1@11-03-2026_15-36-45.jpg"
+                title: title || `Подразделение ID:${profileId}`
+            };
+        }
+
+        window.unitsUaIconsLoaded = true;
+        console.log(`Загружено ${Object.keys(window.unitsUaIconsMap).length} иконок подразделений`);
+
+    } catch (error) {
+        console.error('Ошибка загрузки units/ua/result.json:', error);
+        // fallback – карта останется пустой
+        window.unitsUaIconsLoaded = true; // чтобы не пытаться бесконечно
     }
 }
 
@@ -793,13 +891,13 @@ function hideUnitsUaMarkers() {
     window.isUnitsUaVisible = false;
 }
 
-// Переключение видимости
+// Переключение видимости (загружает иконки перед CSV)
 async function toggleUnitsUa() {
     if (!window.unitsUaLayer || window.unitsUaMarkers.length === 0) {
-        // Ленивая загрузка: если слой пуст – загружаем данные
+        // Ленивая загрузка: сначала подгружаем иконки, потом CSV
         await loadUnitsUaFromCsv();
     }
-    
+
     if (window.isUnitsUaVisible) {
         hideUnitsUaMarkers();
         document.getElementById('units-ua-btn').classList.remove('active');
@@ -807,13 +905,13 @@ async function toggleUnitsUa() {
         showUnitsUaMarkers();
         document.getElementById('units-ua-btn').classList.add('active');
     }
-    
-    // Обновляем заголовок кнопки (если нужен мультиязык)
+
+    // Обновляем заголовок кнопки (мультиязычность)
     const btn = document.getElementById('units-ua-btn');
     if (btn) {
         const t = translations[currentLang];
-        btn.title = window.isUnitsUaVisible ? 
-            (t.hideUnitsUa || 'Скрыть подразделения ВСУ') : 
+        btn.title = window.isUnitsUaVisible ?
+            (t.hideUnitsUa || 'Скрыть подразделения ВСУ') :
             (t.showUnitsUa || 'Показать подразделения ВСУ');
     }
 }
