@@ -935,7 +935,12 @@ async function loadUnitsUaWithDateFilter(targetDateStr) {
 // Перезагрузка слоя с учётом текущей selectedDate
 function reloadUnitsUaLayer() {
     if (window.isUnitsUaVisible) {
-        const currentDate = window.selectedDate || getCurrentDateFormatted();
+        // Всегда используем актуальную дату из календаря
+        const currentDate = window.selectedDate;
+        if (!currentDate) {
+            console.warn('reloadUnitsUaLayer: selectedDate не определена, используется текущая дата');
+            currentDate = getCurrentDateFormatted();
+        }
         loadUnitsUaWithDateFilter(currentDate).then(() => {
             // Убедимся, что слой на карте
             if (!map.hasLayer(window.unitsUaLayer)) {

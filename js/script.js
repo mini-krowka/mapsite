@@ -10,6 +10,7 @@ currentCenterCoordsElement = document.getElementById('current-center-coords');
 copyCoordsBtn = document.getElementById('copy-coords-btn');
 
 let selectedDate = null; // Глобальная переменная для хранения текущей даты
+window.selectedDate = selectedDate;
 
 // Глобальный флаг для логгирования стилей временных файлов
 const LOG_STYLES = true; // Можно менять на false для отключения
