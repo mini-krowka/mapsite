@@ -718,20 +718,20 @@ async function loadUnitsUaIcons() {
         const data = await response.json();
 
         for (const msg of data.messages) {
-            // Пропускаем сообщения без файла (например, "Резерв")
+            // Пропускаем сообщения без файла (например, «Резерв»)
             if (!msg.file && !msg.file_name) continue;
 
             let imagePath = null;
+            // Используем file (уже содержит путь относительно units/ua, например "files/8.png")
             if (msg.file && typeof msg.file === 'string') {
-                // "file": "files/8.png"
-                imagePath = 'units/ua/' + msg.file;  // => units/ua/files/8.png
+                imagePath = msg.file;                     // "files/8.png"
             } else if (msg.file_name && typeof msg.file_name === 'string') {
-                imagePath = 'units/ua/files/' + msg.file_name; // на случай, если будет просто имя
+                imagePath = 'files/' + msg.file_name;    // "files/some_name.png"
             }
 
             if (!imagePath) continue;
 
-            // Извлекаем полный текст (может быть строкой или массивом)
+            // Извлекаем полный текст сообщения (строка или массив)
             let text = '';
             if (typeof msg.text === 'string') {
                 text = msg.text;
@@ -746,7 +746,7 @@ async function loadUnitsUaIcons() {
 
             const profileId = idMatch[1];
 
-            // Название – первая непустая строка после ID
+            // Название — первая непустая строка после ID
             const lines = text.split('\n');
             let title = '';
             for (let i = 1; i < lines.length; i++) {
@@ -758,7 +758,7 @@ async function loadUnitsUaIcons() {
             }
 
             window.unitsUaIconsMap[profileId] = {
-                photo: imagePath,
+                photo: imagePath,                                    // уже относительно units/ua
                 title: title || `Подразделение ID:${profileId}`
             };
         }
