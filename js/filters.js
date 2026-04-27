@@ -885,9 +885,9 @@ async function loadUnitsUaWithDateFilter(targetDateStr) {
             if (iconInfo) {
                 icon = L.icon({
                     iconUrl: `units/ua/${iconInfo.photo}`,
-                    iconSize: [28, 28],
-                    iconAnchor: [14, 14],
-                    popupAnchor: [0, 0]
+                    iconSize: [28, 32],
+                    iconAnchor: [14, 16],
+                    popupAnchor: [0, -16]
                 });
                 unitTitle = iconInfo.title;
             } else {
