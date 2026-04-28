@@ -708,7 +708,7 @@ async function loadUnitsUaIcons() {
 
     const jsonPath = window.unitsUaJsonPath;
     if (!jsonPath) {
-        console.error('Путь к units/ua/result.json не задан (window.unitsUaJsonPath)');
+        console.error('Путь к UnitsUA.json не задан (window.unitsUaJsonPath)');
         return;
     }
 
@@ -718,23 +718,20 @@ async function loadUnitsUaIcons() {
         const data = await response.json();
 
         for (const msg of data.messages) {
-            // Определяем путь к изображению
-            let imagePath = null;
+            // Пропускаем сообщения без файла (например, «Резерв»)
+            if (!msg.file && !msg.file_name) continue;
 
-            // Вариант 1: стандартное поле "photo"
-            if (msg.photo && typeof msg.photo === 'string') {
-                imagePath = msg.photo;   // например "photos/photo_1@11-03-2026_15-36-45.jpg"
-            }
-            // Вариант 2: прикреплённый файл (file_name / file)
-            else if (msg.file_name && typeof msg.file_name === 'string') {
-                imagePath = 'photos/' + msg.file_name;
-            } else if (msg.file && typeof msg.file === 'string') {
-                imagePath = 'photos/' + msg.file;
+            let imagePath = null;
+            // Используем file (уже содержит путь относительно units/ua, например "files/8.png")
+            if (msg.file && typeof msg.file === 'string') {
+                imagePath = msg.file;                     // "files/8.png"
+            } else if (msg.file_name && typeof msg.file_name === 'string') {
+                imagePath = 'files/' + msg.file_name;    // "files/some_name.png"
             }
 
             if (!imagePath) continue;
 
-            // Извлекаем ID из текста (формат "ID:7" в начале)
+            // Извлекаем полный текст сообщения (строка или массив)
             let text = '';
             if (typeof msg.text === 'string') {
                 text = msg.text;
@@ -749,7 +746,7 @@ async function loadUnitsUaIcons() {
 
             const profileId = idMatch[1];
 
-            // Название подразделения – первая непустая строка после ID
+            // Название — первая непустая строка после ID
             const lines = text.split('\n');
             let title = '';
             for (let i = 1; i < lines.length; i++) {
@@ -761,7 +758,7 @@ async function loadUnitsUaIcons() {
             }
 
             window.unitsUaIconsMap[profileId] = {
-                photo: imagePath,
+                photo: imagePath,                                    // уже относительно units/ua
                 title: title || `Подразделение ID:${profileId}`
             };
         }
@@ -770,7 +767,7 @@ async function loadUnitsUaIcons() {
         console.log(`Загружено ${Object.keys(window.unitsUaIconsMap).length} иконок подразделений`);
 
     } catch (error) {
-        console.error('Ошибка загрузки units/ua/result.json:', error);
+        console.error('Ошибка загрузки UnitsUA.json:', error);
         window.unitsUaIconsLoaded = true;
     }
 }
@@ -789,15 +786,16 @@ function parseCsvDate(dateStr) {
 // Парсинг строки CSV
 function parseUnitsCsvRow(row) {
     const parts = row.split(',');
-    if (parts.length < 6) return null;
+    if (parts.length < 7) return null; // минимум до столбца "Источник"
     return {
-        id: parts[0].trim(),
-        profileId: parts[1].trim(),
-        date: parts[2].trim(),
+        // id: parts[0].trim(), // больше не нужно
+        profileId: parts[1].trim(),   // было parts[1] – остаётся, но индекс изменился
+        date: parts[2].trim(),        // было parts[2]
         lat: parseFloat(parts[3].trim()),
         lng: parseFloat(parts[4].trim()),
         characteristic: parts[5].trim(),
-        link: parts[6] ? parts[6].trim() : ''
+        link: parts[6].trim()         // источник
+        // details: parts[7] – можно добавить, но не используется
     };
 }
 
@@ -887,9 +885,9 @@ async function loadUnitsUaWithDateFilter(targetDateStr) {
             if (iconInfo) {
                 icon = L.icon({
                     iconUrl: `units/ua/${iconInfo.photo}`,
-                    iconSize: [28, 28],
-                    iconAnchor: [14, 14],
-                    popupAnchor: [0, 0]
+                    iconSize: [28, 32],
+                    iconAnchor: [14, 16],
+                    popupAnchor: [0, -16]
                 });
                 unitTitle = iconInfo.title;
             } else {
