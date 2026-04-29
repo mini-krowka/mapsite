@@ -19,6 +19,8 @@ let currentDateRange = 'week'; // 'week', 'month', '3months', '6months', 'year'
 // let isAttacksOnUaVisible  = false; // Флаг видимости слоя атак по территории
 // let isFortificationVisible = false; // Флаг видимости слоя фортификаций
 
+const INTERACTIVE = true;
+
 // Получаем массив доступных дат из kmlFiles
 const availableDates = kmlFiles.map(file => file.name);
 
@@ -622,13 +624,13 @@ window.kmlStyles = {
             weight: 5, // Толщина линии
             fillColor: '#999999', //Заливка
             fillOpacity: 0.25, //  Непрозрачность
-            interactive: false
+            interactive: INTERACTIVE
         },
         polyline: {
             color: '#ffffff', // Цвет линии
             weight: 5, // Толщина линии
             opacity: 1,
-            interactive: false
+            interactive: INTERACTIVE
         }
     },
     [window.kmlStyleModes.STYLE_RUAF]: {
@@ -637,13 +639,13 @@ window.kmlStyles = {
             weight: 0.1,
             fillColor: '#ff0000',
             fillOpacity: 0.2,
-            interactive: false
+            interactive: INTERACTIVE
         },
         polyline: {
             color: '#ff0000',
             weight: 4,
             opacity: 0.8,
-            interactive: false
+            interactive: INTERACTIVE
         }
     },
     [window.kmlStyleModes.STYLE_AFU]: {
@@ -652,13 +654,13 @@ window.kmlStyles = {
             weight: 0.1,
             fillColor: '#0000ff',
             fillOpacity: 0.2,
-            interactive: false
+            interactive: INTERACTIVE
         },
         polyline: {
             color: '#0000ff',
             weight: 4,
             opacity: 0.8,
-            interactive: false
+            interactive: INTERACTIVE
         }
     },
     [window.kmlStyleModes.STYLE_CITIES]: {
@@ -667,13 +669,13 @@ window.kmlStyles = {
             weight: 1,             // толщина обводки
             fillColor: '#999999',   // цвет заливки
             fillOpacity: 0.25,      // прозрачность заливки
-            interactive: false
+            interactive: INTERACTIVE
         },
         polyline: {
             color: '#ffffff',
             weight: 1,
             opacity: 1,
-            interactive: false
+            interactive: INTERACTIVE
         }
     }
 };
@@ -857,7 +859,7 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup, styleM
                     weight: style.line.weight || 0,
                     fillColor: style.poly.fillColor || '#3388ff',
                     fillOpacity: style.poly.fillOpacity || 0.5,
-                    interactive: false
+                    interactive: INTERACTIVE
                 };
             } else {
                 // Для заданных стилей (STYLE_RUAF, STYLE_AFU, STYLE_MG) используем предопределенные
@@ -870,7 +872,7 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup, styleM
                         weight: 0,
                         fillColor: '#3388ff',
                         fillOpacity: 0.5,
-                        interactive: false
+                        interactive: INTERACTIVE
                     };
                 }
             }
@@ -910,7 +912,7 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup, styleM
                     color: style.line.color || '#3388ff',
                     weight: style.line.weight || 3,
                     opacity: style.line.opacity || 1,
-                    interactive: false
+                    interactive: INTERACTIVE
                 };
             } else {
                 const styleConfig = window.kmlStyles[useStyleMode];
@@ -921,7 +923,7 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup, styleM
                         color: '#3388ff',
                         weight: 3,
                         opacity: 1,
-                        interactive: false
+                        interactive: INTERACTIVE
                     };
                 }
             }
