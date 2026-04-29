@@ -780,6 +780,18 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup, styleM
     let bounds = L.latLngBounds(); // Инициализация пустыми границами
     let elementCount = 0;
     
+    // Вспомогательная функция для привязки тултипа при наведении
+    function bindTooltipOnHover(layer, name) {
+        if (name && name.trim() !== '' && !name.includes('Control_')) {
+            let tooltipText = name.replace(/<[^>]*>/g, '');
+            layer.bindTooltip(tooltipText, {
+                sticky: true,
+                direction: 'auto',
+                offset: [0, 0]
+            });
+        }
+    }
+    
     kmlDoc.querySelectorAll('Placemark').forEach(placemark => {
         // Получаем описание для определения стиля
         const descriptionElement = placemark.querySelector('description');
@@ -870,10 +882,8 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup, styleM
             if (poly.getBounds().isValid()) {
                 bounds.extend(poly.getBounds());
             }
-            // Добавляем метку, если есть название
-            if (name && name.trim() !== '') {
-                addLabelToLayer(name, 'Polygon', coords, layerGroup);
-            }            
+            // Добавляем метку
+            bindTooltipOnHover(poly, name);
 
             // Логирование информации о полигоне
             if (LOG_STYLES) {
@@ -922,10 +932,8 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup, styleM
             if (polyline.getBounds().isValid()) {
                 bounds.extend(polyline.getBounds());
             }
-            // Добавляем метку, если есть название                
-            if (name && name.trim() !== '') {
-                addLabelToLayer(name, 'LineString', coords, layerGroup);
-            }
+            // Добавляем метку
+            bindTooltipOnHover(polyline, name);
 
             // Логирование информации о линии
             if (LOG_STYLES) {
@@ -1091,6 +1099,8 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup, styleM
 			
 			// Создаём маркер
 			const marker = L.marker([lat, lng], { icon: icon }).addTo(layerGroup);
+            
+            bindTooltipOnHover(marker, name);
 			
 			// Для техники сохраняем в глобальный массив
 			if (iconGetter === getMilEquipIcon) {
@@ -3496,50 +3506,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   }, true); // capture: перехватываем раньше остальных
 })();
-
-// функция для вычисления центра полигона
-function getPolygonCenter(coords) {
-    let minLat = Infinity, maxLat = -Infinity, minLng = Infinity, maxLng = -Infinity;
-    coords.forEach(coord => {
-        minLat = Math.min(minLat, coord[0]);
-        maxLat = Math.max(maxLat, coord[0]);
-        minLng = Math.min(minLng, coord[1]);
-        maxLng = Math.max(maxLng, coord[1]);
-    });
-    return [(minLat + maxLat) / 2, (minLng + maxLng) / 2];
-}
-// функция для добавления метки к объекту
-function addLabelToLayer(name, geometryType, coords, layerGroup) {
-    return;
-    if (!name || name.trim() === '') return;
-    
-    let labelCoords;
-    if (geometryType === 'LineString') {
-        labelCoords = coords[0]; // Первая точка линии
-    } else if (geometryType === 'Polygon') {
-        labelCoords = getPolygonCenter(coords); // Центр полигона
-    }
-
-    if (!labelCoords) return;
-
-    const labelIcon = L.divIcon({
-        className: 'kml-label',
-        html: name,
-        iconSize: [100, 20],
-        iconAnchor: [50, 0]
-    });
-    
-    const labelMarker = L.marker(labelCoords, {
-        icon: labelIcon,
-        interactive: false
-    }).addTo(layerGroup);
-    
-    return labelMarker;
-
-}
-
-
-
 
 // Добавим функцию для добавления маркера в текущий центр карты
 function addMarkerAtCurrentCenter() {
