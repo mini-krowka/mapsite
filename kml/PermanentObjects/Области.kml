@@ -18,7 +18,7 @@
 
 	
       <Placemark>
-        <name> </name>
+        <name>ЛНР</name>
 		<!-- ЛНР -->
         <visibility>1</visibility>
         <description>Distance: 805,871 m, Note: null</description>
@@ -5037,7 +5037,7 @@
 
 
       <Placemark>
-        <name> </name>
+        <name>ДНР</name>
 	<!-- ДНР -->
         <visibility>1</visibility>
         <description>Distance: 805,871 m, Note: null</description>
@@ -10055,7 +10055,7 @@
 
 
       <Placemark>
-        <name> </name>
+        <name>Запорожская область</name>
 		<!-- Запорожская область -->
         <visibility>1</visibility>
         <description>Distance: 805,871 m, Note: null</description>
@@ -13372,7 +13372,7 @@
   
 
       <Placemark>
-        <name> </name>
+        <name>Херсонская область</name>
 		<!-- Херсонская область -->
         <visibility>1</visibility>
         <description>Distance: 805,871 m, Note: null</description>
@@ -16177,7 +16177,7 @@
 
 
       <Placemark>
-        <name> </name>
+        <name>Сумская область</name>
 		<!-- Сумская область -->
         <visibility>1</visibility>
         <description>Distance: 805,871 m, Note: null</description>
@@ -21194,7 +21194,7 @@
 
 
       <Placemark>
-        <name> </name>
+        <name>Харьковская область</name>
 		<!-- Харьковская область -->
         <visibility>1</visibility>
         <description>Distance: 805,871 m, Note: null</description>
@@ -26210,7 +26210,7 @@
 
 
       <Placemark>
-        <name> </name>
+        <name>Днепропетровская область</name>
 	<!-- Днепропетровская область -->
         <visibility>1</visibility>
         <styleUrl>#Ua</styleUrl>
