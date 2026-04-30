@@ -784,6 +784,21 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup, styleM
     
     // Вспомогательная функция для привязки тултипа при наведении
     function bindTooltipOnHover(layer, name) {
+
+		function highlightLayer(layer, originalStyle) {
+		    layer.setStyle({
+		        weight: originalStyle.weight + 3,
+		        color: '#ffff00',  // яркий жёлтый
+		        opacity: 1,
+		        fillColor: '#ffff00',
+		        fillOpacity: 0.3
+		    });
+		}
+		
+		function resetLayerStyle(layer, originalStyle) {
+		    layer.setStyle(originalStyle);
+		}
+		
 	    if (!name || name.trim() === '' || name.includes('Control_')) {
 	        console.log(`⏭️ Пропуск тултипа для: "${name}"`);
 	        return;
@@ -921,6 +936,14 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup, styleM
             const poly = L.polygon(coords, polyStyle).addTo(layerGroup);
             
             poly.on('mouseover', () => console.log('mouseover on polygon'));
+
+			poly._originalStyle = polyStyle;
+			poly.on('mouseover', function() {
+			    this.setStyle({ weight: (this._originalStyle.weight || 0) + 3, color: '#ffff00', fillColor: '#ffff00' });
+			});
+			poly.on('mouseout', function() {
+			    this.setStyle(this._originalStyle);
+			});
             
             // Обновляем границы                
             if (poly.getBounds().isValid()) {
@@ -971,6 +994,16 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup, styleM
             }
 
             const polyline = L.polyline(coords, lineStyle).addTo(layerGroup);
+
+			polyline.on('mouseover', () => console.log('mouseover on polyline'));
+			
+			polyline._originalStyle = lineStyle;
+			polyline.on('mouseover', function() {
+			    this.setStyle({ weight: (this._originalStyle.weight || 0) + 3, color: '#ffff00', fillColor: '#ffff00' });
+			});
+			polyline.on('mouseout', function() {
+			    this.setStyle(this._originalStyle);
+			});
 
             // Обновляем границы    
             if (polyline.getBounds().isValid()) {
