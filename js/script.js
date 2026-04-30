@@ -784,35 +784,55 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup, styleM
     
     // Вспомогательная функция для привязки тултипа при наведении
     function bindTooltipOnHover(layer, name) {
-        if (name && name.trim() !== '' && !name.includes('Control_')) {
-            let tooltipText = name.replace(/<[^>]*>/g, '');
-            layer.bindTooltip(tooltipText, {
-                sticky: true,
-                direction: 'auto',
-                offset: [0, 0]
-            });
-
-            // Получаем привязанный тултип и выводим его содержимое
-            const tooltip = layer.getTooltip();
-            if (tooltip) {
-                console.log(`✅ Tooltip добавлен для "${name}" → текст:`, tooltip.getContent());
-            } else {
-                console.warn(`⚠️ Tooltip НЕ добавлен для "${name}" (layer.getTooltip() вернул null)`);
-            }
-
-			// Принудительное открытие при наведении
-	        layer.on('mouseover', function() {
-	            this.openTooltip();
-	        });
-	        layer.on('mouseout', function() {
-	            this.closeTooltip();
-	        });
-	        console.log(`Tooltip bound (forced open) for "${name}"`);
-			
-        } else {
-            console.log(`⏭️ Пропуск тултипа для: "${name}" (пусто или содержит Control_)`);
-        }
-    }
+	    if (!name || name.trim() === '' || name.includes('Control_')) {
+	        console.log(`⏭️ Пропуск тултипа для: "${name}"`);
+	        return;
+	    }
+	
+	    let tooltipText = name.replace(/<[^>]*>/g, '');
+	    
+	    // Привязываем тултип к слою
+	    layer.bindTooltip(tooltipText, {
+	        sticky: true,
+	        direction: 'auto',
+	        offset: [0, 0]
+	    });
+	
+	    // Удаляем старые обработчики, чтобы избежать дублирования
+	    layer.off('mouseover');
+	    layer.off('mouseout');
+	
+	    // Обработчик наведения: принудительно открываем тултип
+	    layer.on('mouseover', function(ev) {
+	        console.log(`🐭 mouseover на "${name}"`);
+	        // Пытаемся открыть тултип
+	        this.openTooltip();
+	        
+	        // Проверяем, открыт ли тултип после вызова
+	        setTimeout(() => {
+	            if (!this.isTooltipOpen()) {
+	                console.warn(`⚠️ Тултип не открылся для "${name}", пробуем перепривязать`);
+	                this.unbindTooltip();
+	                this.bindTooltip(tooltipText, {
+	                    sticky: true,
+	                    direction: 'auto',
+	                    offset: [0, 0]
+	                });
+	                this.openTooltip();
+	            } else {
+	                console.log(`✅ Тултип открыт для "${name}"`);
+	            }
+	        }, 10);
+	    });
+	
+	    // Закрытие при уходе мыши
+	    layer.on('mouseout', function() {
+	        this.closeTooltip();
+	        console.log(`🚪 mouseout с "${name}"`);
+	    });
+	
+	    console.log(`🔧 Tooltip привязан (с обработчиками) для "${name}"`);
+	}
     
     kmlDoc.querySelectorAll('Placemark').forEach(placemark => {
         // Получаем описание для определения стиля
