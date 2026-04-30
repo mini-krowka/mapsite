@@ -791,6 +791,16 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup, styleM
                 direction: 'auto',
                 offset: [0, 0]
             });
+
+            // Получаем привязанный тултип и выводим его содержимое
+            const tooltip = layer.getTooltip();
+            if (tooltip) {
+                console.log(`✅ Tooltip добавлен для "${name}" → текст:`, tooltip.getContent());
+            } else {
+                console.warn(`⚠️ Tooltip НЕ добавлен для "${name}" (layer.getTooltip() вернул null)`);
+            }
+        } else {
+            console.log(`⏭️ Пропуск тултипа для: "${name}" (пусто или содержит Control_)`);
         }
     }
     
@@ -879,6 +889,8 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup, styleM
 
             // Создаем полигон
             const poly = L.polygon(coords, polyStyle).addTo(layerGroup);
+            
+            poly.on('mouseover', () => console.log('mouseover on polygon'));
             
             // Обновляем границы                
             if (poly.getBounds().isValid()) {
