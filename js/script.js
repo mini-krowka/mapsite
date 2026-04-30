@@ -793,8 +793,8 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup, styleM
 	            weight: (this._originalStyle.weight || 0) + 3,
 	            color: '#000000',
 	            fillColor: '#000000',
-				opacity: 0.25,        // для линий
-				fillOpacity: 0.25     // для полигонов
+				opacity: 0.1,        // для линий
+				fillOpacity: 0.1     // для полигонов
 	        });
 	    });
 	    layer.on('mouseout', function() {
