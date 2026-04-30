@@ -784,69 +784,60 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup, styleM
     
     // Вспомогательная функция для привязки тултипа при наведении
     function bindTooltipOnHover(layer, name) {
-
-		function highlightLayer(layer, originalStyle) {
-		    layer.setStyle({
-		        weight: originalStyle.weight + 3,
-		        color: '#ffff00',  // яркий жёлтый
-		        opacity: 1,
-		        fillColor: '#ffff00',
-		        fillOpacity: 0.3
-		    });
-		}
-		
-		function resetLayerStyle(layer, originalStyle) {
-		    layer.setStyle(originalStyle);
-		}
-		
-	    if (!name || name.trim() === '' || name.includes('Control_')) {
-	        console.log(`⏭️ Пропуск тултипа для: "${name}"`);
-	        return;
-	    }
-	
-	    let tooltipText = name.replace(/<[^>]*>/g, '');
+	    // Сохраняем исходный стиль для сброса
+	    layer._originalStyle = { ...layer.options };
 	    
-	    // Привязываем тултип к слою
-	    layer.bindTooltip(tooltipText, {
-	        sticky: true,
-	        direction: 'auto',
-	        offset: [0, 0]
+	    // Подсветка при наведении (всегда)
+	    layer.on('mouseover', function() {
+	        this.setStyle({
+	            weight: (this._originalStyle.weight || 0) + 3,
+	            color: '#ffff00',
+	            fillColor: '#ffff00',
+				opacity: 0.5,        // для линий
+				fillOpacity: 0.5     // для полигонов
+	        });
 	    });
-	
-	    // Удаляем старые обработчики, чтобы избежать дублирования
-	    layer.off('mouseover');
-	    layer.off('mouseout');
-	
-	    // Обработчик наведения: принудительно открываем тултип
-	    layer.on('mouseover', function(ev) {
-	        console.log(`🐭 mouseover на "${name}"`);
-	        // Пытаемся открыть тултип
-	        this.openTooltip();
+	    layer.on('mouseout', function() {
+	        this.setStyle(this._originalStyle);
+	    });
+	    
+	    // Если есть имя – добавляем тултип
+	    if (name && name.trim() !== '' && !name.includes('Control_')) {
+	        let tooltipText = name.replace(/<[^>]*>/g, '');
+	        layer.bindTooltip(tooltipText, {
+	            sticky: true,
+	            direction: 'auto',
+	            offset: [0, 0]
+	        });
 	        
-	        // Проверяем, открыт ли тултип после вызова
-	        setTimeout(() => {
-	            if (!this.isTooltipOpen()) {
-	                console.warn(`⚠️ Тултип не открылся для "${name}", пробуем перепривязать`);
-	                this.unbindTooltip();
-	                this.bindTooltip(tooltipText, {
-	                    sticky: true,
-	                    direction: 'auto',
-	                    offset: [0, 0]
-	                });
-	                this.openTooltip();
-	            } else {
-	                console.log(`✅ Тултип открыт для "${name}"`);
-	            }
-	        }, 10);
-	    });
+	        layer.on('mouseover', function(ev) {
+	            console.log(`mouseover на "${name}"`);
+	            this.openTooltip();
+	            setTimeout(() => {
+	                if (!this.isTooltipOpen()) {
+	                    console.warn(`Тултип не открылся для "${name}"`);
+	                    this.unbindTooltip();
+	                    this.bindTooltip(tooltipText, { sticky: true, direction: 'auto', offset: [0,0] });
+	                    this.openTooltip();
+	                }
+	            }, 10);
+	        });
+	        layer.on('mouseout', function() {
+	            this.closeTooltip();
+	        });
+	    } else {
+	        // Для объектов без имени – просто лог (опционально)
+	        layer.on('mouseover', () => console.log(`mouseover on: "${name || 'unnamed'}"`));
+	    }
+	}
 	
 	    // Закрытие при уходе мыши
 	    layer.on('mouseout', function() {
 	        this.closeTooltip();
-	        console.log(`🚪 mouseout с "${name}"`);
+	        console.log(`mouseout с "${name}"`);
 	    });
 	
-	    console.log(`🔧 Tooltip привязан (с обработчиками) для "${name}"`);
+	    console.log(`Тултип привязан (с обработчиками) для "${name}"`);
 	}
     
     kmlDoc.querySelectorAll('Placemark').forEach(placemark => {
@@ -938,17 +929,7 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup, styleM
 
             // Создаем полигон
             const poly = L.polygon(coords, polyStyle).addTo(layerGroup);
-            
-            poly.on('mouseover', () => console.log(`🐭 mouseover on polygon: "${name}"`));
-
-			poly._originalStyle = polyStyle;
-			poly.on('mouseover', function() {
-			    this.setStyle({ weight: (this._originalStyle.weight || 0) + 3, color: '#ffff00', fillColor: '#ffff00' });
-			});
-			poly.on('mouseout', function() {
-			    this.setStyle(this._originalStyle);
-			});
-            
+                        
             // Обновляем границы                
             if (poly.getBounds().isValid()) {
                 bounds.extend(poly.getBounds());
@@ -1003,16 +984,6 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup, styleM
 			lineStyle.pane = isInteractive ? 'interactive' : 'nonInteractive';
 
             const polyline = L.polyline(coords, lineStyle).addTo(layerGroup);
-
-			polyline.on('mouseover', () => console.log(`🐭 mouseover on polygon: "${name}"`));
-			
-			polyline._originalStyle = lineStyle;
-			polyline.on('mouseover', function() {
-			    this.setStyle({ weight: (this._originalStyle.weight || 0) + 3, color: '#ffff00', fillColor: '#ffff00' });
-			});
-			polyline.on('mouseout', function() {
-			    this.setStyle(this._originalStyle);
-			});
 
             // Обновляем границы    
             if (polyline.getBounds().isValid()) {
