@@ -1326,7 +1326,8 @@ async function loadKmlToLayer(filePath, layerGroup, options = {}) {
         isPermanent = false,
         preserveZoom = true,
         fitBounds = false,
-        styleMode = null
+        styleMode = null,
+		interactive = null
     } = options;
 
     try {
