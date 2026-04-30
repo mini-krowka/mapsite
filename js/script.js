@@ -830,15 +830,6 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup, styleM
 	        layer.on('mouseover', () => console.log(`mouseover on: "${name || 'unnamed'}"`));
 	    }
 	}
-	
-	    // Закрытие при уходе мыши
-	    layer.on('mouseout', function() {
-	        this.closeTooltip();
-	        console.log(`mouseout с "${name}"`);
-	    });
-	
-	    console.log(`Тултип привязан (с обработчиками) для "${name}"`);
-	}
     
     kmlDoc.querySelectorAll('Placemark').forEach(placemark => {
         // Получаем описание для определения стиля
