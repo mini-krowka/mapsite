@@ -939,7 +939,7 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup, styleM
             // Создаем полигон
             const poly = L.polygon(coords, polyStyle).addTo(layerGroup);
             
-            poly.on('mouseover', () => console.log('mouseover on polygon'));
+            poly.on('mouseover', () => console.log(`🐭 mouseover on polygon: "${name}"`));
 
 			poly._originalStyle = polyStyle;
 			poly.on('mouseover', function() {
@@ -1004,7 +1004,7 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup, styleM
 
             const polyline = L.polyline(coords, lineStyle).addTo(layerGroup);
 
-			polyline.on('mouseover', () => console.log('mouseover on polyline'));
+			polyline.on('mouseover', () => console.log(`🐭 mouseover on polygon: "${name}"`));
 			
 			polyline._originalStyle = lineStyle;
 			polyline.on('mouseover', function() {
