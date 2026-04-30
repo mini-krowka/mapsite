@@ -799,6 +799,16 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup, styleM
             } else {
                 console.warn(`⚠️ Tooltip НЕ добавлен для "${name}" (layer.getTooltip() вернул null)`);
             }
+
+			// Принудительное открытие при наведении
+	        layer.on('mouseover', function() {
+	            this.openTooltip();
+	        });
+	        layer.on('mouseout', function() {
+	            this.closeTooltip();
+	        });
+	        console.log(`Tooltip bound (forced open) for "${name}"`);
+			
         } else {
             console.log(`⏭️ Пропуск тултипа для: "${name}" (пусто или содержит Control_)`);
         }
