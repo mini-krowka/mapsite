@@ -778,7 +778,7 @@ function parseStyleMapFromKmlDoc(kmlDoc)
 }
 
 // Обработка Placemarks
-function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup, styleMode = window.kmlStyleModes.DEFAULT, iconGetter = getPointIcon) {
+function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup, styleMode = window.kmlStyleModes.DEFAULT, iconGetter = getPointIcon, isInteractive = true) {
     let bounds = L.latLngBounds(); // Инициализация пустыми границами
     let elementCount = 0;
     
@@ -932,6 +932,10 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup, styleM
                 }
             }
 
+			const finalInteractive = isInteractive && INTERACTIVE;
+			polyStyle.interactive = finalInteractive;
+			polyStyle.pane = isInteractive ? 'interactive' : 'nonInteractive';
+
             // Создаем полигон
             const poly = L.polygon(coords, polyStyle).addTo(layerGroup);
             
@@ -992,6 +996,11 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup, styleM
                     };
                 }
             }
+
+			
+			const finalInteractive = isInteractive && INTERACTIVE;
+			lineStyle.interactive = finalInteractive;
+			lineStyle.pane = isInteractive ? 'interactive' : 'nonInteractive';
 
             const polyline = L.polyline(coords, lineStyle).addTo(layerGroup);
 
@@ -1340,6 +1349,11 @@ async function loadKmlToLayer(filePath, layerGroup, options = {}) {
         // Общая логика парсинга
         const styles = parseStyleFromKmlDoc(kmlDoc);
         const styleMaps = parseStyleMapFromKmlDoc(kmlDoc);
+
+		let useInteractive = interactive;
+	    if (useInteractive === null) {
+	        useInteractive = !(filePath.includes('ControlZones') || filePath.includes('Control_'));
+	    }
         
         if (LOG_STYLES) {
             console.groupCollapsed(`${isPermanent ? 'Permanent' : 'Temporary'} layer loaded: ${filePath}`);
@@ -1348,7 +1362,7 @@ async function loadKmlToLayer(filePath, layerGroup, options = {}) {
             console.log('Found styleMaps:', styleMaps);
         }
 
-        const bounds = parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup, finalStyleMode, getPointIcon);
+        const bounds = parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup, finalStyleMode, getPointIcon, useInteractive);
         
         if (LOG_STYLES) console.groupEnd();
         
