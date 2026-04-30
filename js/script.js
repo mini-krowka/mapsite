@@ -1147,9 +1147,7 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup, styleM
 			
 			// Создаём маркер
 			const marker = L.marker([lat, lng], { icon: icon }).addTo(layerGroup);
-            
-            bindTooltipOnHover(marker, name);
-			
+            			
 			// Для техники сохраняем в глобальный массив
 			if (iconGetter === getMilEquipIcon) {
 				if (!window.allEquipmentMarkers) window.allEquipmentMarkers = [];
