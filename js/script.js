@@ -791,8 +791,8 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup, styleM
 	    layer.on('mouseover', function() {
 	        this.setStyle({
 	            weight: (this._originalStyle.weight || 0) + 3,
-	            color: '#ffff00',
-	            fillColor: '#ffff00',
+	            color: '#ffffff',
+	            fillColor: '#ffffff',
 				opacity: 0.25,        // для линий
 				fillOpacity: 0.25     // для полигонов
 	        });
