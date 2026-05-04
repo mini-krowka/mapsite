@@ -40,7 +40,7 @@ const attackGroups = [
     {
         tag: 'group1',
         labelRu: 'Аэродромы',
-        labelEn: 'Airdromes',
+        labelEn: 'Air Bases',
         categories: [
             'Аэродром'
         ]
@@ -86,8 +86,8 @@ const attackGroups = [
     },
     {
         tag: 'group6',
-        labelRu: 'ПВО',
-        labelEn: 'Air-defense',
+        labelRu: 'ПВО/РВ',
+        labelEn: 'AD/GMW',
         categories: [
             'ПВО, РЛС и ракетное вооружение'
         ]
