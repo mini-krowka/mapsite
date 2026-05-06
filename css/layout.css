@@ -987,3 +987,37 @@ body {
     max-height: 300px;
     overflow-y: auto;
 }
+
+
+
+/* Панель поиска подразделений (абсолютное позиционирование) */
+#units-search-panel {
+    display: none;
+    position: absolute;
+    background: white;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 6px;
+    z-index: 1500;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    align-items: center;
+    gap: 3px;
+    white-space: nowrap;
+}
+#units-search-input {
+    width: 60px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    padding: 2px 4px;
+    font-size: 14px;
+}
+#units-search-btn, #units-search-clear {
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    font-size: 14px;
+    padding: 2px 4px;
+}
+#units-search-btn:hover, #units-search-clear:hover {
+    opacity: 0.7;
+}
