@@ -1003,32 +1003,22 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup, styleM
                 coordsString,
                 descriptionUrl,
                 isEquipment = false,
-                isAttackOnUa = false,
-                extendedData = {}
+                isAttackOnUa = false, // Новый параметр для атак на Украину
+                extendedData = {} // Новый параметр для всех данных ExtendedData
             } = params;
             
             // Обрабатываем случай атак на Украину
             if (isAttackOnUa) {
+                // Извлекаем данные для атак на Украину
                 const objectType = extendedData['Тип объекта'] || extendedData['object_type'] || equipmentType;
                 const weaponType = extendedData['Средства поражения'] || extendedData['weapon_type'];
                 const attackDate = extendedData['Дата'] || extendedData['date'] || date;
                 const description = extendedData['описание'] || extendedData['description'] || '';
                 const link = extendedData['Ссылка'] || extendedData['link'] || '';
                 
-                // Формируем сворачиваемый блок для описания, если оно есть
-                let descriptionHtml = '';
-                if (description) {
-                    descriptionHtml = `
-                        <details class="collapse-block">
-                            <summary>📄 Подробное описание</summary>
-                            <div class="collapse-content" style="margin-top: 8px; white-space: pre-wrap;">${description}</div>
-                        </details>
-                    `;
-                }
-                
                 return `
                     ${formattedName ? `<div class="popup-title" style="white-space: pre-wrap; font-weight: bold; margin-bottom: 8px;">${formattedName}</div>` : ''}
-                    ${descriptionHtml}
+                    ${description ? `<div class="popup-description" style="margin-bottom: 8px; white-space: pre-wrap;">${description}</div>` : ''}
                     <div class="popup-details" style="font-size: 14px; line-height: 1.4;">
                         ${objectType ? `<div><strong>Тип объекта:</strong> ${objectType}</div>` : ''}
                         ${attackDate ? `<div><strong>Дата:</strong> ${attackDate}</div>` : ''}
@@ -1045,12 +1035,14 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup, styleM
                     </div>
                 `;
             }
-            
-            // Обрабатываем случай техники
+            // Обрабатываем случай техники (без изменений)
             else if (isEquipment && extendedData && Object.keys(extendedData).length > 0) {
+                // Собираем все поля из extendedData, кроме "Тип техники" который уже выводится отдельно
                 let extendedInfoHTML = '';
                 
+                // Обрабатываем каждое поле из extendedData
                 for (const [key, value] of Object.entries(extendedData)) {
+                    // Пропускаем поля
                     if (['Тип техники', 'equipment_type',
                          'object_type',
                          'описание', 'description', 
@@ -1059,6 +1051,7 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup, styleM
                         continue;
                     }
                     
+                    // Для поля "Координаты" добавляем кнопку копирования
                     if (key === 'Координаты' || key === 'coordinates') {
                         extendedInfoHTML += `
                             <div style="margin-top: 4px;">
@@ -1070,27 +1063,24 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup, styleM
                                 </button>
                             </div>`;
                     } 
+                    // Для полей с URL выводим как ссылку
                     else if (typeof value === 'string' && (value.startsWith('http://') || value.startsWith('https://'))) {
+                        // Извлекаем домен для отображения
                         const url = new URL(value);
                         const domain = url.hostname;
                         extendedInfoHTML += `
                             <div style="margin-top: 4px;">
                                 <strong>${key}:</strong> 
-                                <a href="${value}" target="_blank" style="color: #007bff; text-decoration: none;">${domain}</a>
+                                <a href="${value}" target="_blank" style="color: #007bff; text-decoration: none;">
+                                    ${domain}
+                                </a>
                             </div>`;
                     }
+                    // Для остальных полей просто текст
                     else {
                         extendedInfoHTML += `<div style="margin-top: 4px;"><strong>${key}:</strong> ${value}</div>`;
                     }
                 }
-                
-                // Сворачиваемый блок для доп. полей, если они есть
-                const extraBlock = extendedInfoHTML ? `
-                    <details class="collapse-block">
-                        <summary>🔧 Дополнительные данные</summary>
-                        <div class="collapse-content" style="margin-top: 8px;">${extendedInfoHTML}</div>
-                    </details>
-                ` : '';
                 
                 return `
                     ${formattedName ? `<div class="popup-title" style="white-space: pre-wrap; font-weight: bold; margin-bottom: 8px;">${formattedName}</div>` : ''}
@@ -1098,33 +1088,32 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup, styleM
                         ${date ? `<div><strong>Датировано:</strong> ${date}</div>` : ''}
                         ${equipmentType ? `<div><strong>Тип техники:</strong> ${equipmentType}</div>` : ''}
                         ${descriptionUrl ? `<div style="margin-top: 4px;"><strong>Описание:</strong> ${descriptionUrl}</div>` : ''}
-                        ${extraBlock}
+                        ${extendedInfoHTML}
                     </div>
                 `;
             } 
-            
             // Старый формат для обычных точек
-            else {
+            else {                
                 const position = equipmentType;
                 return `
-                    ${formattedName ? `<div class="popup-title" style="white-space: pre-wrap; font-weight: bold; margin-bottom: 8px;">${formattedName}</div>` : ''}
-                    <div class="popup-details" style="font-size: 14px; line-height: 1.4;">
-                        ${date ? `<div><strong>Дата:</strong> ${date}</div>` : ''}
-                        ${position ? `<div><strong>Позиция:</strong> ${position}</div>` : ''}
-                        <div style="display: flex; align-items: center; gap: 8px; margin-top: 4px;">
-                            <strong>Координаты:</strong> 
-                            <span style="font-family: monospace;">${coordsString}</span>
-                            <button class="copy-coords-popup-btn" data-coords="${coordsString}" 
-                                    style="cursor: pointer; background: #007bff; color: white; border: none; border-radius: 3px; padding: 2px 6px; font-size: 12px;">
-                                ⎘
-                            </button>
-                        </div>
-                        ${descriptionUrl ? `<div style="margin-top: 6px;"><a href="${descriptionUrl}" target="_blank" style="color: #007bff; text-decoration: none; font-weight: bold;">📝 Подробная информация</a></div>` : ''}
+                ${formattedName ? `<div class="popup-title" style="white-space: pre-wrap; font-weight: bold; margin-bottom: 8px;">${formattedName}</div>` : ''}
+                <div class="popup-details" style="font-size: 14px; line-height: 1.4;">
+                    ${date ? `<div><strong>Дата:</strong> ${date}</div>` : ''}
+                    ${position ? `<div><strong>Позиция:</strong> ${position}</div>` : ''}
+                    <div style="display: flex; align-items: center; gap: 8px; margin-top: 4px;">
+                        <strong>Координаты:</strong> 
+                        <span style="font-family: monospace;">${coordsString}</span>
+                        <button class="copy-coords-popup-btn" data-coords="${coordsString}" 
+                                style="cursor: pointer; background: #007bff; color: white; border: none; border-radius: 3px; padding: 2px 6px; font-size: 12px;">
+                            ⎘
+                        </button>
                     </div>
-                `;
+                    ${descriptionUrl ? `<div style="margin-top: 6px;"><a href="${descriptionUrl}" target="_blank" style="color: #007bff; text-decoration: none; font-weight: bold;">📝 Подробная информация</a></div>` : ''}
+                </div>
+            `;
             }
         }
-        
+
         // Обновленная функция parseAndAddPoint с использованием новой функции
         function parseAndAddPoint(pointElement, date, position, descriptionUrl, name, extendedData, iconGetter) {
 			const coordinates = parseCoordinates(pointElement, map.options.crs);
