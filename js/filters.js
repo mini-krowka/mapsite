@@ -1015,7 +1015,7 @@ async function toggleUnitsUa() {
         if (panel && btn) {
             const rect = btn.getBoundingClientRect();
             panel.style.top = (rect.bottom + window.scrollY) + 'px';
-            panel.style.left = (rect.left + window.scrollX) + 'px';
+            // panel.style.left = (rect.left + window.scrollX) + 'px';
             panel.style.display = 'flex';  // показываем
         }
         
