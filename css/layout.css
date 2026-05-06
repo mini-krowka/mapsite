@@ -1024,12 +1024,12 @@ body {
 .units-search-clear-inside {
     position: absolute;
     right: 4px;
-    top: 50%;
-    transform: translateY(-50%);
+    /* top: 50%; */
+    /* transform: translateY(-50%); */
     border: none;
     background: transparent;
     cursor: pointer;
-    font-size: 14px;
+    font-size: 1rem;
     line-height: 1;
     padding: 0;
     color: #666;
