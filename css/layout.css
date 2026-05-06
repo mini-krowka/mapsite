@@ -1004,20 +1004,53 @@ body {
     gap: 3px;
     white-space: nowrap;
 }
+
+/* Обёртка инпута с кнопкой очистки внутри */
+.units-search-input-wrap {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+}
+
 #units-search-input {
     width: 60px;
     border: 1px solid #ccc;
     border-radius: 3px;
-    padding: 2px 4px;
+    padding: 2px 20px 2px 4px;  /* правый отступ для крестика */
     font-size: 14px;
 }
-#units-search-btn, #units-search-clear {
+
+/* Кнопка очистки внутри поля */
+.units-search-clear-inside {
+    position: absolute;
+    right: 4px;
+    top: 50%;
+    transform: translateY(-50%);
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    font-size: 14px;
+    line-height: 1;
+    padding: 0;
+    color: #666;
+    display: none;               /* скрыта по умолчанию */
+}
+
+.units-search-clear-inside:hover {
+    color: #000;
+}
+
+/* Кнопка поиска (лупа) */
+#units-search-btn {
     border: none;
     background: transparent;
     cursor: pointer;
     font-size: 14px;
     padding: 2px 4px;
+    display: inline-flex;
+    align-items: center;
 }
-#units-search-btn:hover, #units-search-clear:hover {
+
+#units-search-btn:hover {
     opacity: 0.7;
 }

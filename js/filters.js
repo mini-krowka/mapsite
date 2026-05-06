@@ -1055,21 +1055,32 @@ function initUnitsUaButton() {
     searchPanel.id = 'units-search-panel';
     searchPanel.style.display = 'none';
     searchPanel.innerHTML = `
-        <input type="text" id="units-search-input" placeholder="123" maxlength="3"
-               inputmode="numeric" pattern="[0-9]*" style="width:60px;">
+        <span class="units-search-input-wrap">
+            <input type="text" id="units-search-input" placeholder="123" maxlength="3"
+                   inputmode="numeric" pattern="[0-9]*">
+            <button id="units-search-clear" class="units-search-clear-inside" title="Очистить">✕</button>
+        </span>
         <button id="units-search-btn" title="Поиск">🔍</button>
-        <button id="units-search-clear" title="Очистить">✕</button>
     `;
     btn.parentNode.insertBefore(searchPanel, btn.nextSibling);
 
+    const searchInput = document.getElementById('units-search-input');
+    const searchClearBtn = document.getElementById('units-search-clear');
+
+    // Управление видимостью крестика
+    searchInput.addEventListener('input', function() {
+        searchClearBtn.style.display = this.value.trim() ? 'block' : 'none';
+    });
+
     // Обработчики панели
     document.getElementById('units-search-btn').addEventListener('click', applyUnitsSearch);
-    document.getElementById('units-search-clear').addEventListener('click', () => {
-        document.getElementById('units-search-input').value = '';
+    searchClearBtn.addEventListener('click', () => {
+        searchInput.value = '';
         window.unitsSearchDigits = null;
+        // input event автоматически скроет крестик
         reloadUnitsUaLayer();
     });
-    document.getElementById('units-search-input').addEventListener('keypress', (e) => {
+    searchInput.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') applyUnitsSearch();
     });
 
