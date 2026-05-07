@@ -1013,10 +1013,17 @@ async function toggleUnitsUa() {
         
         // Позиционируем и показываем панель
         if (panel && btn) {
-            const rect = btn.getBoundingClientRect();
-            panel.style.top = (rect.bottom + window.scrollY) + 'px';
-            // panel.style.left = (rect.left + window.scrollX) + 'px';
-            panel.style.display = 'flex';  // показываем
+            if (window.innerWidth <= 768) {
+                // на мобильных – фиксированное положение в левом верхнем углу
+                panel.style.top = '10px';
+                panel.style.left = '10px';
+            } else {
+                // на десктопе – под кнопкой
+                const rect = btn.getBoundingClientRect();
+                panel.style.top = (rect.bottom + window.scrollY) + 'px';
+                // left оставляем без явного задания (будет auto)
+            }
+            panel.style.display = 'flex';
         }
         
         window.isUnitsUaVisible = true;

@@ -291,14 +291,15 @@
 
 @media (max-width: 768px) {
     #units-search-panel {
-        display: none;
-        position: static;
+        position: fixed;       /* или absolute, но fixed удобнее для привязки к окну */
+        top: 10px;
+        left: 10px;
         background: white;
-        border: 0px;
-        border-radius: 0px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.2);
         padding: 6px;
         z-index: 1500;
-        box-shadow: none;
         align-items: center;
         gap: 3px;
         white-space: nowrap;
