@@ -1028,17 +1028,17 @@ async function toggleUnitsUa() {
         }
         window.unitsUaLayer.addTo(map);
         
-        // Позиционируем и показываем панель
+        // Позиционирование панели
         if (panel && btn) {
             if (window.innerWidth <= 768) {
-                // на мобильных – фиксированное положение в левом верхнем углу
-                // panel.style.top = '10px';
-                // panel.style.left = '10px';
+                // мобильные: фиксированный левый верхний угол
+                panel.style.position = 'fixed';
             } else {
-                // на десктопе – под кнопкой
+                // десктоп: под кнопкой
                 const rect = btn.getBoundingClientRect();
+                panel.style.position = 'absolute';
                 panel.style.top = (rect.bottom + window.scrollY) + 'px';
-                // left оставляем без явного задания (будет auto)
+                panel.style.left = (rect.left + window.scrollX) + 'px';
             }
             panel.style.display = 'flex';
         }
