@@ -2562,6 +2562,9 @@ async function init() {
     initMobileFilterMenu();
     
     initUnitsUaButton();
+	  
+    // Кнопка полноэкранного режима
+    initFullscreenControl();
         
     // Шаг 6: Инициализируем другие UI компоненты
     populateCitiesDropdown();
@@ -2613,10 +2616,7 @@ async function init() {
     
     // Инициализация дартс-меню
     initDartMenu(); 
-    
-    // Кнопка полноэкранного режима
-    initFullscreenControl();
-    
+        
     // Для выпадающего списка слоёв (подложек)
     // таймаут при инициализации карты, чтобы убедиться, что все элементы созданы
     setTimeout(() => {
