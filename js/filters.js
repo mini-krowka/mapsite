@@ -1033,6 +1033,8 @@ async function toggleUnitsUa() {
             if (window.innerWidth <= 768) {
                 // мобильные: фиксированный левый верхний угол
                 panel.style.position = 'fixed';
+                panel.style.top = '0px';
+                panel.style.left = '0px';
             } else {
                 // десктоп: под кнопкой
                 const rect = btn.getBoundingClientRect();
