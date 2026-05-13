@@ -1032,8 +1032,8 @@ async function toggleUnitsUa() {
         if (panel && btn) {
             if (window.innerWidth <= 768) {
                 // на мобильных – фиксированное положение в левом верхнем углу
-                panel.style.top = '10px';
-                panel.style.left = '10px';
+                // panel.style.top = '10px';
+                // panel.style.left = '10px';
             } else {
                 // на десктопе – под кнопкой
                 const rect = btn.getBoundingClientRect();
@@ -1086,7 +1086,8 @@ function initUnitsUaButton() {
         </span>
         <button id="units-search-btn" title="Поиск">🔍</button>
     `;
-    btn.parentNode.insertBefore(searchPanel, btn.nextSibling);
+    // btn.parentNode.insertBefore(searchPanel, btn.nextSibling);
+    document.body.appendChild(searchPanel);
 
     const searchInput = document.getElementById('units-search-input');
     const searchClearBtn = document.getElementById('units-search-clear');
