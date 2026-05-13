@@ -776,17 +776,34 @@ function getMessageText(msg) {
 }
 
 // Функция поиска профилей по цифрам
-
+// точное совпадение числа, для обоих тэгов
 function getProfileIdsBySearchDigits(digits) {
     const result = new Set();
     if (!window.unitsUaData || !window.unitsUaData.messages) return result;
 
-    const pattern1 = "#Бр_" + digits;
-    const pattern2 = "#Пк_" + digits;
+    const reBr = /#Бр_(\d+)/g;
+    const rePk = /#Пк_(\d+)/g;
 
     for (const msg of window.unitsUaData.messages) {
         const text = getMessageText(msg);
-        if (text.includes(pattern1) || text.includes(pattern2)) {
+        let found = false;
+
+        // Проверяем все вхождения #Бр_ (не прерываем)
+        let match;
+        while ((match = reBr.exec(text)) !== null) {
+            if (match[1] === digits) {
+                found = true;
+                // Можно продолжать, но break не ставим, чтобы не прерывать
+            }
+        }
+        // Проверяем все вхождения #Пк_ (всегда, даже если уже found)
+        while ((match = rePk.exec(text)) !== null) {
+            if (match[1] === digits) {
+                found = true;
+            }
+        }
+
+        if (found) {
             const idMatch = text.match(/^ID\s*:\s*(\d+)/m);
             if (idMatch) result.add(idMatch[1]);
         }
