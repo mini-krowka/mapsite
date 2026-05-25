@@ -1063,12 +1063,12 @@ async function toggleUnitsUa() {
     }
 
     // Обновляем title кнопки
-    if (btn) {
-        const t = translations[currentLang];
-        btn.title = window.isUnitsUaVisible ?
-            (t.hideUnitsUa || 'Скрыть подразделения ВСУ') :
-            (t.showUnitsUa || 'Показать подразделения ВСУ');
-    }
+    // if (btn) {
+        // const t = translations[currentLang];
+        // btn.title = window.isUnitsUaVisible ?
+            // (t.hideUnitsUa || 'Скрыть подразделения ВСУ') :
+            // (t.showUnitsUa || 'Показать подразделения ВСУ');
+    // }
 }
 
 // Инициализация кнопки подразделений
@@ -1128,9 +1128,9 @@ function initFilters() {
     initAttacksFilter();
     initFortificationFilter();
     // Обновим заголовки кнопок
-    updateMilEquipButtonTitle();
-    updateAttacksOnUaButtonTitle();
-    updateFortificationButtonTitle();
+    // updateMilEquipButtonTitle();
+    // updateAttacksOnUaButtonTitle();
+    // updateFortificationButtonTitle();
 }
 
 // Экспортируем функции, которые будут нужны в script.js
