@@ -1071,6 +1071,14 @@ async function toggleUnitsUa() {
     // }
 }
 
+// Обновление всплывающей подсказки кнопки подразделений ВСУ
+function updateUnitsUaButtonTitle() {
+    const btn = document.getElementById('units-ua-btn');
+    if (!btn) return;
+    const t = translations[currentLang];
+    btn.title = t.showUnitsUa || 'Подразделения ВСУ';
+}
+
 // Инициализация кнопки подразделений
 function initUnitsUaButton() {
     const btn = document.getElementById('units-ua-btn');
@@ -1145,6 +1153,7 @@ window.toggleFortificationMenu = toggleFortificationMenu;
 window.updateMilEquipButtonTitle = updateMilEquipButtonTitle;
 window.updateAttacksOnUaButtonTitle = updateAttacksOnUaButtonTitle;
 window.updateFortificationButtonTitle = updateFortificationButtonTitle;
+window.updateUnitsUaButtonTitle = updateUnitsUaButtonTitle;
 
 window.applyEquipmentFilter = applyEquipmentFilter;
 window.applyAttacksFilter = applyAttacksFilter;
