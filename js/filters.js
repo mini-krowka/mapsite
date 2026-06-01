@@ -994,10 +994,18 @@ async function loadUnitsUaWithDateFilter(targetDateStr, allowedProfileIds = null
             let popupHtml = `<div style="font-size:14px;"><strong>${escapeHtml(unitTitle)}</strong>`;
 
             if (details.composition) {
-                popupHtml += `<div style="margin-top:8px;"><strong>Состав:</strong><br>${escapeHtml(details.composition).replace(/\n/g, '<br>')}</div>`;
+                popupHtml += `
+                    <details class="collapse-block" style="margin-top:8px;">
+                        <summary>📄 Состав</summary>
+                        <div class="collapse-content" style="margin-top: 4px; white-space: pre-wrap;">${escapeHtml(details.composition).replace(/\n/g, '<br>')}</div>
+                    </details>`;
             }
             if (details.armament) {
-                popupHtml += `<div style="margin-top:8px;"><strong>Вооружение:</strong><br>${escapeHtml(details.armament).replace(/\n/g, '<br>')}</div>`;
+                popupHtml += `
+                    <details class="collapse-block" style="margin-top:8px;">
+                        <summary>📄 Вооружение</summary>
+                        <div class="collapse-content" style="margin-top: 4px; white-space: pre-wrap;">${escapeHtml(details.armament).replace(/\n/g, '<br>')}</div>
+                    </details>`;
             }
             if (details.formation) {
                 popupHtml += `<div style="margin-top:8px;"><strong>Формирование:</strong> ${escapeHtml(details.formation)}</div>`;
