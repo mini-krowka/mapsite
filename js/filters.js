@@ -711,30 +711,23 @@ function parseUnitsUaDetails(text) {
         formation: '',
         armyCorps: '?'
     };
-
     if (!text) return details;
 
-    // Разбиваем текст на блоки по двойным переводам строк
-    const blocks = text.split(/\n\s*\n/);
-
-    for (let block of blocks) {
-        const trimmed = block.trim();
-        if (!trimmed) continue;
-
-        // Ищем блок "Состав" (с двоеточием или без)
-        if (/^Состав:?/i.test(trimmed)) {
-            // Убираем заголовок, оставляем содержимое
-            let content = trimmed.replace(/^Состав:?\s*/i, '').trim();
-            details.composition = content;
-        }
-        // Ищем блок "Вооружение"
-        else if (/^Вооружение:?/i.test(trimmed)) {
-            let content = trimmed.replace(/^Вооружение:?\s*/i, '').trim();
-            details.armament = content;
-        }
+    // Ищем секцию "Состав" – от слова "Состав" (с двоеточием или без) до следующего пустого блока или до "Вооружение"
+    const compRegex = /Состав:?\s*\n([\s\S]*?)(?=\n\s*\n\s*Вооружение:?|\n\s*\n\s*#|$)/i;
+    const compMatch = text.match(compRegex);
+    if (compMatch) {
+        details.composition = compMatch[1].trim();
     }
 
-    // Поиск хэштегов формирования
+    // Ищем секцию "Вооружение" – от слова "Вооружение" до следующего пустого блока или до заголовков (РСЗО, Тяжёлая бронетехника, Зенитно-ракетные, #)
+    const armRegex = /Вооружение:?\s*\n([\s\S]*?)(?=\n\s*\n\s*(?:РСЗО|Тяжёлая|Зенитно|#)|\n\s*\n\s*$|$)/i;
+    const armMatch = text.match(armRegex);
+    if (armMatch) {
+        details.armament = armMatch[1].trim();
+    }
+
+    // Формирование по хэштегу
     const formationTags = ['#ВСУ', '#НГУ', '#ГПСУ', '#МВД'];
     for (const tag of formationTags) {
         if (text.includes(tag)) {
@@ -743,7 +736,7 @@ function parseUnitsUaDetails(text) {
         }
     }
 
-    // Поиск армейского корпуса
+    // Армейский корпус
     const akMatch = text.match(/#АК_(\d+)/);
     if (akMatch) details.armyCorps = akMatch[1];
 
