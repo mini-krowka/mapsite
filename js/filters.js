@@ -714,14 +714,14 @@ function parseUnitsUaDetails(text) {
     if (!text) return details;
 
     // Ищем секцию "Состав" – от слова "Состав" (с двоеточием или без) до следующего пустого блока или до "Вооружение"
-    const compRegex = /Состав:?\s*\n([\s\S]*?)(?=\n\s*\n\s*Вооружение:?|\n\s*\n\s*#|$)/i;
+    const compRegex = /Состав:?[\s\n]*([\s\S]*?)Вооружение/i;
     const compMatch = text.match(compRegex);
     if (compMatch) {
         details.composition = compMatch[1].trim();
     }
 
     // Ищем секцию "Вооружение" – от слова "Вооружение" до следующего пустого блока или до заголовков (РСЗО, Тяжёлая бронетехника, Зенитно-ракетные, #)
-    const armRegex = /Вооружение:?\s*\n([\s\S]*?)(?=\n\s*\n\s*(?:РСЗО|Тяжёлая|Зенитно|#)|\n\s*\n\s*$|$)/i;
+    const armRegex = /Вооружение:?[\s\n]*([^#]+)/i;
     const armMatch = text.match(armRegex);
     if (armMatch) {
         details.armament = armMatch[1].trim();
