@@ -987,33 +987,41 @@ async function loadUnitsUaWithDateFilter(targetDateStr, allowedProfileIds = null
 
             const marker = L.marker([row.lat, row.lng], { icon: icon });
 
-            // Получаем детали для данного profileId
-            const details = window.unitsUaDetailsMap[row.profileId] || { composition: '', armament: '', formation: '', armyCorps: '?' };
+            // Получаем детали для данного profileId, если нет — создаём с пустыми значениями
+			const details = window.unitsUaDetailsMap[row.profileId] || { composition: '', armament: '', formation: '', armyCorps: '?' };
 
-            // Формируем HTML popup
-            let popupHtml = `<div style="font-size:14px;"><strong>${escapeHtml(unitTitle)}</strong>`;
+			// Для единообразия всегда показываем блоки, даже если данные отсутствуют
+			const compositionText = details.composition.trim() ? details.composition : '?';
+			const armamentText = details.armament.trim() ? details.armament : '?';
+			const formationText = details.formation.trim() ? details.formation : '?';
+			const armyCorpsText = details.armyCorps || '?';
 
-            if (details.composition) {
-                popupHtml += `
-                    <details class="collapse-block" style="margin-top:8px;">
-                        <summary>📄 Состав</summary>
-                        <div class="collapse-content" style="margin-top: 4px; white-space: pre-wrap;">${escapeHtml(details.composition).replace(/\n/g, '<br>')}</div>
-                    </details>`;
-            }
-            if (details.armament) {
-                popupHtml += `
-                    <details class="collapse-block" style="margin-top:8px;">
-                        <summary>📄 Вооружение</summary>
-                        <div class="collapse-content" style="margin-top: 4px; white-space: pre-wrap;">${escapeHtml(details.armament).replace(/\n/g, '<br>')}</div>
-                    </details>`;
-            }
-            if (details.formation) {
-                popupHtml += `<div style="margin-top:8px;"><strong>Формирование:</strong> ${escapeHtml(details.formation)}</div>`;
-            }
-            popupHtml += `<div style="margin-top:8px;"><strong>Армейский корпус:</strong> ${escapeHtml(details.armyCorps)}</div>`;
-            popupHtml += `</div>`;
+			// Формируем HTML popup
+			let popupHtml = `<div style="font-size:14px;"><strong>${escapeHtml(unitTitle)}</strong>`;
 
-            marker.bindPopup(popupHtml);
+			// Состав (всегда сворачиваемый блок)
+			popupHtml += `
+				<details class="collapse-block" style="margin-top:8px;">
+					<summary>📄 Состав</summary>
+					<div class="collapse-content" style="margin-top: 4px; white-space: pre-wrap;">${escapeHtml(compositionText).replace(/\n/g, '<br>')}</div>
+				</details>`;
+
+			// Вооружение (всегда сворачиваемый блок)
+			popupHtml += `
+				<details class="collapse-block" style="margin-top:8px;">
+					<summary>📄 Вооружение</summary>
+					<div class="collapse-content" style="margin-top: 4px; white-space: pre-wrap;">${escapeHtml(armamentText).replace(/\n/g, '<br>')}</div>
+				</details>`;
+
+			// Формирование (всегда видимая строка)
+			popupHtml += `<div style="margin-top:8px;"><strong>Формирование:</strong> ${escapeHtml(formationText)}</div>`;
+
+			// Армейский корпус (всегда видимая строка)
+			popupHtml += `<div style="margin-top:8px;"><strong>Армейский корпус:</strong> ${escapeHtml(armyCorpsText)}</div>`;
+
+			popupHtml += `</div>`;
+
+			marker.bindPopup(popupHtml);
             marker.addTo(window.unitsUaLayer);
             window.unitsUaMarkers.push(marker);
         }
