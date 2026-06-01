@@ -712,33 +712,54 @@ function parseUnitsUaDetails(text) {
         armyCorps: '?'
     };
 
-    if (!text) return details;
-
-    // 1. Поиск секции "Состав:"
-    const compositionMatch = text.match(/Состав:\s*\n([\s\S]*?)(?=\n\s*\n|\nВооружение:|\n#|$)/i);
-    if (compositionMatch) {
-        details.composition = compositionMatch[1].trim();
+    if (!text) {
+        console.warn('parseUnitsUaDetails: пустой текст');
+        return details;
     }
 
-    // 2. Поиск секции "Вооружение:"
-    const armamentMatch = text.match(/Вооружение:\s*\n([\s\S]*?)(?=\n\s*\n|\nСостав:|\n#|$)/i);
+    // Нормализуем переводы строк (Windows \r\n -> \n)
+    let normalizedText = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+    
+    // Для отладки выведем первые 500 символов
+    console.log(`[parseUnitsUaDetails] Анализ текста (первые 500 символов):\n${normalizedText.substring(0, 500)}`);
+
+    // 1. Поиск секции "Состав:" (с учётом возможных пробелов и переносов)
+    const compositionRegex = /Состав:\s*\n([\s\S]*?)(?=\n\s*\n\s*Вооружение:|\n\s*\n\s*#|$)/i;
+    const compositionMatch = normalizedText.match(compositionRegex);
+    if (compositionMatch) {
+        details.composition = compositionMatch[1].trim();
+        console.log(`[parseUnitsUaDetails] Найден состав (${details.composition.length} символов)`);
+    } else {
+        console.log('[parseUnitsUaDetails] Состав не найден');
+    }
+
+    // 2. Поиск секции "Вооружение:" (до следующего заголовка или пустой строки)
+    const armamentRegex = /Вооружение:\s*\n([\s\S]*?)(?=\n\s*\n\s*Состав:|\n\s*\n\s*#|$)/i;
+    const armamentMatch = normalizedText.match(armamentRegex);
     if (armamentMatch) {
         details.armament = armamentMatch[1].trim();
+        console.log(`[parseUnitsUaDetails] Найдено вооружение (${details.armament.length} символов)`);
+    } else {
+        console.log('[parseUnitsUaDetails] Вооружение не найдено');
     }
 
     // 3. Поиск хэштегов формирования
     const formationTags = ['#ВСУ', '#НГУ', '#ГПСУ', '#МВД'];
     for (const tag of formationTags) {
-        if (text.includes(tag)) {
-            details.formation = tag.substring(1); // убираем решётку
+        if (normalizedText.includes(tag)) {
+            details.formation = tag.substring(1);
+            console.log(`[parseUnitsUaDetails] Найдено формирование: ${details.formation}`);
             break;
         }
     }
 
     // 4. Поиск хэштега армейского корпуса
-    const akMatch = text.match(/#АК_(\d+)/);
+    const akMatch = normalizedText.match(/#АК_(\d+)/);
     if (akMatch) {
         details.armyCorps = akMatch[1];
+        console.log(`[parseUnitsUaDetails] Найден армейский корпус: ${details.armyCorps}`);
+    } else {
+        console.log('[parseUnitsUaDetails] Армейский корпус не найден');
     }
 
     return details;
@@ -773,6 +794,10 @@ async function loadUnitsUaIcons() {
 
             const fullText = getMessageText(msg);
             if (!fullText) continue;
+            
+            console.log(`Обработка сообщения ID: ${idMatch ? idMatch[1] : 'unknown'}`);
+            const details = parseUnitsUaDetails(fullText);
+            console.log(`Детали для ID ${profileId}:`, details);
 
             const idMatch = fullText.match(/^ID\s*:\s*(\d+)/m);
             if (!idMatch) continue;
