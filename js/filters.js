@@ -794,15 +794,15 @@ async function loadUnitsUaIcons() {
 
             const fullText = getMessageText(msg);
             if (!fullText) continue;
-            
-            console.log(`Обработка сообщения ID: ${idMatch ? idMatch[1] : 'unknown'}`);
-            const details = parseUnitsUaDetails(fullText);
-            console.log(`Детали для ID ${profileId}:`, details);
 
             const idMatch = fullText.match(/^ID\s*:\s*(\d+)/m);
             if (!idMatch) continue;
 
             const profileId = idMatch[1];
+            
+            console.log(`Обработка сообщения ID: ${idMatch ? idMatch[1] : 'unknown'}`);
+            const details = parseUnitsUaDetails(fullText);
+            console.log(`Детали для ID ${profileId}:`, details);
 
             // Извлекаем название (первая непустая строка после ID)
             const lines = fullText.split('\n');
