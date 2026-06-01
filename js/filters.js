@@ -713,57 +713,21 @@ function parseUnitsUaDetails(text) {
     };
     if (!text) return details;
 
-    const lines = text.split(/\r?\n/);
-    let currentSection = null;      // 'composition' или 'armament'
-    let sectionLines = [];
-
-    for (let i = 0; i < lines.length; i++) {
-        const rawLine = lines[i];
-        const trimmed = rawLine.trim();
-        if (trimmed === '') continue; // пропускаем пустые строки
-
-        // Проверяем заголовки (без учёта регистра)
-        const lower = trimmed.toLowerCase();
-        if (lower === 'состав' || lower === 'состав:') {
-            currentSection = 'composition';
-            sectionLines = [];
-            continue;
-        }
-        if (lower === 'вооружение' || lower === 'вооружение:') {
-            currentSection = 'armament';
-            sectionLines = [];
-            continue;
-        }
-
-        // Если мы внутри секции
-        if (currentSection !== null) {
-            // Выход из секции при встрече хэштега (признак конца описания)
-            if (trimmed.startsWith('#')) {
-                // сохраняем собранное и выходим
-                if (currentSection === 'composition') {
-                    details.composition = sectionLines.join('\n').trim();
-                } else if (currentSection === 'armament') {
-                    details.armament = sectionLines.join('\n').trim();
-                }
-                currentSection = null;
-                sectionLines = [];
-                // хэштег дальше обработаем отдельно
-                continue;
-            }
-            // Иначе добавляем строку в текущую секцию
-            sectionLines.push(rawLine); // сохраняем исходную строку (с пробелами)
-        }
+    // Ищем секцию "Состав" – от слова "Состав" (с двоеточием или без) до следующего пустого блока или до "Вооружение"
+    const compRegex = /Состав:?\s*\n([\s\S]*?)(?=\n\s*\n\s*Вооружение:?|\n\s*\n\s*#|$)/i;
+    const compMatch = text.match(compRegex);
+    if (compMatch) {
+        details.composition = compMatch[1].trim();
     }
 
-    // Если секция оборвалась концом текста (без хэштега) – сохраняем
-    if (currentSection === 'composition' && sectionLines.length) {
-        details.composition = sectionLines.join('\n').trim();
-    }
-    if (currentSection === 'armament' && sectionLines.length) {
-        details.armament = sectionLines.join('\n').trim();
+    // Ищем секцию "Вооружение" – от слова "Вооружение" до следующего пустого блока или до заголовков (РСЗО, Тяжёлая бронетехника, Зенитно-ракетные, #)
+    const armRegex = /Вооружение:?\s*\n([\s\S]*?)(?=\n\s*\n\s*(?:РСЗО|Тяжёлая|Зенитно|#)|\n\s*\n\s*$|$)/i;
+    const armMatch = text.match(armRegex);
+    if (armMatch) {
+        details.armament = armMatch[1].trim();
     }
 
-    // Определяем формирование по хэштегам
+    // Формирование по хэштегу
     const formationTags = ['#ВСУ', '#НГУ', '#ГПСУ', '#МВД'];
     for (const tag of formationTags) {
         if (text.includes(tag)) {
