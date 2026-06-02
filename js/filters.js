@@ -778,9 +778,9 @@ async function loadUnitsUaIcons() {
 
             const profileId = idMatch[1];
             
-            console.log(`Обработка сообщения ID: ${idMatch ? idMatch[1] : 'unknown'}`);
+            // console.log(`Обработка сообщения ID: ${idMatch ? idMatch[1] : 'unknown'}`);
             const details = parseUnitsUaDetails(fullText);
-            console.log(`Детали для ID ${profileId}:`, details);
+            // console.log(`Детали для ID ${profileId}:`, details);
 
             // Извлекаем название (первая непустая строка после ID)
             const lines = fullText.split('\n');
@@ -804,7 +804,7 @@ async function loadUnitsUaIcons() {
         }
 
         window.unitsUaIconsLoaded = true;
-        console.log(`Загружено ${Object.keys(window.unitsUaIconsMap).length} профилей с деталями`);
+        // console.log(`Загружено ${Object.keys(window.unitsUaIconsMap).length} профилей с деталями`);
     } catch (error) {
         console.error('Ошибка загрузки UnitsUA.json:', error);
         window.unitsUaIconsLoaded = true;
@@ -1004,7 +1004,7 @@ async function loadUnitsUaWithDateFilter(targetDateStr, allowedProfileIds = null
             window.unitsUaMarkers.push(marker);
         }
 
-        console.log(`Загружено ${window.unitsUaMarkers.length} точек ПВД с расширенной информацией для даты ${targetDateStr}`);
+        // console.log(`Загружено ${window.unitsUaMarkers.length} точек ПВД с расширенной информацией для даты ${targetDateStr}`);
     } catch (error) {
         console.error('Ошибка загрузки CSV подразделений ВСУ:', error);
     }
