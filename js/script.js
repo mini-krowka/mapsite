@@ -1559,6 +1559,7 @@ function getAttacksOnUaIcon(position) {
         'Стоянка грузового транспорта'                     : 'img/attack types/Парковка2.png',
         'ППД'                                              : 'img/attack types/ПВД22.png',
         'Поезда и локомотивы'                              : 'img/attack types/Поезд2.png',
+		'Административный объект'                          : 'img/attack types/Адм2.png',
         
         'default'                                          : 'img/attack types/Взрывчик.png',
     };
