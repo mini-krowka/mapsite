@@ -3655,3 +3655,21 @@ document.addEventListener('click', function(e) {
         }
     }
 });
+
+
+// ==UserScript==
+// @match https://www.creamy-caprice.net/*
+// ==/UserScript==
+(function () {
+  const p = new URLSearchParams(location.search);
+  const lat = parseFloat(p.get('lat'));
+  const lng = parseFloat(p.get('lng') ?? p.get('lon'));
+  const zoom = parseInt(p.get('zoom') ?? p.get('z'), 10);
+  if (Number.isNaN(lat) || Number.isNaN(lng)) return;
+
+  const go = () => {
+    if (typeof centerMap !== 'function') return setTimeout(go, 300);
+    centerMap(lat, lng, Number.isNaN(zoom) ? 14 : zoom);
+  };
+  go();
+})();
