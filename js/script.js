@@ -2544,7 +2544,7 @@ function getDeepLinkViewFromUrl() {
 }
 
 async function init() {
-  const deepLink = getDeepLinkViewFromUrl();
+  // const deepLink = getDeepLinkViewFromUrl();
 
   try {
     // Шаг 1: Загружаем постоянные слои
@@ -2602,6 +2602,12 @@ async function init() {
         await loadKmlForNearestDate(nearestIndex);
     } else {
         console.log('Не найдено доступных KML файлов для загрузки');
+    }
+	
+	// Маркер при загрузке координат из url
+    const urlCoords = getUrlCoords();
+    if (urlCoords) {
+      centerMap(urlCoords.lat, urlCoords.lng, urlCoords.zoom);
     }
 
     // Шаг 9: Финализируем инициализацию карты
