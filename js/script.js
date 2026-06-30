@@ -1468,9 +1468,6 @@ async function reloadKmlForCRS(center, zoom) {
     // Восстанавливаем позицию с проверкой валидности
     if (center && zoom && center.lat !== 0 && center.lng !== 0) {
         map.setView(center, zoom);
-    } else {
-        // Используем центр по умолчанию, если текущий невалиден
-        map.setView([48.257381, 37.134785], 10);
     }
     
     map.invalidateSize();
@@ -2602,21 +2599,9 @@ async function init() {
 
         // Загружаем данные карты
         preserveZoom = true;
-        if (!deepLink) {
-            // Явно устанавливаем вид только один раз
-            map.setView([48.257381, 37.134785], 10);
-        }
         await loadKmlForNearestDate(nearestIndex);
     } else {
         console.log('Не найдено доступных KML файлов для загрузки');
-        if (!deepLink) {
-            // Устанавливаем вид по умолчанию
-            map.setView([48.257381, 37.134785], 10);
-        }
-    }
-
-    if (deepLink) {
-        centerMap(deepLink.lat, deepLink.lng, deepLink.zoom);
     }
 
     // Шаг 9: Финализируем инициализацию карты
