@@ -471,13 +471,7 @@ function initRulerControl() {
     toggleRulerPanel();
   });
 
-  // ИЗМЕНЕНИЕ: предотвращаем контекстное меню на карте, когда линейка активна
-  map.on('contextmenu', function(e) {
-    if (isRulerMeasuring || (rulerToggle && rulerToggle.getContainer().classList.contains('active'))) {
-      L.DomEvent.stop(e); // отключаем стандартное контекстное меню
-      // Плагин сам обработает ПКМ для завершения линии
-    }
-  });
+  // Удалён блокирующий обработчик contextmenu – плагин сам обрабатывает ПКМ
 }
 
 function toggleRulerPanel() {
@@ -498,10 +492,24 @@ function showRulerPanel() {
     if (measureContainer) {
         measureContainer.style.display = 'block';
     }
-    // Активируем режим рисования
-    if (window.measureControl && !isRulerMeasuring) {
-        window.measureControl.enable();
-        isRulerMeasuring = true;
+    // Активируем режим рисования, если контрол существует и ещё не активен
+    if (window.measureControl) {
+        if (!isRulerMeasuring) {
+            window.measureControl.enable();
+            isRulerMeasuring = true;
+            console.log('Ruler enabled');
+        }
+    } else {
+        console.warn('measureControl not initialized, initializing...');
+        initMeasureControl();
+        // Повторная попытка включения через задержку
+        setTimeout(() => {
+            if (window.measureControl && !isRulerMeasuring) {
+                window.measureControl.enable();
+                isRulerMeasuring = true;
+                console.log('Ruler enabled after init');
+            }
+        }, 200);
     }
 }
 
@@ -519,6 +527,7 @@ function hideRulerPanel() {
         window.measureControl.disable();
         window.measureControl.clearMeasurements();
         isRulerMeasuring = false;
+        console.log('Ruler disabled and cleared');
     }
 }
 
@@ -530,7 +539,7 @@ function initMeasureControl() {
     const options = {
         position: 'topright',
         unit: 'kilometres',
-        clearMeasurementsOnStop: false,
+        clearMeasurementsOnStop: false,  // линии не стираются при disable
         showUnitControl: true,
         backgroundColor: '#f8f8f8',
         cursor: 'crosshair',
@@ -551,17 +560,9 @@ function initMeasureControl() {
 		fixedLine: {                    // Styling for the solid line
 			color: '#F0F',              // Solid line color
 			weight: 2                   // Solid line weight
-		}
+        }
     };
 
-
-    // Удаляем старый контрол если существует
-    //if (window.measureControl) {
-        //window.measureControl.remove();
-        //window.measureControl = null;
-    //}
-
-    // Создаем контрол только если его еще нет
     if (!window.measureControl) {
         window.measureControl = L.control.polylineMeasure(options);
         window.measureControl.addTo(map);
