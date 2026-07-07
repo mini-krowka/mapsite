@@ -437,6 +437,8 @@ layerControlContainer.addEventListener('click', function(e) {
 // }
 // });
 
+// ИЗМЕНЕНИЕ: глобальный флаг состояния режима рисования
+let isRulerMeasuring = false;
 
 
 
@@ -468,11 +470,18 @@ function initRulerControl() {
     e.stopPropagation();
     toggleRulerPanel();
   });
+
+  // ИЗМЕНЕНИЕ: предотвращаем контекстное меню на карте, когда линейка активна
+  map.on('contextmenu', function(e) {
+    if (isRulerMeasuring || (rulerToggle && rulerToggle.getContainer().classList.contains('active'))) {
+      L.DomEvent.stop(e); // отключаем стандартное контекстное меню
+      // Плагин сам обработает ПКМ для завершения линии
+    }
+  });
 }
 
 function toggleRulerPanel() {
   const isActive = rulerToggle.getContainer().classList.contains('active');
-  
   if (isActive) {
     hideRulerPanel();
   } else {
@@ -480,29 +489,38 @@ function toggleRulerPanel() {
   }
 }
 
+// ИЗМЕНЕНИЕ: при показе панели – включаем режим рисования
 function showRulerPanel() {
     if (rulerToggle && rulerToggle.getContainer) {
         rulerToggle.getContainer().classList.add('active');
     }
-    
     const measureContainer = window.measureControl && window.measureControl.getContainer();
     if (measureContainer) {
         measureContainer.style.display = 'block';
     }
+    // Активируем режим рисования
+    if (window.measureControl && !isRulerMeasuring) {
+        window.measureControl.enable();
+        isRulerMeasuring = true;
+    }
 }
 
+// ИЗМЕНЕНИЕ: при скрытии панели – выключаем режим рисования и очищаем все линии
 function hideRulerPanel() {
     if (rulerToggle && rulerToggle.getContainer) {
         rulerToggle.getContainer().classList.remove('active');
     }
-    
     const measureContainer = window.measureControl && window.measureControl.getContainer();
     if (measureContainer) {
         measureContainer.style.display = 'none';
     }
+    // Отключаем режим рисования и стираем все линии
+    if (window.measureControl) {
+        window.measureControl.disable();
+        window.measureControl.clearMeasurements();
+        isRulerMeasuring = false;
+    }
 }
-
-
 
 // функция для инициализации контрола измерения
 function initMeasureControl() {
@@ -554,15 +572,10 @@ function initMeasureControl() {
 document.addEventListener('DOMContentLoaded', function() {
     initRulerControl();
     initMeasureControl(); // Инициализация линейки
-    hideRulerPanel();
+    hideRulerPanel(); // по умолчанию скрыта
 });
 
-
-
-
-
-
-
+//////////////////////////////////////////////////////
 
 let fullscreenToggle;
 
@@ -574,7 +587,7 @@ function initFullscreenControl() {
         link.href = '#';
         link.title = translations[currentLang].fullscreenTitle || 'Полноэкранный режим';
         link.innerHTML = '⛶'; // начальный символ
-		
+
 		// Функция обновления символа в зависимости от состояния fullscreen
 		function updateFullscreenIcon() {
 			const isFullscreen = document.fullscreenElement ||
@@ -610,14 +623,6 @@ function initFullscreenControl() {
     };
     fullscreenToggle.addTo(map);
 }
-
-
-
-
-
-
-
-
 
 // Функция, которая скрывает тултипы с "+0" и показывает остальные
 function hideZeroTooltips() {
@@ -682,10 +687,6 @@ const nonInteractivePane = map.createPane('nonInteractive');
 nonInteractivePane.style.zIndex = 400; // ниже интерактивной
 
 
-
-
-
-
 // Инициализация панели рисования после загрузки карты
 map.whenReady(function() {
     setTimeout(() => {
@@ -694,5 +695,4 @@ map.whenReady(function() {
             console.log('Панель рисования инициализирована автоматически');
         }
     }, 1000);
-
 });
