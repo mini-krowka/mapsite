@@ -109,9 +109,7 @@ const attackGroups = [
         labelRu: 'Склады',
         labelEn: 'Warehouses',
         categories: [
-            'Склад',
-            'Склад ГСМ',
-			'АЗС'
+            'Склад'
         ]
     },
         
