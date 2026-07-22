@@ -92,8 +92,8 @@ window.permanentLayers = [
     { name: "RuUaBorder",             path: "kml/PermanentObjects/RuUaBorder.kml" },
 	
         //Единая линия на 10.10.23
-    // { name: "Offensive_23_10_10",     path: "kml/PermanentObjects/OffensiveLine_2023_10_10.kml" },
-	{ name: "Offensive_23_10_10",     path: "kml/PermanentObjects/ЛБС 10102023 СК.kml" },
+    { name: "Offensive_23_10_10",     path: "kml/PermanentObjects/OffensiveLine_2023_10_10.kml" },
+	//{ name: "Offensive_23_10_10",     path: "kml/PermanentObjects/ЛБС 10102023 СК.kml" },
 	
 	// { name: "Offensive_23_10_10",     path: "kml/PermanentObjects/FrontLine_2023_10_10.kml" },
     //Линия максимального продвижения ВСУ в Курской области.
