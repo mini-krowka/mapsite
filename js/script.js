@@ -1141,7 +1141,12 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup, styleM
                 coordsString,
                 popupHtml,
                 extendedData,
-                visible: true
+                // Сразу применяем фильтр по диапазону дат: иначе до вызова applyFilter
+                // (после загрузки всех файлов) redraw успел бы показать все точки
+                visible: (layerType === 'points' && date && window.pointsDateRange &&
+                          window.pointsDateRange.start && window.pointsDateRange.end)
+                    ? isDateInRange(date, window.pointsDateRange.start, window.pointsDateRange.end)
+                    : true
             };
 
             if (!window.pointsModel[layerType]) window.pointsModel[layerType] = [];
