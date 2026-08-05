@@ -150,6 +150,8 @@ attackGroups.forEach(group => {
         categoryToGroupTag[cat] = group.tag;
     });
 });
+// Доступен из CanvasPointsLayer.applyFilter
+window.categoryToGroupTag = categoryToGroupTag;
 
 
 // Глобальные переменные для фильтров
