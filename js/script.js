@@ -14,7 +14,7 @@ window.selectedDate = null; // Глобальная переменная для 
 // Глобальный флаг для логгирования стилей временных файлов
 const LOG_STYLES = true; // Можно менять на false для отключения
 
-let currentDateRange = 'week'; // 'week', 'month', '3months', '6months', 'year'
+let currentDateRange = 'week'; // 'week', 'month', '6months', 'year', 'all'
 // let isMilEquipVisible     = false; // Флаг видимости слоя техники
 // let isAttacksOnUaVisible  = false; // Флаг видимости слоя атак по территории
 // let isFortificationVisible = false; // Флаг видимости слоя фортификаций
@@ -1767,11 +1767,11 @@ function getStartDateByRange(rangeType, baseDate = null) {
         case '3months':
             result.setMonth(result.getMonth() - 3);
             break;
-        case '6months':
-            result.setMonth(result.getMonth() - 6);
-            break;
         case 'year':
             result.setFullYear(result.getFullYear() - 1);
+            break;
+        case 'all':
+            result = new Date(2022, 2, 24);
             break;
         default:
             result.setDate(result.getDate() - 7); // По умолчанию 1 неделя
@@ -2031,8 +2031,8 @@ function updateDateRangeButtonTitle() {
         'week': '1 неделя',
         'month': '1 месяц',
         '3months': '3 месяца',
-        '6months': '6 месяцев',
-        'year': '1 год'
+        'year': '1 год',
+        'all': 'Все'
     };
     
     dateRangeBtn.title = titles[currentDateRange] || 'Фильтр по дате';

@@ -22,8 +22,8 @@ const translations = {
         rangeWeek: "1 неделя",
         rangeMonth: "1 месяц",
         range3Months: "3 месяца",
-        range6Months: "6 месяцев",
         rangeYear: "1 год",
+        rangeAll: "Все",
 		
         showEquipment: 'Техника',
         // hideEquipment: 'Скрыть технику',
@@ -92,8 +92,8 @@ const translations = {
 		rangeWeek: "1 week",
         rangeMonth: "1 month",
         range3Months: "3 months",
-        range6Months: "6 months",
         rangeYear: "1 year",
+        rangeAll: "All",
 		
         showEquipment: 'Equipment',
         // hideEquipment: 'Hide equipment',
