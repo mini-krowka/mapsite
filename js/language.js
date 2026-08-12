@@ -256,14 +256,14 @@ function setLanguage(lang) {
 	
 	// Обновление текста в выпадающем списке диапазонов дат
     const rangeOptions = document.querySelectorAll('#date-range-dropdown .range-option');
-    if (rangeOptions.length >= 5) {
-        // Порядок: неделя, месяц, 3 месяца, 6 месяцев, год
-        rangeOptions[0].textContent = t.rangeWeek;
-        rangeOptions[1].textContent = t.rangeMonth;
-        rangeOptions[2].textContent = t.range3Months;
-        rangeOptions[3].textContent = t.range6Months;
-        rangeOptions[4].textContent = t.rangeYear;
-    }
+	rangeOptions.forEach(option => {
+		const range = option.getAttribute('data-range');
+		if (range === 'week') option.textContent = t.rangeWeek;
+		else if (range === 'month') option.textContent = t.rangeMonth;
+		else if (range === '3months') option.textContent = t.range3Months;
+		else if (range === 'year') option.textContent = t.rangeYear;
+		else if (range === 'all') option.textContent = t.rangeAll;
+	});
 	
 	// Обновляем заголовок кнопки фильтра дат
 	if (typeof updateDateRangeButtonTitle === 'function') {
