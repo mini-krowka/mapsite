@@ -1755,7 +1755,7 @@ async function initFortificationLayer(kmlFilePaths) {
 function getStartDateByRange(rangeType, baseDate = null) {
     // Используем переданную дату или текущую дату
     const date = baseDate || parseCustomDate(window.selectedDate) || new Date();
-    const result = new Date(date);
+    let result = new Date(date);
     
     switch(rangeType) {
         case 'week':
