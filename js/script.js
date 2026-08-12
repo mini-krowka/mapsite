@@ -2126,7 +2126,32 @@ function updateButtons() {
 
 // Обработчики кнопок навигации
 document.getElementById('first-btn').addEventListener('click', async () => {
-    await navigateTo(0).catch(console.error);
+    const currentDateStr = window.selectedDate;
+    if (!currentDateStr) return;
+
+    const currentDate = parseCustomDate(currentDateStr);
+    const targetDate = new Date(currentDate);
+    targetDate.setFullYear(targetDate.getFullYear() - 1);
+
+    // Форматируем целевую дату в DD.MM.YY
+    const day = String(targetDate.getDate()).padStart(2, '0');
+    const month = String(targetDate.getMonth() + 1).padStart(2, '0');
+    const year = String(targetDate.getFullYear()).slice(-2);
+    const targetDateStr = `${day}.${month}.${year}`;
+
+    const nearestDate = findNearestEarlierDate(targetDateStr);
+    if (!nearestDate) {
+        console.warn('Не найдено доступных дат для года назад');
+        return;
+    }
+
+    const index = kmlFiles.findIndex(file => file.name === nearestDate);
+    if (index === -1) {
+        console.warn('Не найден индекс для даты', nearestDate);
+        return;
+    }
+
+    await navigateTo(index);
 });
 
 document.getElementById('prev-btn').addEventListener('click', async () => {
