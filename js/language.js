@@ -13,7 +13,7 @@ const translations = {
         copyFallback: "Скопируйте координаты вручную",
         copyError: "Ошибка копирования",
         
-        firstBtnTitle: "Первый",
+        firstBtnTitle: "На год назад",
         prevBtnTitle: "Предыдущий",
         nextBtnTitle: "Следующий",
         lastBtnTitle: "Сегодня",
@@ -84,7 +84,7 @@ const translations = {
         copyFallback: "Copy coordinates manually",
         copyError: "Copy error",
         
-        firstBtnTitle: "First",
+        firstBtnTitle: "Year ago",
         prevBtnTitle: "Previous",
         nextBtnTitle: "Next",
         lastBtnTitle: "Today",
