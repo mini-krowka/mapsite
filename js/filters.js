@@ -686,8 +686,8 @@ function parseUnitsUaDetails(text) {
     };
     if (!text) return details;
 
-    // Парсинг "Описание"
-    const descRegex = /Описание:?\s*([\s\S]*?)(?=\n\s*(?:Состав|Вооружение|$))/i;
+    // Парсинг "Описание" – исключаем строки, начинающиеся с префиксов ссылок
+    const descRegex = /Описание:?\s*([\s\S]*?)(?=\n\s*(?:ТГ|ФБ|Ют|Тв|Инст|Тик|X|Facebook|Telegram|Youtube|Instagram|TikTok|Twitter|Link|Сайт|Веб|http|Состав|Вооружение|$))/i;
     const descMatch = text.match(descRegex);
     if (descMatch) {
         details.description = descMatch[1].trim();
