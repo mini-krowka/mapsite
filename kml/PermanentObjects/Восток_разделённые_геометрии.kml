@@ -2,12 +2,12 @@
 <kml xmlns="http://www.opengis.net/kml/2.2">
   <Document>
     <name>Восток — геометрии по отдельности</name>
-    <Style id="line-0097A7-1200-nodesc-line">
+   <!-- <Style id="line-0097A7-1200-nodesc-line">
       <LineStyle>
         <color>ffa79700</color>
         <width>1</width>
       </LineStyle>
-    </Style>
+    </Style> -->
     <Style id="line-0097A7-1200-nodesc-polygon">
       <LineStyle>
         <color>ffa79700</color>
