@@ -22,7 +22,7 @@
     <Folder>
       <name>Граница уверенного контроля ВС РФ в зоне ответственности ГВ Восток</name>
       <Placemark id="part-1-linestring">
-        <name>Граница уверенного контроля ВС РФ в зоне ответственности ГВ Восток — линия</name>
+        <name>Граница уверенного контроля ВС РФ в зоне ответственности ГВ Восток 2026</name>
         <styleUrl>#line-0097A7-1200-nodesc-line</styleUrl>
         <ExtendedData>
           <Data name="source_name">
@@ -214,7 +214,7 @@
         </LineString>
       </Placemark>
       <Placemark id="part-2-polygon">
-        <name>Граница уверенного контроля ВС РФ в зоне ответственности ГВ Восток — полигон</name>
+        <name>Граница уверенного контроля ВС РФ в зоне ответственности ГВ Восток — 2026</name>
         <styleUrl>#line-0097A7-1200-nodesc-polygon</styleUrl>
         <ExtendedData>
           <Data name="source_name">
