@@ -144,7 +144,7 @@ function displaySearchResults(results) {
       icon: L.icon({
         iconUrl: 'img/search-marker.png',
         iconSize: [32, 32],
-        iconAnchor: [16, 32]
+        iconAnchor: [16, 24]
       })
     }).addTo(searchLayer);
 
