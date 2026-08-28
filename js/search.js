@@ -151,9 +151,13 @@ function displaySearchResults(results) {
     marker.bindPopup(`<strong>${escapeHtml(result.name)}</strong>`);
     boundsArray.push([result.lat, result.lon]);
   });
-
-  // Отодвигаем карту, чтобы были видны все найденные точки
-  map.fitBounds(L.latLngBounds(boundsArray), { padding: [50, 50] });
+  if (boundsArray.length > 1) {
+    // Отодвигаем карту, чтобы были видны все найденные точки
+    map.fitBounds(L.latLngBounds(boundsArray), { padding: [50, 50] })
+  } else {
+    map.setView([results[0].lat, results[0].lon], 10);
+  }
+  
 }
 
 // Точка входа: поиск по строке из поля координат
