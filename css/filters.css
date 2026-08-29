@@ -344,3 +344,23 @@
 .units-ua-popup .leaflet-popup-content-wrapper {
     min-width: 300px;
 }
+
+.units-ua-details-btn-wrap {
+    margin-top: 10px;
+    text-align: center;
+}
+
+.units-ua-details-btn {
+    background: #3b82f6;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    padding: 5px 14px;
+    font-size: 13px;
+    cursor: pointer;
+    width: 100%;
+}
+
+.units-ua-details-btn:hover {
+    background: #2563eb;
+}

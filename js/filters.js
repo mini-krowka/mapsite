@@ -674,6 +674,10 @@ window.unitsUaLayer = null;          // групп-слой
 window.unitsUaIconsMap = {};         // словарь id → { photo, title }
 window.unitsUaIconsLoaded = false;   // загружен ли result.json
 window.unitsUaDetailsMap = {};       // Дополнительный объект для хранения детальной информации о подразделении
+window.unitsUaDetailMode = false;    // режим детального просмотра
+window.unitsUaDetailProfileId = null; // ID подразделения в режиме деталей
+window.unitsUaSavedMarkers = [];     // сохранённые маркеры ПВД для восстановления
+window.unitsUaDetailMarkers = [];    // маркеры БД в режиме деталей
 
 // Функция парсинга текста сообщения для извлечения состава, вооружения и меток
 function parseUnitsUaDetails(text) {
@@ -943,7 +947,7 @@ async function loadUnitsUaWithDateFilter(targetDateStr, allowedProfileIds = null
                 unitTitle = `ID:${row.profileId}`;
             }
 
-            const marker = L.marker([row.lat, row.lng], { icon: icon });
+            const marker = L.marker([row.lat, row.lng], { icon: icon, _profileId: row.profileId });
 
             // Получаем детали для данного profileId, если нет — создаём с пустыми значениями
 			const details = window.unitsUaDetailsMap[row.profileId] || { composition: '', armament: '', formation: '', armyCorps: '?', description: '' };
@@ -985,6 +989,7 @@ async function loadUnitsUaWithDateFilter(targetDateStr, allowedProfileIds = null
 			// Армейский корпус (всегда видимая строка)
 			popupHtml += `<div style="margin-top:8px;"><strong>Армейский корпус:</strong> ${escapeHtml(armyCorpsText)}</div>`;
 
+			popupHtml += `<div class="units-ua-details-btn-wrap"><button class="units-ua-details-btn" onclick="window.showUnitDetailsForProfileId('${row.profileId}'); map.closePopup();">Подробности</button></div>`;
 			popupHtml += `</div>`;
 
 			marker.bindPopup(popupHtml, { className: 'units-ua-popup' });
@@ -996,6 +1001,103 @@ async function loadUnitsUaWithDateFilter(targetDateStr, allowedProfileIds = null
     } catch (error) {
         console.error('Ошибка загрузки CSV подразделений ВСУ:', error);
     }
+}
+
+// Показывает детали для выбранного подразделения
+async function showUnitDetailsForProfileId(profileId) {
+    if (window.unitsUaDetailMode && window.unitsUaDetailProfileId === profileId) {
+        resetUnitDetails();
+        return;
+    }
+
+    // Сбрасываем предыдущий режим деталей, если он был
+    if (window.unitsUaDetailMode) {
+        resetUnitDetails();
+    }
+
+    window.unitsUaDetailMode = true;
+    window.unitsUaDetailProfileId = profileId;
+
+    // Сохраняем текущие маркеры ПВД для восстановления
+    window.unitsUaSavedMarkers = [...window.unitsUaMarkers];
+
+    // Очищаем слой
+    if (window.unitsUaLayer) {
+        window.unitsUaLayer.clearLayers();
+    }
+    window.unitsUaMarkers = [];
+    window.unitsUaDetailMarkers = [];
+
+    // Добавляем обратно только ПВД маркер для выбранного profileId
+    const selectedPvd = window.unitsUaSavedMarkers.find(function(m) {
+        return m && m.options && m.options._profileId === profileId;
+    });
+    if (selectedPvd) {
+        selectedPvd.addTo(window.unitsUaLayer);
+        window.unitsUaMarkers.push(selectedPvd);
+    }
+
+    // Загружаем все геолокации (ПВД и БД) для этого profileId
+    try {
+        const response = await fetch(window.unitsUaCsvPath);
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const csvText = await response.text();
+        const lines = csvText.split(/\r?\n/).filter(function(line) { return line.trim().length > 0; });
+        if (lines.length === 0) return;
+
+        const dataLines = lines.slice(1);
+        for (const line of dataLines) {
+            const data = parseUnitsCsvRow(line);
+            if (!data) continue;
+            if (isNaN(data.lat) || isNaN(data.lng)) continue;
+            if (data.profileId !== profileId) continue;
+
+            if (data.characteristic === 'БД') {
+                const bdIcon = L.icon({
+                    iconUrl: 'img/search-marker.png',
+                    iconSize: [32, 32],
+                    iconAnchor: [16, 24],
+                    popupAnchor: [0, -24]
+                });
+                const bdMarker = L.marker([data.lat, data.lng], { icon: bdIcon });
+                bdMarker.bindPopup(
+                    `<div style="font-size:13px;">
+                        <strong>БД — ID:${escapeHtml(data.profileId)}</strong>
+                        <div style="margin-top:4px;">Дата: ${escapeHtml(data.date)}</div>
+                        ${data.link ? `<div style="margin-top:4px;"><a href="${escapeHtml(data.link)}" target="_blank" rel="noopener">Источник</a></div>` : ''}
+                    </div>`,
+                    { className: 'units-ua-popup' }
+                );
+                bdMarker.addTo(window.unitsUaLayer);
+                window.unitsUaDetailMarkers.push(bdMarker);
+            }
+        }
+    } catch (error) {
+        console.error('Ошибка загрузки CSV для деталей:', error);
+    }
+}
+
+// Восстанавливает все маркеры ПВД и убирает БД маркеры
+function resetUnitDetails() {
+    if (!window.unitsUaDetailMode) return;
+
+    window.unitsUaDetailMode = false;
+    window.unitsUaDetailProfileId = null;
+
+    if (window.unitsUaLayer) {
+        window.unitsUaLayer.clearLayers();
+    }
+
+    window.unitsUaMarkers = [];
+    window.unitsUaDetailMarkers = [];
+
+    window.unitsUaSavedMarkers.forEach(function(m) {
+        if (m) {
+            m.addTo(window.unitsUaLayer);
+            window.unitsUaMarkers.push(m);
+        }
+    });
+    window.unitsUaSavedMarkers = [];
 }
 
 // Простая функция экранирования HTML (чтобы избежать XSS)
@@ -1012,6 +1114,7 @@ function escapeHtml(str) {
 // Перезагрузка слоя с учётом текущей selectedDate
 function reloadUnitsUaLayer() {
     if (window.isUnitsUaVisible) {
+        resetUnitDetails();
         const currentDate = window.selectedDate || getCurrentDateFormatted();
         let filterSet = null;
         if (window.unitsSearchDigits) {
@@ -1087,6 +1190,7 @@ async function toggleUnitsUa() {
         btn.classList.add('active');
     } else {
         // ===== Выключение слоя =====
+        resetUnitDetails();
         if (window.unitsUaLayer && map.hasLayer(window.unitsUaLayer)) {
             map.removeLayer(window.unitsUaLayer);
         }
@@ -1202,6 +1306,7 @@ window.hideAllAttacksMarkers = hideAllAttacksMarkers;
 window.hideAllFortificationLayers = hideAllFortificationLayers;
 
 window.reloadUnitsUaLayer = reloadUnitsUaLayer;
+window.showUnitDetailsForProfileId = showUnitDetailsForProfileId;
 
 
 //
