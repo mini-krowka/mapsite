@@ -1080,11 +1080,11 @@ async function showUnitDetailsForProfileId(profileId) {
 
             if (data.characteristic === 'ПВД') {
                 const fadedIcon = L.divIcon({
-                    className: 'leaflet-marker-icon units-ua-old-pvd-icon',
-                    html: `<img src="${unitIconInfo ? 'units/ua/' + unitIconInfo.photo : 'img/attack types/Взрывчик.png'}" style="opacity:0.75; filter:grayscale(30%);" />`,
-                    iconSize: [unitIconInfo ? 28 : 28, unitIconInfo ? 32 : 28],
-                    iconAnchor: [unitIconInfo ? 14 : 14, unitIconInfo ? 16 : 14],
-                    popupAnchor: [0, unitIconInfo ? -16 : 0]
+                    className: 'units-ua-old-pvd-icon',
+                    html: `<img src="${unitIconInfo ? 'units/ua/' + unitIconInfo.photo : 'img/attack types/Взрывчик.png'}" style="width:16px; height:20px; border:2px solid #3b82f6; border-radius:50%; box-shadow:0 0 3px rgba(59,130,246,0.6);" />`,
+                    iconSize: [20, 24],
+                    iconAnchor: [10, 12],
+                    popupAnchor: [0, -12]
                 });
                 const pvdMarker = L.marker([data.lat, data.lng], { icon: fadedIcon, _profileId: profileId });
                 pvdMarker.bindPopup(

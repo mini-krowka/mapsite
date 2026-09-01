@@ -365,8 +365,3 @@
     background: #2563eb;
 }
 
-/* Полупрозрачные старые ПВД иконки в режиме деталей */
-.units-ua-old-pvd-icon img {
-    opacity: 0.75 !important;
-    filter: grayscale(30%);
-}
