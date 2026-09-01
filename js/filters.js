@@ -678,6 +678,7 @@ window.unitsUaDetailMode = false;    // режим детального прос
 window.unitsUaDetailProfileId = null; // ID подразделения в режиме деталей
 window.unitsUaSavedMarkers = [];     // сохранённые маркеры ПВД для восстановления
 window.unitsUaDetailMarkers = [];    // маркеры БД в режиме деталей
+window.unitsUaDetailPvdMarkers = []; // маркеры ПВД в режиме деталей
 
 // Функция парсинга текста сообщения для извлечения состава, вооружения и меток
 function parseUnitsUaDetails(text) {
@@ -1027,15 +1028,23 @@ async function showUnitDetailsForProfileId(profileId) {
     }
     window.unitsUaMarkers = [];
     window.unitsUaDetailMarkers = [];
+    window.unitsUaDetailPvdMarkers = [];
 
-    // Добавляем обратно только ПВД маркер для выбранного profileId
-    const selectedPvd = window.unitsUaSavedMarkers.find(function(m) {
-        return m && m.options && m.options._profileId === profileId;
-    });
-    if (selectedPvd) {
-        selectedPvd.addTo(window.unitsUaLayer);
-        window.unitsUaMarkers.push(selectedPvd);
-    }
+    // Определяем иконку подразделения
+    const unitIconInfo = window.unitsUaIconsMap[profileId];
+    const unitIcon = unitIconInfo
+        ? L.icon({
+            iconUrl: `units/ua/${unitIconInfo.photo}`,
+            iconSize: [28, 32],
+            iconAnchor: [14, 16],
+            popupAnchor: [0, -16]
+        })
+        : L.icon({
+            iconUrl: 'img/attack types/Взрывчик.png',
+            iconSize: [28, 28],
+            iconAnchor: [14, 14],
+            popupAnchor: [0, 0]
+        });
 
     // Загружаем все геолокации (ПВД и БД) для этого profileId
     try {
@@ -1052,9 +1061,21 @@ async function showUnitDetailsForProfileId(profileId) {
             if (isNaN(data.lat) || isNaN(data.lng)) continue;
             if (data.profileId !== profileId) continue;
 
-            if (data.characteristic === 'БД') {
+            if (data.characteristic === 'ПВД') {
+                const pvdMarker = L.marker([data.lat, data.lng], { icon: unitIcon, _profileId: profileId });
+                pvdMarker.bindPopup(
+                    `<div style="font-size:13px;">
+                        <strong>ПВД — ID:${escapeHtml(data.profileId)}</strong>
+                        <div style="margin-top:4px;">Дата: ${escapeHtml(data.date)}</div>
+                        ${data.link ? `<div style="margin-top:4px;"><a href="${escapeHtml(data.link)}" target="_blank" rel="noopener">Источник</a></div>` : ''}
+                    </div>`,
+                    { className: 'units-ua-popup' }
+                );
+                pvdMarker.addTo(window.unitsUaLayer);
+                window.unitsUaDetailPvdMarkers.push(pvdMarker);
+            } else if (data.characteristic === 'БД') {
                 const bdIcon = L.icon({
-                    iconUrl: 'img/search-marker.png',
+                    iconUrl: 'img/attack types/Взрывчик.png',
                     iconSize: [32, 32],
                     iconAnchor: [16, 24],
                     popupAnchor: [0, -24]
@@ -1090,6 +1111,7 @@ function resetUnitDetails() {
 
     window.unitsUaMarkers = [];
     window.unitsUaDetailMarkers = [];
+    window.unitsUaDetailPvdMarkers = [];
 
     window.unitsUaSavedMarkers.forEach(function(m) {
         if (m) {
