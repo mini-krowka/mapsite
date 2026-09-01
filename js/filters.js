@@ -1081,9 +1081,9 @@ async function showUnitDetailsForProfileId(profileId) {
             if (data.characteristic === 'ПВД') {
                 const oldPvdIcon = L.icon({
                     iconUrl: unitIconInfo ? `units/ua/${unitIconInfo.photo}` : 'img/attack types/Взрывчик.png',
-                    iconSize: [16, 20],
-                    iconAnchor: [8, 10],
-                    popupAnchor: [0, -10]
+                    iconSize: [21, 24],
+                    iconAnchor: [10, 12],
+                    popupAnchor: [0, -12]
                 });
                 const pvdMarker = L.marker([data.lat, data.lng], { icon: oldPvdIcon, _profileId: profileId });
                 pvdMarker.bindPopup(
