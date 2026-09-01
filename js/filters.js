@@ -1079,14 +1079,13 @@ async function showUnitDetailsForProfileId(profileId) {
             }
 
             if (data.characteristic === 'ПВД') {
-                const fadedIcon = L.divIcon({
-                    className: 'units-ua-old-pvd-icon',
-                    html: `<img src="${unitIconInfo ? 'units/ua/' + unitIconInfo.photo : 'img/attack types/Взрывчик.png'}" style="width:16px; height:20px; border:2px solid #3b82f6; border-radius:50%; box-shadow:0 0 3px rgba(59,130,246,0.6);" />`,
-                    iconSize: [20, 24],
-                    iconAnchor: [10, 12],
-                    popupAnchor: [0, -12]
+                const oldPvdIcon = L.icon({
+                    iconUrl: unitIconInfo ? `units/ua/${unitIconInfo.photo}` : 'img/attack types/Взрывчик.png',
+                    iconSize: [16, 20],
+                    iconAnchor: [8, 10],
+                    popupAnchor: [0, -10]
                 });
-                const pvdMarker = L.marker([data.lat, data.lng], { icon: fadedIcon, _profileId: profileId });
+                const pvdMarker = L.marker([data.lat, data.lng], { icon: oldPvdIcon, _profileId: profileId });
                 pvdMarker.bindPopup(
                     `<div style="font-size:13px;">
                         <strong>${escapeHtml(unitTitle)}</strong>
