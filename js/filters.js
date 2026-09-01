@@ -855,14 +855,13 @@ function parseUnitsCsvRow(row) {
     const parts = row.split(',');
     if (parts.length < 7) return null; // минимум до столбца "Источник"
     return {
-        // id: parts[0].trim(), // больше не нужно
-        profileId: parts[1].trim(),   // было parts[1] – остаётся, но индекс изменился
-        date: parts[2].trim(),        // было parts[2]
+        profileId: parts[1].trim(),
+        date: parts[2].trim(),
         lat: parseFloat(parts[3].trim()),
         lng: parseFloat(parts[4].trim()),
         characteristic: parts[5].trim(),
-        link: parts[6].trim()         // источник
-        // details: parts[7] – можно добавить, но не используется
+        link: parts[6].trim(),
+        details: parts.length > 7 ? parts.slice(7).join(',').trim() : ''
     };
 }
 
@@ -1032,6 +1031,7 @@ async function showUnitDetailsForProfileId(profileId) {
 
     // Определяем иконку подразделения
     const unitIconInfo = window.unitsUaIconsMap[profileId];
+    const unitTitle = unitIconInfo ? unitIconInfo.title : `ID:${profileId}`;
     const unitIcon = unitIconInfo
         ? L.icon({
             iconUrl: `units/ua/${unitIconInfo.photo}`,
@@ -1045,6 +1045,15 @@ async function showUnitDetailsForProfileId(profileId) {
             iconAnchor: [14, 14],
             popupAnchor: [0, 0]
         });
+
+    // Добавляем обратно актуальный маркер (с оригинальным попапом и кнопкой)
+    const currentMarker = window.unitsUaSavedMarkers.find(function(m) {
+        return m && m.options && m.options._profileId === profileId;
+    });
+    if (currentMarker) {
+        currentMarker.addTo(window.unitsUaLayer);
+        window.unitsUaMarkers.push(currentMarker);
+    }
 
     // Загружаем все геолокации (ПВД и БД) для этого profileId
     try {
@@ -1061,13 +1070,20 @@ async function showUnitDetailsForProfileId(profileId) {
             if (isNaN(data.lat) || isNaN(data.lng)) continue;
             if (data.profileId !== profileId) continue;
 
+            // Пропускаем запись, которая уже отображена актуальным маркером
+            if (currentMarker) {
+                const curLatLng = currentMarker.getLatLng();
+                if (Math.abs(data.lat - curLatLng.lat) < 0.0001 && Math.abs(data.lng - curLatLng.lng) < 0.0001) {
+                    continue;
+                }
+            }
+
             if (data.characteristic === 'ПВД') {
                 const pvdMarker = L.marker([data.lat, data.lng], { icon: unitIcon, _profileId: profileId });
                 pvdMarker.bindPopup(
                     `<div style="font-size:13px;">
-                        <strong>ПВД — ID:${escapeHtml(data.profileId)}</strong>
-                        <div style="margin-top:4px;">Дата: ${escapeHtml(data.date)}</div>
-                        ${data.link ? `<div style="margin-top:4px;"><a href="${escapeHtml(data.link)}" target="_blank" rel="noopener">Источник</a></div>` : ''}
+                        <strong>${escapeHtml(unitTitle)}</strong>
+                        <div style="margin-top:4px;">ПВД — ${escapeHtml(data.date)}</div>
                     </div>`,
                     { className: 'units-ua-popup' }
                 );
@@ -1081,14 +1097,16 @@ async function showUnitDetailsForProfileId(profileId) {
                     popupAnchor: [0, -24]
                 });
                 const bdMarker = L.marker([data.lat, data.lng], { icon: bdIcon });
-                bdMarker.bindPopup(
-                    `<div style="font-size:13px;">
-                        <strong>БД — ID:${escapeHtml(data.profileId)}</strong>
-                        <div style="margin-top:4px;">Дата: ${escapeHtml(data.date)}</div>
-                        ${data.link ? `<div style="margin-top:4px;"><a href="${escapeHtml(data.link)}" target="_blank" rel="noopener">Источник</a></div>` : ''}
-                    </div>`,
-                    { className: 'units-ua-popup' }
-                );
+                let bdPopup = `<div style="font-size:13px;"><strong>БД — ID:${escapeHtml(data.profileId)}</strong>`;
+                bdPopup += `<div style="margin-top:4px;">Дата: ${escapeHtml(data.date)}</div>`;
+                if (data.details) {
+                    bdPopup += `<div style="margin-top:4px;">Примечание: ${escapeHtml(data.details)}</div>`;
+                }
+                if (data.link) {
+                    bdPopup += `<div style="margin-top:4px;"><a href="${escapeHtml(data.link)}" target="_blank" rel="noopener">Источник</a></div>`;
+                }
+                bdPopup += `</div>`;
+                bdMarker.bindPopup(bdPopup, { className: 'units-ua-popup' });
                 bdMarker.addTo(window.unitsUaLayer);
                 window.unitsUaDetailMarkers.push(bdMarker);
             }
