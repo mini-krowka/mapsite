@@ -343,6 +343,11 @@
 
 .units-ua-popup .leaflet-popup-content-wrapper {
     min-width: 250px;
+    width: 250px !important;
+}
+
+.units-ua-popup .leaflet-popup-content {
+    width: auto !important;
 }
 
 .units-ua-details-btn-wrap {
