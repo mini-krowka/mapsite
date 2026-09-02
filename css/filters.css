@@ -359,6 +359,8 @@
     font-size: 12px;
     cursor: pointer;
     font-weight: bold;
+    width: 60%;
+    margin: 0 auto;
 }
 
 .units-ua-details-btn:hover {
