@@ -961,7 +961,6 @@ async function loadUnitsUaWithDateFilter(targetDateStr, allowedProfileIds = null
 
 			// Формируем HTML popup
 			let popupHtml = `<div style="font-size:14px;"><strong>${escapeHtml(unitTitle)}</strong>`;
-			popupHtml += `<div style="margin-top:4px;"><strong>Дата:</strong> ${escapeHtml(row.date)}</div>`;
 
             // Описание (всегда сворачиваемый блок)
             popupHtml += `
@@ -989,8 +988,12 @@ async function loadUnitsUaWithDateFilter(targetDateStr, allowedProfileIds = null
 
 			// Армейский корпус (всегда видимая строка)
 			popupHtml += `<div style="margin-top:8px;"><strong>Армейский корпус:</strong> ${escapeHtml(armyCorpsText)}</div>`;
+			
+			//
+			popupHtml += `<div style="margin-top:4px;"><strong>Дата:</strong> ${escapeHtml(row.date)}</div>`;
 
-			popupHtml += `<div class="units-ua-details-btn-wrap"><button class="units-ua-details-btn" onclick="window.showUnitDetailsForProfileId('${row.profileId}'); map.closePopup();">📍 Геоданные</button></div>`;
+			//
+			popupHtml += `<div class="units-ua-details-btn-wrap"><button class="units-ua-details-btn" onclick="window.showUnitDetailsForProfileId('${row.profileId}'); map.closePopup();">Геоданные</button></div>`;
 			popupHtml += `</div>`;
 
 			marker.bindPopup(popupHtml, { className: 'units-ua-popup' });

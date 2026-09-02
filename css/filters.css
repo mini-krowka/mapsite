@@ -342,8 +342,8 @@
 /* Попапы подразделений — фиксированная минимальная ширина */
 
 .units-ua-popup .leaflet-popup-content-wrapper {
-    min-width: 250px;
-    width: 250px !important;
+    min-width: 300px;
+    width: 300px !important;
 }
 
 .units-ua-popup .leaflet-popup-content {
@@ -352,7 +352,7 @@
 
 .units-ua-details-btn-wrap {
     margin-top: 10px;
-    text-align: center;
+    text-align: left;
 }
 
 .units-ua-details-btn {
@@ -360,11 +360,11 @@
     color: #fff;
     border: none;
     border-radius: 3px;
-    padding: 3px 8px;
-    font-size: 12px;
+    padding: 5px 8px;
+    font-size: 13px;
     cursor: pointer;
     font-weight: bold;
-    width: 60%;
+    width: 50%;
     margin: 0 auto;
 }
 
