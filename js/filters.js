@@ -990,7 +990,7 @@ async function loadUnitsUaWithDateFilter(targetDateStr, allowedProfileIds = null
 			popupHtml += `<div style="margin-top:8px;"><strong>Армейский корпус:</strong> ${escapeHtml(armyCorpsText)}</div>`;
 			
 			//
-			popupHtml += `<div style="margin-top:4px;"><strong>Дата:</strong> ${escapeHtml(row.date)}</div>`;
+			popupHtml += `<div style="margin-top:8px;"><strong>Дата:</strong> ${escapeHtml(row.date)}</div>`;
 
 			//
 			popupHtml += `<div class="units-ua-details-btn-wrap"><button class="units-ua-details-btn" onclick="window.showUnitDetailsForProfileId('${row.profileId}'); map.closePopup();">Геоданные</button></div>`;
