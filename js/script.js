@@ -3005,6 +3005,9 @@ document.addEventListener('click', function(e) {
             // Очищаем поле
             input.value = '';
             
+            // Очищаем маркеры найденных населённых пунктов
+            if (window.clearSearchMarkers) { window.clearSearchMarkers(); }
+            
             // Обновляем видимость кнопок копирования
             updateCopyButtonsVisibility();
             
