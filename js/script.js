@@ -1143,7 +1143,7 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup, styleM
                 extendedData,
                 // Сразу применяем фильтр по диапазону дат: иначе до вызова applyFilter
                 // (после загрузки всех файлов) redraw успел бы показать все точки
-                visible: (layerType === 'points' && date && window.pointsDateRange &&
+                visible: (date && window.pointsDateRange &&
                           window.pointsDateRange.start && window.pointsDateRange.end)
                     ? isDateInRange(date, window.pointsDateRange.start, window.pointsDateRange.end)
                     : true
@@ -1480,13 +1480,22 @@ async function reloadKmlForCRS(center, zoom) {
 // Функция для проверки, попадает ли дата в диапазон
 function isDateInRange(dateString, startDate, endDate) {
     try {
-        const parts = dateString.split('.');
-        if (parts.length !== 3) return false;
-        
-        const year = parseInt(parts[0]);
-        const month = parseInt(parts[1]) - 1;
-        const day = parseInt(parts[2]);
-        
+        let year, month, day;
+
+        if (dateString.includes('-')) {
+            const parts = dateString.split('-');
+            if (parts.length !== 3) return false;
+            year = parseInt(parts[0]);
+            month = parseInt(parts[1]) - 1;
+            day = parseInt(parts[2]);
+        } else {
+            const parts = dateString.split('.');
+            if (parts.length !== 3) return false;
+            year = parseInt(parts[0]);
+            month = parseInt(parts[1]) - 1;
+            day = parseInt(parts[2]);
+        }
+
         const pointDate = new Date(year, month, day);
         return pointDate >= startDate && pointDate <= endDate;
     } catch (error) {
@@ -1554,7 +1563,7 @@ function parseExtendedData(placemark) {
                     data['object_type'] = value;
                 } else if (name === 'позиция') {
                     data['position'] = value;
-                } else if (name === 'дата') {
+                } else if (name === 'дата' || name === 'Дата') {
                     data['date'] = value;
                 } else if (name === 'Датировано') {
                     data['date'] = value;
