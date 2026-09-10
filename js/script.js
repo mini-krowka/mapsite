@@ -2078,7 +2078,7 @@ function updateTogglePointsButtonTitle() {
     const togglePointsBtn = document.getElementById('toggle-points-btn');
     if (!togglePointsBtn) return;
     const isVisible = togglePointsBtn.classList.contains('active');
-    togglePointsBtn.title = isVisible ? 'Скрыть точки' : 'Показать точки';
+    togglePointsBtn.title = isVisible ? 'Скрыть боевые действия' : 'Показать боевые действия';
 }
 
 // Функция для обновления фильтра точек по дате
