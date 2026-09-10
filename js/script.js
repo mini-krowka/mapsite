@@ -1795,6 +1795,7 @@ function getStartDateByRange(rangeType, baseDate = null) {
 function initFilterButtons() {
     console.log('Инициализация фильтров...');
     
+    const togglePointsBtn = document.getElementById('toggle-points-btn');
     const dateRangeBtn = document.getElementById('date-range-btn');
     const dateRangeDropdown = document.getElementById('date-range-dropdown');
     const rangeOptions = document.querySelectorAll('.range-option');
@@ -1803,7 +1804,22 @@ function initFilterButtons() {
         console.error('Не найдены элементы фильтра:', {dateRangeBtn, dateRangeDropdown});
         return;
     }
-    
+
+    // Инициализация состояния кнопки точек (по умолчанию включена)
+    if (togglePointsBtn) {
+        togglePointsBtn.classList.add('active');
+        togglePointsBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            e.preventDefault();
+            togglePointsBtn.classList.toggle('active');
+            const isVisible = togglePointsBtn.classList.contains('active');
+            if (window.pointsCanvas) {
+                window.pointsCanvas.setLayerTypeVisible('points', isVisible);
+            }
+            updateTogglePointsButtonTitle();
+        });
+    }
+
     console.log('Элементы фильтра найдены');
     
     // Обработчик клика на кнопку фильтра дат
@@ -1874,6 +1890,7 @@ function initMobileFilterMenu() {
     
     const mobileFilterToggle = document.getElementById('mobile-filter-toggle');
     const filterButtons = document.querySelector('.filter-buttons');
+    const togglePointsBtn = document.getElementById('toggle-points-btn');
     const dateRangeBtn = document.getElementById('date-range-btn');
     const dateRangeDropdown = document.getElementById('date-range-dropdown');
     
@@ -1944,6 +1961,14 @@ function initMobileFilterMenu() {
         // Не вызываем stopImmediatePropagation(), так как можем иметь другие обработчики
     });
     
+    // Обработчик клика на toggle-points-btn в мобильном меню
+    if (togglePointsBtn) {
+        togglePointsBtn.addEventListener('click', function(e) {
+            // Закрываем мобильное меню при клике (как и для других кнопок)
+            toggleMobileFilterMenu();
+        });
+    }
+    
     // Обработчик для опций диапазона
     dateRangeDropdown.querySelectorAll('.range-option').forEach(option => {
         option.addEventListener('click', function(e) {
@@ -1988,6 +2013,7 @@ function initMobileFilterMenu() {
     document.addEventListener('click', function(e) {
         const isMobileFilterToggle = mobileFilterToggle.contains(e.target);
         const isFilterButtons = filterButtons.contains(e.target);
+        const isTogglePointsBtn = togglePointsBtn && togglePointsBtn.contains(e.target);
         const isDateRangeBtn = dateRangeBtn.contains(e.target);
         const isDateRangeDropdown = dateRangeDropdown.contains(e.target);
         
@@ -1998,7 +2024,7 @@ function initMobileFilterMenu() {
         }
         
         // Если клик был вне всех элементов мобильного фильтра
-        if (!isMobileFilterToggle && !isFilterButtons && !isDateRangeDropdown && !isDateRangeBtn) {
+        if (!isMobileFilterToggle && !isFilterButtons && !isDateRangeDropdown && !isDateRangeBtn && !isTogglePointsBtn) {
             if (mobileFilterToggle.classList.contains('active')) {
                 toggleMobileFilterMenu();
             }
@@ -2045,6 +2071,14 @@ function updateDateRangeButtonTitle() {
     };
     
     dateRangeBtn.title = titles[currentDateRange] || 'Фильтр по дате';
+}
+
+// Функция для обновления заголовка кнопки переключения точек
+function updateTogglePointsButtonTitle() {
+    const togglePointsBtn = document.getElementById('toggle-points-btn');
+    if (!togglePointsBtn) return;
+    const isVisible = togglePointsBtn.classList.contains('active');
+    togglePointsBtn.title = isVisible ? 'Скрыть точки' : 'Показать точки';
 }
 
 // Функция для обновления фильтра точек по дате
