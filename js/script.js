@@ -2652,6 +2652,16 @@ async function init() {
         window.initialLayerSet = true;
     });
 
+    // Закрытие меню фильтров при клике на карту
+    map.on('click', function() {
+        ['equipment-filter-menu', 'attacks-filter-menu', 'fortification-filter-menu'].forEach(function(id) {
+            var m = document.getElementById(id);
+            if (m && m.style.display === 'block') {
+                m.style.display = 'none';
+            }
+        });
+    });
+
   } catch (error) {
     console.error('Ошибка инициализации:', error);
   }

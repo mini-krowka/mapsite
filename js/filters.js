@@ -1399,4 +1399,21 @@ document.addEventListener('DOMContentLoaded', function() {
     if (fortificationMenu && fortificationMenu.parentNode !== document.body) {
         document.body.appendChild(fortificationMenu);
     }
+    
+    // Закрытие меню фильтров при клике вне их области
+    document.addEventListener('click', function(e) {
+        var filters = [
+            { menu: document.getElementById('equipment-filter-menu'), btn: document.getElementById('mil-equip-btn') },
+            { menu: document.getElementById('attacks-filter-menu'), btn: document.getElementById('attacks-on-ua-btn') },
+            { menu: document.getElementById('fortification-filter-menu'), btn: document.getElementById('fortification-btn') }
+        ];
+        filters.forEach(function(item) {
+            if (!item.menu || item.menu.style.display !== 'block') return;
+            var inMenu = item.menu.contains(e.target);
+            var inBtn = item.btn && item.btn.contains(e.target);
+            if (!inMenu && !inBtn) {
+                item.menu.style.display = 'none';
+            }
+        });
+    });
 });
