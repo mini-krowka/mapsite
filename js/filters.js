@@ -832,8 +832,7 @@ function getProfileIdsBySearchDigits(digits) {
 
     const reBr = /#Бр_(\d+)/g;
     const rePk = /#Пк_(\d+)/g;
-	const rePk = /#Бт_(\d+)/g;
-
+	
     for (const msg of window.unitsUaData.messages) {
         const text = getMessageText(msg);
         let found = false;
