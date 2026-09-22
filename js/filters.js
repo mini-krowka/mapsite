@@ -833,7 +833,7 @@ function getProfileIdsBySearchDigits(digits) {
     const reBr = /#Бр_(\d+)/g;
     const rePk = /#Пк_(\d+)/g;
     const reBt = /#Бт_(\d+)/g;
-    const reAk = /#АК_(\d+)/g;
+    const reGw = /#ГВ_(\d+)/g;
 	
     for (const msg of window.unitsUaData.messages) {
         const text = getMessageText(msg);
@@ -858,8 +858,8 @@ function getProfileIdsBySearchDigits(digits) {
                 found = true;
             }
         }
-        // Проверяем все вхождения #АК_
-        while ((match = reAk.exec(text)) !== null) {
+        // Проверяем все вхождения #ГВ_
+        while ((match = reGw.exec(text)) !== null) {
             if (match[1] === digits) {
                 found = true;
             }
