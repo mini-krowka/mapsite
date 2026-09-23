@@ -28641,8 +28641,8 @@
    "type": "message",
    "date": "2026-05-06T17:10:09",
    "date_unixtime": "1778076609",
-   "edited": "2026-09-18T18:47:30",
-   "edited_unixtime": "1789746450",
+   "edited": "2026-09-23T16:31:58",
+   "edited_unixtime": "1790170318",
    "from": "Вооруженные формирования Украины",
    "from_id": "channel3718425800",
    "file": "files/241.png",
@@ -28707,9 +28707,9 @@
     "\n",
     {
      "type": "hashtag",
-     "text": "#Пк_"
+     "text": "#Пк_Омега"
     },
-    "?\n",
+    "\n",
     {
      "type": "hashtag",
      "text": "#АК_"
@@ -28803,11 +28803,11 @@
     },
     {
      "type": "hashtag",
-     "text": "#Пк_"
+     "text": "#Пк_Омега"
     },
     {
      "type": "plain",
-     "text": "?\n"
+     "text": "\n"
     },
     {
      "type": "hashtag",
