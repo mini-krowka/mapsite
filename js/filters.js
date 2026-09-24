@@ -834,7 +834,6 @@ function getProfileIdsBySearchDigits(digits) {
     const rePk = /#Пк_(\d+)/g;
     const reBt = /#Бт_(\d+)/g;
     const reGw = /#ГВ_(\d+)/g;
-    const reAk = /#АК_(\d+)/g;
 
     for (const msg of window.unitsUaData.messages) {
         const text = getMessageText(msg);
@@ -851,9 +850,6 @@ function getProfileIdsBySearchDigits(digits) {
             if (match[1] === digits) found = true;
         }
         while ((match = reGw.exec(text)) !== null) {
-            if (match[1] === digits) found = true;
-        }
-        while ((match = reAk.exec(text)) !== null) {
             if (match[1] === digits) found = true;
         }
 
