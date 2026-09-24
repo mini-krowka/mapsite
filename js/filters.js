@@ -1360,7 +1360,7 @@ function initUnitsUaButton() {
     searchPanel.style.display = 'none';
     searchPanel.innerHTML = `
         <span class="units-search-input-wrap">
-            <input type="text" id="units-search-input" placeholder="123 или Абвг">
+            <input type="text" id="units-search-input" placeholder="Номер/Название">
             <button id="units-search-clear" class="units-search-clear-inside" title="Очистить">✕</button>
         </span>
         <button id="units-search-btn" title="Поиск">🔍</button>
