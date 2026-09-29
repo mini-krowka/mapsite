@@ -1477,7 +1477,11 @@ function findClosestFrontLineDate(selectedDateStr) {
 }
 
 // Загружает линию ЛБС для текущей даты
+let frontLineLoadToken = 0;
+
 async function loadCurrentFrontLine() {
+    const token = ++frontLineLoadToken;
+    
     // Удаляем предыдущий слой ЛБС
     if (window.frontLineLayerGroup) {
         if (map.hasLayer(window.frontLineLayerGroup)) {
@@ -1504,6 +1508,8 @@ async function loadCurrentFrontLine() {
             preserveZoom: true,
             fitBounds: false
         });
+        // Если запрос устарел (был запущен новый) — не добавляем слой
+        if (token !== frontLineLoadToken) return;
         layerGroup.addTo(map);
         window.frontLineLayerGroup = layerGroup;
     } catch (error) {
