@@ -1482,19 +1482,16 @@ let frontLineLoadToken = 0;
 async function loadCurrentFrontLine() {
     const token = ++frontLineLoadToken;
     
-    // Удаляем предыдущий слой ЛБС
-    if (window.frontLineLayerGroup) {
-        if (map.hasLayer(window.frontLineLayerGroup)) {
-            map.removeLayer(window.frontLineLayerGroup);
-        }
-        window.frontLineLayerGroup = null;
-    }
-    
     const dateStr = window.selectedDate || getCurrentDateFormatted();
     const flDate = findClosestFrontLineDate(dateStr);
     
     if (!flDate) {
-        console.log("FrontLine недоступна для даты:", dateStr);
+        if (window.frontLineLayerGroup) {
+            if (map.hasLayer(window.frontLineLayerGroup)) {
+                map.removeLayer(window.frontLineLayerGroup);
+            }
+            window.frontLineLayerGroup = null;
+        }
         return;
     }
     
@@ -1510,7 +1507,15 @@ async function loadCurrentFrontLine() {
         });
         // Если запрос устарел (был запущен новый) — не добавляем слой
         if (token !== frontLineLoadToken) return;
+        // Сначала добавляем новый слой (старый ещё виден)
         layerGroup.addTo(map);
+        // Потом убираем старый
+        if (window.frontLineLayerGroup) {
+            if (map.hasLayer(window.frontLineLayerGroup)) {
+                map.removeLayer(window.frontLineLayerGroup);
+            }
+            window.frontLineLayerGroup = null;
+        }
         window.frontLineLayerGroup = layerGroup;
     } catch (error) {
         console.error("Ошибка загрузки FrontLine:", error);
