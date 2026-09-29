@@ -139,6 +139,9 @@ function initDatePicker() {
             // Перезагружаем точки с новым фильтром
             reloadPointsWithCurrentFilter();
             
+            // Перезагружаем линию ЛБС для новой даты
+            loadCurrentFrontLine();
+            
             // Ищем ближайшую доступную дату (раньше или равную)
             const nearestDate = findNearestEarlierDate(dateStr);
             const index = kmlFiles.findIndex(file => file.name === nearestDate);
@@ -1454,11 +1457,66 @@ async function loadPermanentKmlLayers() {
     }
 }
 
+// ===== Динамическая загрузка текущей линии ЛБС =====
+
+// Находит ближайшую доступную дату FrontLine (<= выбранной дате)
+function findClosestFrontLineDate(selectedDateStr) {
+    const frontLineStart = parseCustomDate("01.02.25");
+    const selectedDate = parseCustomDate(selectedDateStr);
+    
+    if (selectedDate < frontLineStart) return null;
+    
+    // Идём по dateList от конца (новые даты) к началу, находим ближайшую <= selectedDate
+    for (let i = window.dateList.length - 1; i >= 0; i--) {
+        const d = parseCustomDate(window.dateList[i]);
+        if (d <= selectedDate && d >= frontLineStart) {
+            return window.dateList[i];
+        }
+    }
+    return null;
+}
+
+// Загружает линию ЛБС для текущей даты
+async function loadCurrentFrontLine() {
+    // Удаляем предыдущий слой ЛБС
+    if (window.frontLineLayerGroup) {
+        if (map.hasLayer(window.frontLineLayerGroup)) {
+            map.removeLayer(window.frontLineLayerGroup);
+        }
+        window.frontLineLayerGroup = null;
+    }
+    
+    const dateStr = window.selectedDate || getCurrentDateFormatted();
+    const flDate = findClosestFrontLineDate(dateStr);
+    
+    if (!flDate) {
+        console.log("FrontLine недоступна для даты:", dateStr);
+        return;
+    }
+    
+    const path = `kml/FrontLine/FrontLine_${formatDateForFilename(flDate)}.kml`;
+    console.log("Загрузка FrontLine:", path);
+    
+    try {
+        const layerGroup = L.layerGroup();
+        await loadKmlToLayer(path, layerGroup, {
+            isPermanent: true,
+            preserveZoom: true,
+            fitBounds: false
+        });
+        layerGroup.addTo(map);
+        window.frontLineLayerGroup = layerGroup;
+    } catch (error) {
+        console.error("Ошибка загрузки FrontLine:", error);
+    }
+}
+
 
 
 
 async function reloadKmlForCRS(center, zoom) {
     await loadPermanentKmlLayers();
+    await loadCurrentFrontLine();
     if (currentLayer){        
         const file = kmlFiles[currentIndex];
         try {
@@ -2124,6 +2182,8 @@ async function navigateTo(index) {
         if (window.reloadUnitsUaLayer) {
             window.reloadUnitsUaLayer();
         }
+        // Перезагружаем линию ЛБС для новой даты
+        loadCurrentFrontLine();
     }
 }
 
@@ -2283,6 +2343,9 @@ document.getElementById('next-btn').addEventListener('click', async () => {
         // Обновляем фильтр точек
         updatePointsDateFilterForSelectedDate();
         await reloadPointsWithCurrentFilter();
+        
+        // Перезагружаем линию ЛБС
+        loadCurrentFrontLine();
     }
     
     // Обновляем состояние кнопок
@@ -2317,6 +2380,9 @@ document.getElementById('last-btn').addEventListener('click', async () => {
         
         // Перезагружаем точки с новым фильтром
         await reloadPointsWithCurrentFilter();
+        
+        // Перезагружаем линию ЛБС
+        loadCurrentFrontLine();
         
         // Обновляем состояние кнопок
         updateButtons();
@@ -2571,6 +2637,9 @@ async function init() {
     } else {
         console.log('Не найдено доступных KML файлов для загрузки');
     }
+
+    // Шаг 8.1: Загружаем текущую линию ЛБС
+    await loadCurrentFrontLine();
 	
 	// Маркер при загрузке координат из url
     const urlCoords = getUrlCoords();

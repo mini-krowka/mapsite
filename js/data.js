@@ -81,10 +81,10 @@ window.permanentLayers = [
 	// Области
 		{ name: "Области",        path: "kml/PermanentObjects/Области.kml" },
 	
-    // Текущая ЛБС
-     { name: "Current_frontline",      path: "kml/FrontLine/FrontLine_26_07_28.kml" },
+    // Текущая ЛБС (загружается динамически по дате)
+    // { name: "Current_frontline",      path: "kml/FrontLine/FrontLine_26_07_28.kml" },
 	
-	    // Граница ЛДНР без Ростовской области
+    // Граница ЛДНР без Ростовской области
     // { name: "LDPR",                   path: "kml/PermanentObjects/LDPR_line3.kml" },
 	{ name: "LDPR",                   path: "kml/PermanentObjects/LDPR_Border.kml" },
 	
