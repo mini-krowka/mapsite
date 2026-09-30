@@ -139,8 +139,8 @@ function initDatePicker() {
             // Перезагружаем точки с новым фильтром
             reloadPointsWithCurrentFilter();
             
-            // Перезагружаем линию ЛБС для новой даты
-            loadCurrentFrontLine();
+            // Перезагружаем архивную линию ЛБС для новой даты
+            loadArchiveFrontLine();
             
             // Ищем ближайшую доступную дату (раньше или равную)
             const nearestDate = findNearestEarlierDate(dateStr);
@@ -1457,16 +1457,15 @@ async function loadPermanentKmlLayers() {
     }
 }
 
-// ===== Динамическая загрузка текущей линии ЛБС =====
+// ===== Динамическая загрузка линий ЛБС =====
 
-// Находит ближайшую доступную дату FrontLine (<= выбранной дате)
+// Находит ближайшую доступную дату FrontLine (<= заданной дате)
 function findClosestFrontLineDate(selectedDateStr) {
     const frontLineStart = parseCustomDate("01.02.25");
     const selectedDate = parseCustomDate(selectedDateStr);
     
     if (selectedDate < frontLineStart) return null;
     
-    // Идём по dateList от конца (новые даты) к началу, находим ближайшую <= selectedDate
     for (let i = window.dateList.length - 1; i >= 0; i--) {
         const d = parseCustomDate(window.dateList[i]);
         if (d <= selectedDate && d >= frontLineStart) {
@@ -1476,27 +1475,47 @@ function findClosestFrontLineDate(selectedDateStr) {
     return null;
 }
 
-// Загружает линию ЛБС для текущей даты
-let frontLineLoadToken = 0;
+// Возвращает последнюю доступную дату FrontLine
+function getLatestFrontLineDate() {
+    const frontLineStart = parseCustomDate("01.02.25");
+    for (let i = window.dateList.length - 1; i >= 0; i--) {
+        const d = parseCustomDate(window.dateList[i]);
+        if (d >= frontLineStart) {
+            return window.dateList[i];
+        }
+    }
+    return null;
+}
+
+// Применяет множитель непрозрачности ко всем слоям в layerGroup
+function applyLayerGroupOpacity(layerGroup, factor) {
+    layerGroup.getLayers().forEach(layer => {
+        const opts = layer.options || {};
+        const newOpts = {};
+        let changed = false;
+        if (opts.opacity !== undefined) { newOpts.opacity = opts.opacity * factor; changed = true; }
+        if (opts.fillOpacity !== undefined) { newOpts.fillOpacity = opts.fillOpacity * factor; changed = true; }
+        if (changed) layer.setStyle(newOpts);
+    });
+}
+
+// Загружает текущую (последнюю) линию ЛБС — всегда видна, полная непрозрачность
+let frontLineCurrentToken = 0;
 
 async function loadCurrentFrontLine() {
-    const token = ++frontLineLoadToken;
+    const token = ++frontLineCurrentToken;
     
-    const dateStr = window.selectedDate || getCurrentDateFormatted();
-    const flDate = findClosestFrontLineDate(dateStr);
-    
-    if (!flDate) {
-        if (window.frontLineLayerGroup) {
-            if (map.hasLayer(window.frontLineLayerGroup)) {
-                map.removeLayer(window.frontLineLayerGroup);
-            }
-            window.frontLineLayerGroup = null;
+    const latestDate = getLatestFrontLineDate();
+    if (!latestDate) {
+        if (window.frontLineCurrentGroup) {
+            if (map.hasLayer(window.frontLineCurrentGroup)) map.removeLayer(window.frontLineCurrentGroup);
+            window.frontLineCurrentGroup = null;
         }
         return;
     }
     
-    const path = `kml/FrontLine/FrontLine_${formatDateForFilename(flDate)}.kml`;
-    console.log("Загрузка FrontLine:", path);
+    const path = `kml/FrontLine/FrontLine_${formatDateForFilename(latestDate)}.kml`;
+    console.log("Загрузка текущей FrontLine:", path);
     
     try {
         const layerGroup = L.layerGroup();
@@ -1505,29 +1524,67 @@ async function loadCurrentFrontLine() {
             preserveZoom: true,
             fitBounds: false
         });
-        // Если запрос устарел (был запущен новый) — не добавляем слой
-        if (token !== frontLineLoadToken) return;
-        // Сначала добавляем новый слой (старый ещё виден)
+        if (token !== frontLineCurrentToken) return;
         layerGroup.addTo(map);
-        // Потом убираем старый
-        if (window.frontLineLayerGroup) {
-            if (map.hasLayer(window.frontLineLayerGroup)) {
-                map.removeLayer(window.frontLineLayerGroup);
-            }
-            window.frontLineLayerGroup = null;
+        if (window.frontLineCurrentGroup) {
+            if (map.hasLayer(window.frontLineCurrentGroup)) map.removeLayer(window.frontLineCurrentGroup);
+            window.frontLineCurrentGroup = null;
         }
-        window.frontLineLayerGroup = layerGroup;
+        window.frontLineCurrentGroup = layerGroup;
     } catch (error) {
-        console.error("Ошибка загрузки FrontLine:", error);
+        console.error("Ошибка загрузки текущей FrontLine:", error);
     }
 }
 
+// Загружает архивную линию ЛБС для выбранной даты — 50% непрозрачности
+let frontLineArchiveToken = 0;
+
+async function loadArchiveFrontLine() {
+    const token = ++frontLineArchiveToken;
+    
+    const dateStr = window.selectedDate || getCurrentDateFormatted();
+    const latestDate = getLatestFrontLineDate();
+    const flDate = findClosestFrontLineDate(dateStr);
+    
+    // Если выбранная дата = последней или архив недоступен — убираем архивную линию
+    if (!flDate || flDate === latestDate) {
+        if (window.frontLineArchiveGroup) {
+            if (map.hasLayer(window.frontLineArchiveGroup)) map.removeLayer(window.frontLineArchiveGroup);
+            window.frontLineArchiveGroup = null;
+        }
+        return;
+    }
+    
+    const path = `kml/FrontLine/FrontLine_${formatDateForFilename(flDate)}.kml`;
+    console.log("Загрузка архивной FrontLine:", path);
+    
+    try {
+        const layerGroup = L.layerGroup();
+        await loadKmlToLayer(path, layerGroup, {
+            isPermanent: true,
+            preserveZoom: true,
+            fitBounds: false
+        });
+        if (token !== frontLineArchiveToken) return;
+        // Применяем 50% непрозрачности
+        applyLayerGroupOpacity(layerGroup, 0.5);
+        layerGroup.addTo(map);
+        if (window.frontLineArchiveGroup) {
+            if (map.hasLayer(window.frontLineArchiveGroup)) map.removeLayer(window.frontLineArchiveGroup);
+            window.frontLineArchiveGroup = null;
+        }
+        window.frontLineArchiveGroup = layerGroup;
+    } catch (error) {
+        console.error("Ошибка загрузки архивной FrontLine:", error);
+    }
+}
 
 
 
 async function reloadKmlForCRS(center, zoom) {
     await loadPermanentKmlLayers();
     await loadCurrentFrontLine();
+    await loadArchiveFrontLine();
     if (currentLayer){        
         const file = kmlFiles[currentIndex];
         try {
@@ -2193,8 +2250,8 @@ async function navigateTo(index) {
         if (window.reloadUnitsUaLayer) {
             window.reloadUnitsUaLayer();
         }
-        // Перезагружаем линию ЛБС для новой даты
-        loadCurrentFrontLine();
+        // Перезагружаем архивную линию ЛБС для новой даты
+        loadArchiveFrontLine();
     }
 }
 
@@ -2355,8 +2412,8 @@ document.getElementById('next-btn').addEventListener('click', async () => {
         updatePointsDateFilterForSelectedDate();
         await reloadPointsWithCurrentFilter();
         
-        // Перезагружаем линию ЛБС
-        loadCurrentFrontLine();
+        // Перезагружаем архивную линию ЛБС
+        loadArchiveFrontLine();
     }
     
     // Обновляем состояние кнопок
@@ -2392,8 +2449,8 @@ document.getElementById('last-btn').addEventListener('click', async () => {
         // Перезагружаем точки с новым фильтром
         await reloadPointsWithCurrentFilter();
         
-        // Перезагружаем линию ЛБС
-        loadCurrentFrontLine();
+        // Перезагружаем архивную линию ЛБС
+        loadArchiveFrontLine();
         
         // Обновляем состояние кнопок
         updateButtons();
@@ -2649,8 +2706,9 @@ async function init() {
         console.log('Не найдено доступных KML файлов для загрузки');
     }
 
-    // Шаг 8.1: Загружаем текущую линию ЛБС
+    // Шаг 8.1: Загружаем линии ЛБС (текущую и архивную)
     await loadCurrentFrontLine();
+    await loadArchiveFrontLine();
 	
 	// Маркер при загрузке координат из url
     const urlCoords = getUrlCoords();
