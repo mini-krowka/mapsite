@@ -1568,7 +1568,7 @@ async function loadArchiveFrontLine() {
         if (token !== frontLineArchiveToken) return;
         // Фиксированный стиль архивной линии: 70% непрозрачности + пунктир
         layerGroup.getLayers().forEach(layer => {
-            layer.setStyle({ opacity: 0.7, dashArray: '6 6' });
+            layer.setStyle({ opacity: 0.7, dashArray: '14 8' });
         });
         layerGroup.addTo(map);
         if (window.frontLineArchiveGroup) {
