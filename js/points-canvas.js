@@ -533,7 +533,7 @@
             return null;
         },
 
-        // ===== Tooltip с датой при наведении на флаг («Боевые действия») =====
+        // ===== Tooltip при наведении: «Боевые действия»/«Удары» — дата, «Техника» — название =====
 
         _onMapMouseMove(e) {
             const dp = window.drawPanel;
@@ -549,6 +549,15 @@
             });
         },
 
+        // Текст подсказки: «Боевые действия» и «Удары» — дата, «Техника» — название
+        _getHoverText(p) {
+            if (p.layerType === 'equipment') {
+                const text = (p.name && String(p.name).trim()) || p.category || '';
+                return text;
+            }
+            return p.date ? String(p.date) : '';
+        },
+
         _updateHoverTooltip() {
             const map = this._map;
             if (!map || !this._lastHoverEvent) return;
@@ -559,18 +568,19 @@
             const e = this._lastHoverEvent;
             const containerPoint = e.containerPoint || map.latLngToContainerPoint(e.latlng);
             const p = this.getPointAt(containerPoint);
-            if (p && p.layerType === 'points' && p.date) {
+            const text = p ? this._getHoverText(p) : '';
+            if (p && text) {
                 if (!this._hoverTooltip) {
                     this._hoverTooltip = L.tooltip({
                         direction: 'top',
                         offset: [0, -12],
-                        className: 'points-date-tooltip',
+                        className: 'map-hover-tooltip',
                         opacity: 1
                     });
                 }
                 this._hoverTooltip
                     .setLatLng([p.lat, p.lng])
-                    .setContent(String(p.date))
+                    .setContent(text)
                     .addTo(map);
                 this._hoverPoint = p;
                 map.getContainer().style.cursor = 'pointer';

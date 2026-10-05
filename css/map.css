@@ -525,8 +525,8 @@
 }
 
 
-/* Tooltip с датой при наведении на флаг (слой «Боевые действия») */
-.leaflet-tooltip.points-date-tooltip {
+/* Tooltip при наведении на точки: дата («Боевые действия», «Удары») / название («Техника», «Подразделения») */
+.leaflet-tooltip.map-hover-tooltip {
     background: rgba(30, 30, 30, 0.9);
     border: none;
     border-radius: 4px;
@@ -534,11 +534,12 @@
     font-size: 13px;
     font-weight: 600;
     padding: 3px 8px;
-    white-space: nowrap;
+    white-space: normal;
+    max-width: 280px;
     box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
 }
 
-.leaflet-tooltip.points-date-tooltip::before {
+.leaflet-tooltip.map-hover-tooltip::before {
     border-top-color: rgba(30, 30, 30, 0.9);
 }
 

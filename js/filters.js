@@ -1060,7 +1060,8 @@ async function loadUnitsUaWithDateFilter(targetDateStr, allowedProfileIds = null
 			popupHtml += `<div class="units-ua-details-btn-wrap"><button class="units-ua-details-btn" onclick="window.showUnitDetailsForProfileId('${row.profileId}'); map.closePopup();">Геоданные</button></div>`;
 			popupHtml += `</div>`;
 
-			marker.bindPopup(popupHtml, { className: 'units-ua-popup' });
+            marker.bindPopup(popupHtml, { className: 'units-ua-popup' });
+            marker.bindTooltip(unitTitle, { direction: 'top', offset: [0, -16], className: 'map-hover-tooltip' });
             marker.addTo(window.unitsUaLayer);
             window.unitsUaMarkers.push(marker);
         }
@@ -1161,6 +1162,7 @@ async function showUnitDetailsForProfileId(profileId) {
                     </div>`,
                     { className: 'units-ua-popup' }
                 );
+                pvdMarker.bindTooltip(unitTitle, { direction: 'top', offset: [0, -12], className: 'map-hover-tooltip' });
                 pvdMarker.addTo(window.unitsUaLayer);
                 window.unitsUaDetailPvdMarkers.push(pvdMarker);
             } else if (data.characteristic === 'БД') {
@@ -1181,6 +1183,7 @@ async function showUnitDetailsForProfileId(profileId) {
                 }
                 bdPopup += `</div>`;
                 bdMarker.bindPopup(bdPopup, { className: 'units-ua-popup' });
+                bdMarker.bindTooltip('Боевые действия', { direction: 'top', offset: [0, -16], className: 'map-hover-tooltip' });
                 bdMarker.addTo(window.unitsUaLayer);
                 window.unitsUaDetailMarkers.push(bdMarker);
             }
