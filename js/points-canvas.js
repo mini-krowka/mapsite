@@ -105,6 +105,10 @@
             this._center = null; // вид на момент последней полной отрисовки (для zoom-анимации)
             this._zoom = null;
             this._zoomAnim = null; // состояние по-кадровой zoom-анимации
+            this._hoverPoint = null;
+            this._hoverTooltip = null;
+            this._hoverRafId = null;
+            this._lastHoverEvent = null;
         },
 
         onAdd(map) {
@@ -142,6 +146,10 @@
             }
 
             map.on('click', this._onMapClick, this);
+            map.on('mousemove', this._onMapMouseMove, this);
+            map.on('dragstart', this._hideHoverTooltip, this);
+            map.on('movestart', this._hideHoverTooltip, this);
+            map.on('zoomstart', this._hideHoverTooltip, this);
 
             IconSpriteCache.onChange(() => this._scheduleRedraw());
             IconSpriteCache.preload(collectIconEntries());
@@ -154,6 +162,16 @@
                 map.off(ev, this._handlers[ev], this);
             }
             map.off('click', this._onMapClick, this);
+            map.off('mousemove', this._onMapMouseMove, this);
+            map.off('dragstart', this._hideHoverTooltip, this);
+            map.off('movestart', this._hideHoverTooltip, this);
+            map.off('zoomstart', this._hideHoverTooltip, this);
+            if (this._hoverRafId) {
+                cancelAnimationFrame(this._hoverRafId);
+                this._hoverRafId = null;
+            }
+            this._lastHoverEvent = null;
+            this._hideHoverTooltip();
             if (this._rafId) {
                 cancelAnimationFrame(this._rafId);
                 this._rafId = null;
@@ -513,6 +531,63 @@
                 }
             }
             return null;
+        },
+
+        // ===== Tooltip с датой при наведении на флаг («Боевые действия») =====
+
+        _onMapMouseMove(e) {
+            const dp = window.drawPanel;
+            if (dp && (dp.isDrawing || dp.currentTool === 'icon' || dp.isEraserActive)) {
+                this._hideHoverTooltip();
+                return;
+            }
+            this._lastHoverEvent = e;
+            if (this._hoverRafId) return;
+            this._hoverRafId = requestAnimationFrame(() => {
+                this._hoverRafId = null;
+                this._updateHoverTooltip();
+            });
+        },
+
+        _updateHoverTooltip() {
+            const map = this._map;
+            if (!map || !this._lastHoverEvent) return;
+            if (map._animatingZoom || map._animatingMove) {
+                this._hideHoverTooltip();
+                return;
+            }
+            const e = this._lastHoverEvent;
+            const containerPoint = e.containerPoint || map.latLngToContainerPoint(e.latlng);
+            const p = this.getPointAt(containerPoint);
+            if (p && p.layerType === 'points' && p.date) {
+                if (!this._hoverTooltip) {
+                    this._hoverTooltip = L.tooltip({
+                        direction: 'top',
+                        offset: [0, -12],
+                        className: 'points-date-tooltip',
+                        opacity: 1
+                    });
+                }
+                this._hoverTooltip
+                    .setLatLng([p.lat, p.lng])
+                    .setContent(String(p.date))
+                    .addTo(map);
+                this._hoverPoint = p;
+                map.getContainer().style.cursor = 'pointer';
+            } else {
+                this._hideHoverTooltip();
+            }
+        },
+
+        _hideHoverTooltip() {
+            if (this._hoverTooltip) {
+                this._hoverTooltip.remove();
+                this._hoverTooltip = null;
+            }
+            if (this._hoverPoint) {
+                this._hoverPoint = null;
+                if (this._map) this._map.getContainer().style.cursor = '';
+            }
         },
 
         _onMapClick(e) {
