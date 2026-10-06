@@ -534,8 +534,8 @@
     font-size: 13px;
     font-weight: 600;
     padding: 3px 8px;
-    white-space: normal;
-    max-width: 400px;
+    white-space: nowrap;
+    max-width: none;
     box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
 }
 
