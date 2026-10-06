@@ -561,6 +561,11 @@
         _updateHoverTooltip() {
             const map = this._map;
             if (!map || !this._lastHoverEvent) return;
+            // На мобильных hover-тултипы отключены
+            if (isMobileDevice()) {
+                this._hideHoverTooltip();
+                return;
+            }
             if (map._animatingZoom || map._animatingMove) {
                 this._hideHoverTooltip();
                 return;
