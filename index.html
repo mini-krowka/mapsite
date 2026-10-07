@@ -168,9 +168,15 @@
 						</button>
 
                         <div class="city-coord-group hideable-nav-item">
+                            <!-- Кнопка быстрого перемещения по городам отключена:
+                                 чтобы вернуть — раскомментируйте select ниже,
+                                 а также вызовы populateCitiesDropdown() в js/script.js и js/language.js
+                                 и 'cities-dropdown' в elementsToClone (js/script.js, initDartMenu) -->
+                            <!--
                             <select id="cities-dropdown">
                                 <option value="" selected disabled id="select-city-default">🏘</option>
                             </select>
+                            -->
                             <div class="current-center">
                                 <label id="currentCenter-label" data-translate="currentCenter">Текущий центр:</label>
                                 <span id="current-center-coords" class="current-coords-display"></span>
