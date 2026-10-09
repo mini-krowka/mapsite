@@ -3174,26 +3174,34 @@ document.querySelectorAll('#coords-input, #coords-input-clone').forEach(input =>
         // Всегда обновляем видимость кнопок копирования при изменении содержимого
         updateCopyButtonsVisibility();
     });
-    
-    // Обработка Enter: координаты → центрирование, текст → поиск населённого пункта
-    // keydown (а не устаревший keypress): надёжно срабатывает и с виртуальной клавиатурой (Gboard)
-    input.addEventListener('keydown', function(e) {
-        if (e.key === 'Enter' && !isProgrammaticChange) {
-            const coords = normalizeToTuple(parseCoordinates(this.value.trim()));
-            if (coords) {
-                centerMapFromInput(this, true);
-            } else if (typeof window.performPlaceSearch === 'function') {
-                window.performPlaceSearch(this.value);
-            }
-            // Обновляем видимость кнопок копирования
-            updateCopyButtonsVisibility();
-            // Enter нажат в мобильном меню поиска — закрываем его
-            if (this.id === 'coords-input-clone') {
-                const dd = document.getElementById('nav-dropdown');
-                if (dd) dd.classList.remove('active');
-            }
-        }
-    });
+});
+
+// Обработка Enter в поиске: координаты → центрирование, текст → поиск населённого пункта
+// Делегирование на document: работает и для основного поля, и для клонов в мобильном
+// меню (они создаются динамически после загрузки скрипта).
+// keydown (а не устаревший keypress): надёжно срабатывает и с виртуальной клавиатурой (Gboard)
+document.addEventListener('keydown', function(e) {
+    if (e.key !== 'Enter') return;
+    const t = e.target;
+    if (!t || (t.id !== 'coords-input' && t.id !== 'coords-input-clone')) return;
+
+    // Enter нажат пользователем — не блокируем по isProgrammaticChange:
+    // автоцентрирование при вводе ставит этот флаг на 100 мс, и Enter
+    // сразу после набора координат оставался бы без действия
+    const coords = normalizeToTuple(parseCoordinates(t.value.trim()));
+    if (coords) {
+        centerMap(coords[0], coords[1]);
+        if (typeof hideCoordsError === 'function') hideCoordsError(t);
+    } else if (typeof window.performPlaceSearch === 'function') {
+        window.performPlaceSearch(t.value);
+    }
+    // Обновляем видимость кнопок копирования
+    updateCopyButtonsVisibility();
+    // Enter нажат в мобильном меню поиска — закрываем его
+    if (t.id === 'coords-input-clone') {
+        const dd = document.getElementById('nav-dropdown');
+        if (dd) dd.classList.remove('active');
+    }
 });
 
 // Добавляем обработчики для кнопок очистки (крестиков)
