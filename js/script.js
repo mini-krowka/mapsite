@@ -3176,7 +3176,8 @@ document.querySelectorAll('#coords-input, #coords-input-clone').forEach(input =>
     });
     
     // Обработка Enter: координаты → центрирование, текст → поиск населённого пункта
-    input.addEventListener('keypress', function(e) {
+    // keydown (а не устаревший keypress): надёжно срабатывает и с виртуальной клавиатурой (Gboard)
+    input.addEventListener('keydown', function(e) {
         if (e.key === 'Enter' && !isProgrammaticChange) {
             const coords = normalizeToTuple(parseCoordinates(this.value.trim()));
             if (coords) {
@@ -3186,6 +3187,11 @@ document.querySelectorAll('#coords-input, #coords-input-clone').forEach(input =>
             }
             // Обновляем видимость кнопок копирования
             updateCopyButtonsVisibility();
+            // Enter нажат в мобильном меню поиска — закрываем его
+            if (this.id === 'coords-input-clone') {
+                const dd = document.getElementById('nav-dropdown');
+                if (dd) dd.classList.remove('active');
+            }
         }
     });
 });
@@ -3530,20 +3536,9 @@ function setupDropdownListeners() {
         coordsClone.addEventListener('input', function() {
             centerMapFromInput(this, false);
         });
-        
-        // Обработка Enter: координаты → центрирование + закрытие меню, текст → поиск
-        coordsClone.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                const coords = normalizeToTuple(parseCoordinates(this.value.trim()));
-                if (coords) {
-                    if (centerMapFromInput(this, true)) {
-                        navDropdown.classList.remove('active');
-                    }
-                } else if (typeof window.performPlaceSearch === 'function') {
-                    window.performPlaceSearch(this.value);
-                }
-            }
-        });
+
+        // Enter-обработка — в общем обработнике (#coords-input, #coords-input-clone),
+        // чтобы поиск не запускался дважды
     }
     
      // Обработчик для клонированной внешней кнопки копирования
