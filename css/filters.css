@@ -269,7 +269,7 @@
 }
 
 .filter-btn.active {
-    background-color: #4CAF50 !important;
+    background-color: #3bc93580 !important; /* зелёненький */
     color: white !important;
     border-color: #45a049 !important;
 }
