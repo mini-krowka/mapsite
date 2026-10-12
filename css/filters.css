@@ -404,3 +404,9 @@
     background: #2563eb;
 }
 
+
+
+.equip-cat-checkbox,
+#equip-select-all {
+    accent-color: #4CAF50;
+}
