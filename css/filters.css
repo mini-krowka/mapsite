@@ -94,6 +94,37 @@
     color: white;
 }
 
+/* Строка "N дней" в фильтре по времени: поле ввода, применение по Enter */
+.custom-days-row {
+    display: flex;
+    align-items: center;
+    padding: 6px 15px;
+    border-bottom: 1px solid #f0f0f0;
+    transition: background 0.2s;
+}
+
+.custom-days-row:last-child {
+    border-bottom: none;
+}
+
+.custom-days-row.active {
+    background: #e3f2fd;
+}
+
+.custom-days-input {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 4px 6px;
+    font-size: 0.9rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.custom-days-input:focus {
+    outline: none;
+    border-color: #007bff;
+}
+
 /* Для мобильных устройств */
 @media (max-width: 768px) {
     .filter-buttons {

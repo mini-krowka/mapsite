@@ -24,6 +24,7 @@ const translations = {
         range3Months: "3 месяца",
         rangeYear: "1 год",
         rangeAll: "Все",
+        customDaysPlaceholder: "Дней",
 		
         showEquipment: 'Техника',
         // hideEquipment: 'Скрыть технику',
@@ -94,6 +95,7 @@ const translations = {
         range3Months: "3 months",
         rangeYear: "1 year",
         rangeAll: "All",
+        customDaysPlaceholder: "Days",
 		
         showEquipment: 'Equipment',
         // hideEquipment: 'Hide equipment',
@@ -264,6 +266,10 @@ function setLanguage(lang) {
 		else if (range === 'year') option.textContent = t.rangeYear;
 		else if (range === 'all') option.textContent = t.rangeAll;
 	});
+	
+	// Плейсхолдер поля "N дней"
+	const customDaysInput = document.getElementById('custom-days-input');
+	if (customDaysInput) customDaysInput.placeholder = t.customDaysPlaceholder;
 	
 	// Обновляем заголовок кнопки фильтра дат
 	if (typeof updateDateRangeButtonTitle === 'function') {

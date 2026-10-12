@@ -1893,7 +1893,18 @@ function getStartDateByRange(rangeType, baseDate = null) {
     // Используем переданную дату или текущую дату
     const date = baseDate || parseCustomDate(window.selectedDate) || new Date();
     let result = new Date(date);
-    
+
+    // Пользовательский диапазон "N дней" (format: 'custom:30')
+    if (typeof rangeType === 'string' && rangeType.startsWith('custom:')) {
+        const days = parseInt(rangeType.slice(7), 10);
+        if (Number.isFinite(days) && days > 0) {
+            result.setDate(result.getDate() - days);
+            result.setDate(result.getDate() + 1); // включаем сегодня
+            return result;
+        }
+        rangeType = 'week';
+    }
+
     switch(rangeType) {
         case 'week':
             result.setDate(result.getDate() - 7);
@@ -1917,6 +1928,24 @@ function getStartDateByRange(rangeType, baseDate = null) {
     result.setDate(result.getDate() + 1); // включаем сегодня
     
     return result;
+}
+
+// Подсветка выбранной строки фильтра по времени
+// (представленный вариант .range-option или строка "N дней" .custom-days-row)
+function setActiveDateRangeOption(activeEl) {
+    document.querySelectorAll('#date-range-dropdown .range-option, #date-range-dropdown .custom-days-row')
+        .forEach(el => el.classList.remove('active'));
+    if (activeEl) activeEl.classList.add('active');
+}
+
+// Применение пользовательского диапазона "N дней"
+function applyCustomDaysRange(days) {
+    currentDateRange = 'custom:' + days;
+    setActiveDateRangeOption(document.querySelector('#date-range-dropdown .custom-days-row'));
+    updateDateRangeButtonTitle();
+    updatePointsDateFilter();
+    const dd = document.getElementById('date-range-dropdown');
+    if (dd) dd.classList.remove('show');
 }
 
 // Функция для инициализации кнопок фильтров
@@ -1964,10 +1993,8 @@ function initFilterButtons() {
         option.addEventListener('click', function() {
             const range = this.getAttribute('data-range');
             
-            // Убираем активный класс со всех опций
-            rangeOptions.forEach(opt => opt.classList.remove('active'));
-            // Добавляем активный класс выбранной опции
-            this.classList.add('active');
+            // Подсветка выбранной опции (и сброс подсветки строки "N дней")
+            setActiveDateRangeOption(this);
             
             // Сохраняем выбранный диапазон
             currentDateRange = range;
@@ -1982,6 +2009,17 @@ function initFilterButtons() {
             dateRangeDropdown.classList.remove('show');
         });
     });
+    
+    // Пользовательский диапазон: ввод количества дней, применение по Enter
+    const customDaysInput = dateRangeDropdown.querySelector('#custom-days-input');
+    if (customDaysInput) {
+        customDaysInput.addEventListener('keydown', function(e) {
+            if (e.key !== 'Enter') return;
+            const days = Math.floor(Number(this.value));
+            if (!Number.isFinite(days) || days < 1) return;
+            applyCustomDaysRange(days);
+        });
+    }
     
     // Устанавливаем активную опцию по умолчанию
     document.querySelector(`.range-option[data-range="${currentDateRange}"]`)?.classList.add('active');
@@ -2104,12 +2142,9 @@ function initMobileFilterMenu() {
             
             // Выполняем выбор диапазона (ваш существующий код)
             const range = this.getAttribute('data-range');
-            const rangeOptions = dateRangeDropdown.querySelectorAll('.range-option');
             
-            // Убираем активный класс со всех опций
-            rangeOptions.forEach(opt => opt.classList.remove('active'));
-            // Добавляем активный класс выбранной опции
-            this.classList.add('active');
+            // Подсветка выбранной опции (и сброс подсветки строки "N дней")
+            setActiveDateRangeOption(this);
             
             // Сохраняем выбранный диапазон
             currentDateRange = range;
@@ -2186,6 +2221,14 @@ function initMobileFilterMenu() {
 
 
 // Функция для обновления заголовка кнопки фильтра дат
+// Склонение слова "день" для пользовательского диапазона
+function daysPlural(n) {
+    const m10 = n % 10, m100 = n % 100;
+    if (m10 === 1 && m100 !== 11) return 'день';
+    if (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) return 'дня';
+    return 'дней';
+}
+
 function updateDateRangeButtonTitle() {
     const dateRangeBtn = document.getElementById('date-range-btn');
     if (!dateRangeBtn) return;
@@ -2197,6 +2240,15 @@ function updateDateRangeButtonTitle() {
         'year': '1 год',
         'all': 'Все'
     };
+    
+    // Пользовательский диапазон "N дней"
+    if (typeof currentDateRange === 'string' && currentDateRange.startsWith('custom:')) {
+        const days = parseInt(currentDateRange.slice(7), 10);
+        dateRangeBtn.title = Number.isFinite(days) && days > 0
+            ? days + ' ' + daysPlural(days)
+            : 'Фильтр по дате';
+        return;
+    }
     
     dateRangeBtn.title = titles[currentDateRange] || 'Фильтр по дате';
 }
