@@ -1,36 +1,36 @@
 <?xml version='1.0' encoding='UTF-8' ?>
 <kml>
   <Document>
-    <name>1</name>
+    <name>UTM Geo Map</name>
     <open>1</open>
-    <description>1</description>
-    <Style id="ru">
+    <description>Exported data from UTM Geo Map APP</description>
+    <Style id="26569">
       <LineStyle>
-        <width>0</width>
-        <color>ff0000</color>
+        <width>2</width>
+        <color>804f882d</color>
       </LineStyle>
       <PolyStyle>
-        <color>230000ff</color>
+        <color>804f882d</color>
       </PolyStyle>
     </Style>
-    <Style id="ua">
+    <Style id="26570">
       <LineStyle>
-        <width>0</width>
-        <color>ff0000</color>
+        <width>2</width>
+        <color>80a2515a</color>
       </LineStyle>
       <PolyStyle>
-        <color>23ff0000</color>
+        <color>80a2515a</color>
       </PolyStyle>
     </Style>
     <Folder>
       <name>Polygon</name>
       <visibility>1</visibility>
       <description>Polygon features</description>
-      
       <Placemark>
-        <name> </name>
+        <name>УКРАИНА_0</name>
         <visibility>1</visibility>
-        <styleUrl>#ru</styleUrl>
+        <description>Area: 515 805 709 921,514 m², </description>
+        <styleUrl>#26569</styleUrl>
         <Polygon>
           <extrude>1</extrude>
           <altitudeMode>relativeToGround</altitudeMode>
@@ -25472,10 +25472,11 @@
           </outerBoundaryIs>
         </Polygon>
       </Placemark>
-     <Placemark>
-        <name> </name>
+      <Placemark>
+        <name>УКРАИНА_1</name>
         <visibility>1</visibility>
-        <styleUrl>#ua</styleUrl>
+        <description>Area: 486 036 318 223,587 m², </description>
+        <styleUrl>#26570</styleUrl>
         <Polygon>
           <extrude>1</extrude>
           <altitudeMode>relativeToGround</altitudeMode>
