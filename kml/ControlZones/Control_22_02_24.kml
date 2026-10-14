@@ -25472,11 +25472,10 @@
           </outerBoundaryIs>
         </Polygon>
       </Placemark>
-      <Placemark>
-        <name>УКРАИНА_1</name>
+     <Placemark>
+        <name> </name>
         <visibility>1</visibility>
-        <description>Area: 486 036 318 223,587 m², </description>
-        <styleUrl>#26570</styleUrl>
+        <styleUrl>#ua</styleUrl>
         <Polygon>
           <extrude>1</extrude>
           <altitudeMode>relativeToGround</altitudeMode>
