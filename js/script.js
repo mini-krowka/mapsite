@@ -2233,32 +2233,34 @@ function updateDateRangeButtonTitle() {
     const dateRangeBtn = document.getElementById('date-range-btn');
     if (!dateRangeBtn) return;
     
+    const t = translations[currentLang];
     const titles = {
-        'week': '1 неделя',
-        'month': '1 месяц',
-        '3months': '3 месяца',
-        'year': '1 год',
-        'all': 'Все'
+        'week': t.rangeWeek,
+        'month': t.rangeMonth,
+        '3months': t.range3Months,
+        'year': t.rangeYear,
+        'all': t.rangeAll
     };
     
     // Пользовательский диапазон "N дней"
     if (typeof currentDateRange === 'string' && currentDateRange.startsWith('custom:')) {
         const days = parseInt(currentDateRange.slice(7), 10);
         dateRangeBtn.title = Number.isFinite(days) && days > 0
-            ? days + ' ' + daysPlural(days)
-            : 'Фильтр по дате';
+            ? (currentLang === 'en' ? days + ' days' : days + ' ' + daysPlural(days))
+            : t.dateRangeFilter;
         return;
     }
     
-    dateRangeBtn.title = titles[currentDateRange] || 'Фильтр по дате';
+    dateRangeBtn.title = titles[currentDateRange] || t.dateRangeFilter;
 }
 
 // Функция для обновления заголовка кнопки переключения точек
 function updateTogglePointsButtonTitle() {
     const togglePointsBtn = document.getElementById('toggle-points-btn');
     if (!togglePointsBtn) return;
+    const t = translations[currentLang];
     const isVisible = togglePointsBtn.classList.contains('active');
-    togglePointsBtn.title = isVisible ? 'Скрыть боевые действия' : 'Показать боевые действия';
+    togglePointsBtn.title = isVisible ? t.hidePoints : t.showPoints;
 }
 
 // Функция для обновления фильтра точек по дате
@@ -3033,13 +3035,15 @@ document.addEventListener('DOMContentLoaded', init);
 
 function switchMapStatViewByBtn(mapBtn, stats1Btn, stats2Btn)
 {
+    if (!mapBtn) return;
     const mapContainer = document.getElementById('map-container');
     const stats1Container = document.getElementById('stats1-container');
     const stats2Container = document.getElementById('stats2-container');
+    const allBtns = [mapBtn, stats1Btn, stats2Btn].filter(Boolean);
     
     function switchView(activeBtn, activeContainer) {
         // Сбрасываем активное состояние у всех кнопок и контейнеров
-        [mapBtn, stats1Btn, stats2Btn].forEach(btn => btn.classList.remove('active'));
+        allBtns.forEach(btn => btn.classList.remove('active'));
         [mapContainer, stats1Container, stats2Container].forEach(container => {
             container.classList.remove('active');
             container.style.display = 'none';
@@ -3072,8 +3076,8 @@ function switchMapStatViewByBtn(mapBtn, stats1Btn, stats2Btn)
     }
     // Обработчики кнопок
     mapBtn.addEventListener('click', () => switchView(mapBtn, mapContainer));
-    stats1Btn.addEventListener('click', () => switchView(stats1Btn, stats1Container));
-    stats2Btn.addEventListener('click', () => switchView(stats2Btn, stats2Container));
+    if (stats1Btn) stats1Btn.addEventListener('click', () => switchView(stats1Btn, stats1Container));
+    if (stats2Btn) stats2Btn.addEventListener('click', () => switchView(stats2Btn, stats2Container));
 }
 
 document.addEventListener('DOMContentLoaded', function() {
