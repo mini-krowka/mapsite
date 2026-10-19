@@ -2565,9 +2565,7 @@ function findNextAvailableDate(targetDateStr) {
 
 
 // Заполнение выпадающего списка городов
-// Обработчики выбора города отключены вместе со списком городов (чтобы вернуть —
-// раскомментируйте select #cities-dropdown в index.html и блоки ниже)
-/*
+// Обработчик выбора города
 document.getElementById('cities-dropdown').addEventListener('change', async function() {
     const selectedCityName = this.value;
     if (!selectedCityName) return;
@@ -2585,9 +2583,8 @@ document.getElementById('cities-dropdown').addEventListener('change', async func
         this.value = "";
     }
 });
-*/
 
-/*
+// Обработчик выбора города
 citiesDropdown.addEventListener('change', function() {
     const selectedCityName = this.value;
     if (!selectedCityName) return;
@@ -2597,12 +2594,11 @@ citiesDropdown.addEventListener('change', function() {
         // Заполняем поле координат
         coordsInput.value = `${city.lat}, ${city.lng}`;
         centerMap(city.lat, city.lng);
-
+        
         // Сбрасываем выбор
         this.value = "";
     }
 });
-*/
 
 // обработчик перемещения карты
 map.on('moveend', function() {
@@ -2745,7 +2741,7 @@ async function init() {
     initFullscreenControl();
 
     // Шаг 6: Инициализируем другие UI компоненты
-    // populateCitiesDropdown(); // отключено: список городов убран из панели (функция сохранена)
+    populateCitiesDropdown();
     document.querySelector('.date-navigator-wrapper').style.display = 'block';
 
     // Шаг 7: Ждем когда все элементы интерфейса будут доступны
@@ -3356,7 +3352,7 @@ function initDartMenu() {
         // 'centerOn-label',   // надпись «Центрировать на» убрана из мобильной панели (можно вернуть)
         'coords-input',
         'copy-coords-external-btn',
-        // 'cities-dropdown',  // быстрый переход по городам убран (функции populateCitiesDropdown сохранены)
+        'cities-dropdown',
         'currentCenter-label',
         'current-center-coords',
         'copy-coords-btn'

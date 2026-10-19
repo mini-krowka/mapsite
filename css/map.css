@@ -235,9 +235,9 @@
         display: none !important;
     }
 
-    /* Надпись «Центрировать на» и блок быстрого перехода по городам убраны из мобильной панели */
-    #centerOn-label,
-    .city-coord-group {
+    /* Надпись «Центрировать на» убрана из мобильной панели;
+       список городов показан в дартс-меню (клон #cities-dropdown-clone) */
+    #centerOn-label {
         display: none !important;
     }
 
@@ -364,7 +364,12 @@
 }
 
 .nav-dropdown #cities-dropdown-clone {
-    /* width: 100% !important; */
+    width: 100%;
+    height: 30px;
+    padding: 5px 8px;
+    font-size: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
     max-width: 100%;
     box-sizing: border-box;
 	text-align: center;
