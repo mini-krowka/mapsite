@@ -2787,7 +2787,12 @@ async function init() {
     })();
 
     // Шаг 5: Поэтапное добавление на карту: линии → полигоны → точки
-    // Этап «линии»
+
+	// Этап «точки»
+    await pointsPromise;
+    if (window.pointsCanvas) window.pointsCanvas.applyFilter();
+	  
+	// Этап «линии»
     await frontLinesPromise;
 
     // Этап «полигоны»: слои выбранной даты + постоянные объекты
@@ -2808,9 +2813,7 @@ async function init() {
 
     updateButtons();
 
-    // Этап «точки»
-    await pointsPromise;
-    if (window.pointsCanvas) window.pointsCanvas.applyFilter();
+    
 
 	// Маркер при загрузке координат из url
     const urlCoords = getUrlCoords();
