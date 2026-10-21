@@ -2788,14 +2788,7 @@ async function init() {
 
     // Шаг 5: Поэтапное добавление на карту: линии → полигоны → точки
 
-	// Этап «точки»
-    await pointsPromise;
-    if (window.pointsCanvas) window.pointsCanvas.applyFilter();
-	  
-	// Этап «линии»
-    await frontLinesPromise;
-
-    // Этап «полигоны»: слои выбранной даты + постоянные объекты
+	// Этап «полигоны»: слои выбранной даты + постоянные объекты
     const { dateGroups, permanentGroups } = await polyPromise;
     if (currentLayer) {
         map.removeLayer(currentLayer);
@@ -2812,6 +2805,16 @@ async function init() {
     permanentGroups.forEach(g => g.addTo(map));
 
     updateButtons();
+	  	  
+	  
+	// Этап «линии»
+    await frontLinesPromise;
+
+	  // Этап «точки»
+    await pointsPromise;
+    if (window.pointsCanvas) window.pointsCanvas.applyFilter();
+
+    
 
     
 
