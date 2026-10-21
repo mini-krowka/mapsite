@@ -146,6 +146,19 @@
     width: 30px;
     justify-content: center;
     align-items: center;
+    transition: all var(--transition-fast);
+}
+
+/* Лупа подсвечивается зелёным, пока открыто дартс-меню */
+#nav-menu-toggle.active {
+    background-color: var(--active-green);
+    color: white;
+    border-color: var(--active-green-solid);
+}
+
+#nav-menu-toggle.active:hover {
+    background-color: var(--active-green-solid);
+    border-color: var(--active-green-solid);
 }
 
 /* Выпадающее меню (дартс) */

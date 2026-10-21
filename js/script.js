@@ -3248,8 +3248,7 @@ document.addEventListener('keydown', function(e) {
     updateCopyButtonsVisibility();
     // Enter нажат в мобильном меню поиска — закрываем его
     if (t.id === 'coords-input-clone') {
-        const dd = document.getElementById('nav-dropdown');
-        if (dd) dd.classList.remove('active');
+        setNavDropdownActive(false);
     }
 });
 
@@ -3331,6 +3330,17 @@ const navDropdown = document.getElementById('nav-dropdown');
 const navMenuToggle = document.getElementById('nav-menu-toggle');
 const hideableItems = document.querySelectorAll('.hideable-nav-item');
 clonedItems = [];
+
+// Единая точка изменения состояния дартс-меню:
+// синхронизирует класс .active на кнопке-лупе и на самом меню
+function setNavDropdownActive(state) {
+    if (!navDropdown) return;
+    navDropdown.classList.toggle('active', state);
+    if (navMenuToggle) {
+        navMenuToggle.classList.toggle('active', state);
+        navMenuToggle.setAttribute('aria-expanded', state ? 'true' : 'false');
+    }
+}
 // Дартс (Лупа)
 function initDartMenu() {
     console.log("[initDartMenu] Инициализация дартс-меню...");
@@ -3411,7 +3421,7 @@ function initDartMenu() {
         } else {
             hideableItems.forEach(item => item.style.display = 'flex');
             navMenuToggle.style.display = 'none';
-            navDropdown.classList.remove('active');
+            setNavDropdownActive(false);
         }
     }
     
@@ -3512,7 +3522,7 @@ navDropdown.querySelectorAll('.copy-coords-btn').forEach(btn => {
 // Закрытие меню при клике вне его
 document.addEventListener('click', function(e) {
     if (!navDropdown.contains(e.target) && e.target !== navMenuToggle) {
-        navDropdown.classList.remove('active');
+        setNavDropdownActive(false);
     }
 });
 
@@ -3524,7 +3534,7 @@ navMenuToggle.addEventListener('click', function(e) {
     // Синхронизируем состояние перед открытием
     syncDropdownState();
     // Открываем/закрываем меню
-    navDropdown.classList.toggle('active');
+    setNavDropdownActive(!navDropdown.classList.contains('active'));
 });
 
 
@@ -3631,7 +3641,7 @@ function setupDropdownListeners() {
                 
                 centerMap(city.lat, city.lng);
                 // Закрываем меню после выбора города
-                navDropdown.classList.remove('active');
+                setNavDropdownActive(false);
                 this.value = "";
             }
         });
@@ -3838,8 +3848,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const coords = normalizeToTuple(parseCoordinates(val));
         if (coords) {
           centerMapFromInput(input, true);
-          const dd = document.getElementById('nav-dropdown');
-          if (dd) dd.classList.remove('active');
+          setNavDropdownActive(false);
         } else if (typeof window.performPlaceSearch === 'function') {
           window.performPlaceSearch(val);
         }
