@@ -528,7 +528,7 @@ function parseLineStyle(style) {
     
     return {
         rawColor: rawColor,
-        color: rawColor ? parseColor(rawColor) : '#3388ff',
+        color: rawColor ? parseColor(rawColor) : THEME.colors.layerDefault,
         weight: width,
         opacity: rawColor ? parseOpacity(rawColor) : 1
     };
@@ -543,7 +543,7 @@ function parsePolyStyle(style) {
 
     return {
         rawColor: rawColor,
-        fillColor: rawColor ? parseColor(rawColor) : '#3388ff',
+        fillColor: rawColor ? parseColor(rawColor) : THEME.colors.layerDefault,
         fillOpacity: rawColor ? parseOpacity(rawColor) : 0.5
     };
 }
@@ -582,7 +582,7 @@ function parseCoordinates(element, crs) {
 }
 
 function parseColor(kmlColor) {
-    if (!kmlColor) return '#3388ff';
+    if (!kmlColor) return THEME.colors.layerDefault;
     const a = kmlColor.substr(0, 2);
     const b = kmlColor.substr(2, 2);
     const g = kmlColor.substr(4, 2);
@@ -615,14 +615,14 @@ window.kmlStyleModes = {
 window.kmlStyles = {
     [window.kmlStyleModes.STYLE_MG]: {
         polygon: {
-            color: '#ffffff', // Обводка для видимости
+            color: THEME.colors.layerMG,      // Обводка для видимости
             weight: 5, // Толщина линии
-            fillColor: '#999999', //Заливка
+            fillColor: THEME.colors.layerCity, //Заливка
             fillOpacity: 0.25, //  Непрозрачность
             interactive: INTERACTIVE
         },
         polyline: {
-            color: '#ffffff', // Цвет линии
+            color: THEME.colors.layerMG,     // Цвет линии
             weight: 5, // Толщина линии
             opacity: 1,
             interactive: INTERACTIVE
@@ -630,14 +630,14 @@ window.kmlStyles = {
     },
     [window.kmlStyleModes.STYLE_RUAF]: {
         polygon: {
-            color: '#ff0000',
+            color: THEME.colors.layerRuAF,
             weight: 0.1,
-            fillColor: '#ff0000',
+            fillColor: THEME.colors.layerRuAF,
             fillOpacity: 0.2,
             interactive: INTERACTIVE
         },
         polyline: {
-            color: '#ff0000',
+            color: THEME.colors.layerRuAF,
             weight: 4,
             opacity: 0.8,
             interactive: INTERACTIVE
@@ -645,14 +645,14 @@ window.kmlStyles = {
     },
     [window.kmlStyleModes.STYLE_AFU]: {
         polygon: {
-            color: '#0000ff',
+            color: THEME.colors.layerAFU,
             weight: 0.1,
-            fillColor: '#0000ff',
+            fillColor: THEME.colors.layerAFU,
             fillOpacity: 0.2,
             interactive: INTERACTIVE
         },
         polyline: {
-            color: '#0000ff',
+            color: THEME.colors.layerAFU,
             weight: 4,
             opacity: 0.8,
             interactive: INTERACTIVE
@@ -660,14 +660,14 @@ window.kmlStyles = {
     },
     [window.kmlStyleModes.STYLE_CITIES]: {
         polygon: {
-            color: '#ffffff',      // цвет обводки
+            color: THEME.colors.layerMG,      // цвет обводки
             weight: 1,             // толщина обводки
-            fillColor: '#999999',   // цвет заливки
+            fillColor: THEME.colors.layerCity,   // цвет заливки
             fillOpacity: 0.25,      // прозрачность заливки
             interactive: INTERACTIVE
         },
         polyline: {
-            color: '#ffffff',
+            color: THEME.colors.layerMG,
             weight: 1,
             opacity: 1,
             interactive: INTERACTIVE
@@ -786,8 +786,8 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup, styleM
 	    layer.on('mouseover', function() {
 	        this.setStyle({
 	            weight: (this._originalStyle.weight || 0) + 3,
-	            color: '#ff0000',
-	            fillColor: '#ff0000',
+	            color: THEME.colors.hoverHighlight,
+	            fillColor: THEME.colors.hoverHighlight,
 				opacity: 0.15,        // для линий
 				fillOpacity: 0.15     // для полигонов
 	        });
@@ -887,9 +887,9 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup, styleM
             if (useStyleMode === window.kmlStyleModes.DEFAULT) {
                 // Для DEFAULT используем стили из KML или базовые
                 polyStyle = {
-                    color: style.line.color || '#3388ff',
+                    color: style.line.color || THEME.colors.layerDefault,
                     weight: style.line.weight || 0,
-                    fillColor: style.poly.fillColor || '#3388ff',
+                    fillColor: style.poly.fillColor || THEME.colors.layerDefault,
                     fillOpacity: style.poly.fillOpacity || 0.5,
                     interactive: INTERACTIVE
                 };
@@ -900,9 +900,9 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup, styleM
                     polyStyle = styleConfig.polygon;
                 } else {
                     polyStyle = {
-                        color: '#3388ff',
+                        color: THEME.colors.layerDefault,
                         weight: 0,
-                        fillColor: '#3388ff',
+                        fillColor: THEME.colors.layerDefault,
                         fillOpacity: 0.5,
                         interactive: INTERACTIVE
                     };
@@ -945,7 +945,7 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup, styleM
             
             if (useStyleMode === window.kmlStyleModes.DEFAULT) {
                 lineStyle = {
-                    color: style.line.color || '#3388ff',
+                    color: style.line.color || THEME.colors.layerDefault,
                     weight: style.line.weight || 3,
                     opacity: style.line.opacity || 1,
                     interactive: INTERACTIVE
@@ -956,7 +956,7 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup, styleM
                     lineStyle = styleConfig.polyline;
                 } else {
                     lineStyle = {
-                        color: '#3388ff',
+                        color: THEME.colors.layerDefault,
                         weight: 3,
                         opacity: 1,
                         interactive: INTERACTIVE
@@ -1012,21 +1012,20 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup, styleM
                 const link = extendedData['Ссылка'] || extendedData['link'] || '';
                 
                 return `
-                    ${formattedName ? `<div class="popup-title" style="white-space: pre-wrap; font-weight: bold; margin-bottom: 8px;">${formattedName}</div>` : ''}
-                    ${description ? `<div class="popup-description" style="margin-bottom: 8px; white-space: pre-wrap;">${description}</div>` : ''}
-                    <div class="popup-details" style="font-size: 14px; line-height: 1.4;">
+                    ${formattedName ? `<div class="popup-title">${formattedName}</div>` : ''}
+                    ${description ? `<div class="popup-description">${description}</div>` : ''}
+                    <div class="popup-details">
                         ${objectType ? `<div><strong>Тип объекта:</strong> ${objectType}</div>` : ''}
                         ${attackDate ? `<div><strong>Дата:</strong> ${attackDate}</div>` : ''}
                         ${weaponType ? `<div><strong>Средство поражения:</strong> ${weaponType}</div>` : ''}
-                        <div style="display: flex; align-items: center; gap: 8px; margin-top: 4px;">
+                        <div class="popup-row">
                             <strong>Координаты:</strong> 
-                            <span style="font-family: monospace;">${coordsString}</span>
-                            <button class="copy-coords-popup-btn" data-coords="${coordsString}" 
-                                    style="cursor: pointer; background: #007bff; color: white; border: none; border-radius: 3px; padding: 2px 6px; font-size: 12px;">
+                            <span class="popup-mono">${coordsString}</span>
+                            <button class="copy-coords-popup-btn" data-coords="${coordsString}">
                                 ⎘
                             </button>
                         </div>
-                        ${link ? `<div style="margin-top: 6px;"><a href="${link}" target="_blank" style="color: #007bff; text-decoration: none; font-weight: bold;">📝 Подробная информация</a></div>` : ''}
+                        ${link ? `<div class="popup-link-row"><a href="${link}" target="_blank" class="popup-link popup-link-bold">📝 Подробная информация</a></div>` : ''}
                     </div>
                 `;
             }
@@ -1049,11 +1048,10 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup, styleM
                     // Для поля "Координаты" добавляем кнопку копирования
                     if (key === 'Координаты' || key === 'coordinates') {
                         extendedInfoHTML += `
-                            <div style="margin-top: 4px;">
+                            <div class="popup-item">
                                 <strong>${key}:</strong> 
-                                <span style="font-family: monospace;">${value}</span>
-                                <button class="copy-coords-popup-btn" data-coords="${value}" 
-                                        style="cursor: pointer; background: #007bff; color: white; border: none; border-radius: 3px; padding: 2px 6px; font-size: 12px; margin-left: 8px;">
+                                <span class="popup-mono">${value}</span>
+                                <button class="copy-coords-popup-btn popup-btn-offset" data-coords="${value}">
                                     ⎘
                                 </button>
                             </div>`;
@@ -1064,25 +1062,25 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup, styleM
                         const url = new URL(value);
                         const domain = url.hostname;
                         extendedInfoHTML += `
-                            <div style="margin-top: 4px;">
+                            <div class="popup-item">
                                 <strong>${key}:</strong> 
-                                <a href="${value}" target="_blank" style="color: #007bff; text-decoration: none;">
+                                <a href="${value}" target="_blank" class="popup-link">
                                     ${domain}
                                 </a>
                             </div>`;
                     }
                     // Для остальных полей просто текст
                     else {
-                        extendedInfoHTML += `<div style="margin-top: 4px;"><strong>${key}:</strong> ${value}</div>`;
+                        extendedInfoHTML += `<div class="popup-item"><strong>${key}:</strong> ${value}</div>`;
                     }
                 }
                 
                 return `
-                    ${formattedName ? `<div class="popup-title" style="white-space: pre-wrap; font-weight: bold; margin-bottom: 8px;">${formattedName}</div>` : ''}
-                    <div class="popup-details" style="font-size: 14px; line-height: 1.4;">
+                    ${formattedName ? `<div class="popup-title">${formattedName}</div>` : ''}
+                    <div class="popup-details">
                         ${date ? `<div><strong>Датировано:</strong> ${date}</div>` : ''}
                         ${equipmentType ? `<div><strong>Тип техники:</strong> ${equipmentType}</div>` : ''}
-                        ${descriptionUrl ? `<div style="margin-top: 4px;"><strong>Описание:</strong> ${descriptionUrl}</div>` : ''}
+                        ${descriptionUrl ? `<div class="popup-item"><strong>Описание:</strong> ${descriptionUrl}</div>` : ''}
                         ${extendedInfoHTML}
                     </div>
                 `;
@@ -1091,19 +1089,18 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup, styleM
             else {                
                 const position = equipmentType;
                 return `
-                ${formattedName ? `<div class="popup-title" style="white-space: pre-wrap; font-weight: bold; margin-bottom: 8px;">${formattedName}</div>` : ''}
-                <div class="popup-details" style="font-size: 14px; line-height: 1.4;">
+                ${formattedName ? `<div class="popup-title">${formattedName}</div>` : ''}
+                <div class="popup-details">
                     ${date ? `<div><strong>Дата:</strong> ${date}</div>` : ''}
                     ${position ? `<div><strong>Позиция:</strong> ${position}</div>` : ''}
-                    <div style="display: flex; align-items: center; gap: 8px; margin-top: 4px;">
+                    <div class="popup-row">
                         <strong>Координаты:</strong> 
-                        <span style="font-family: monospace;">${coordsString}</span>
-                        <button class="copy-coords-popup-btn" data-coords="${coordsString}" 
-                                style="cursor: pointer; background: #007bff; color: white; border: none; border-radius: 3px; padding: 2px 6px; font-size: 12px;">
+                        <span class="popup-mono">${coordsString}</span>
+                        <button class="copy-coords-popup-btn" data-coords="${coordsString}">
                             ⎘
                         </button>
                     </div>
-                    ${descriptionUrl ? `<div style="margin-top: 6px;"><a href="${descriptionUrl}" target="_blank" style="color: #007bff; text-decoration: none; font-weight: bold;">📝 Подробная информация</a></div>` : ''}
+                    ${descriptionUrl ? `<div class="popup-link-row"><a href="${descriptionUrl}" target="_blank" class="popup-link popup-link-bold">📝 Подробная информация</a></div>` : ''}
                 </div>
             `;
             }
@@ -1203,19 +1200,19 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup, styleM
             
             // Заменяем "Источник url" на "Источник" (только слово "Источник" становится ссылкой)
             formatted = formatted.replace(/Источник\s+(https?:\/\/[^\s]+)/g, 
-                '<a href="$1" target="_blank" style="color: #007bff; text-decoration: none;">Источник</a>');
+                '<a href="$1" target="_blank" class="popup-link">Источник</a>');
             
             // Заменяем "Источник 21+ url" на "Источник 21+" (только слова "Источник 21+" становятся ссылкой)
             formatted = formatted.replace(/Источник\s+21\+\s+(https?:\/\/[^\s]+)/g, 
-                '<a href="$1" target="_blank" style="color: #007bff; text-decoration: none;">Источник 21+</a>');
+                '<a href="$1" target="_blank" class="popup-link">Источник 21+</a>');
             
             // Заменяем "Геопривязка url" на "Геопривязка" (только слово "Геопривязка" становится ссылкой)
             formatted = formatted.replace(/Геопривязка\s+(https?:\/\/[^\s]+)/g, 
-                '<a href="$1" target="_blank" style="color: #007bff; text-decoration: none;">Геопривязка</a>');
+                '<a href="$1" target="_blank" class="popup-link">Геопривязка</a>');
             
             // Заменяем "Согласно url" на "Согласно..." (только слово "Согласно" становится ссылкой)
             formatted = formatted.replace(/Согласно\s+(https?:\/\/[^\s]+)/g, 
-                '<a href="$1" target="_blank" style="color: #007bff; text-decoration: none;">Согласно...</a>');
+                '<a href="$1" target="_blank" class="popup-link">Согласно...</a>');
             
             return formatted;
         }
@@ -1849,7 +1846,7 @@ async function initFortificationLayer(kmlFilePaths) {
                     style: function(feature) {
                         // Используем свойства из файла, если есть
                         return {
-                            color: feature.properties?.stroke || '#ff0000',
+                            color: feature.properties?.stroke || THEME.colors.layerRuAF,
                             weight: feature.properties?.['stroke-width'] || 2,
                             opacity: feature.properties?.['stroke-opacity'] || 1,
                             // можно добавить другие параметры
@@ -2209,7 +2206,7 @@ function initMobileFilterMenu() {
     // Обработчик изменения размера окна
     window.addEventListener('resize', function() {
         // На широких экранах убеждаемся, что всё закрыто
-        if (window.innerWidth > 768) {
+        if (!isMobileViewport()) {
             if (mobileFilterToggle.classList.contains('active')) {
                 toggleMobileFilterMenu();
             }
@@ -3095,7 +3092,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Закрываем меню при клике на карту
 document.getElementById('map').addEventListener('click', function() {
-    if (window.innerWidth <= 768) {
+    if (isMobileViewport()) {
         document.querySelector('.nav-wrapper').classList.remove('active');
     }
 });
@@ -3408,7 +3405,7 @@ function initDartMenu() {
     
     // Обработчик изменения размера окна
     function handleResize() {
-        if (window.innerWidth < 1201) {
+        if (!isDesktopViewport()) {
             hideableItems.forEach(item => item.style.display = 'none');
             navMenuToggle.style.display = 'flex';
         } else {
@@ -3733,35 +3730,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 
-// === Inline error bubble for coords input ===
+// === Inline error bubble for coords input (стили — в css/layout.css) ===
 (function(){
-  function ensureCoordsErrorStyle() {
-    if (document.getElementById('coords-error-style')) return;
-    const style = document.createElement('style');
-    style.id = 'coords-error-style';
-    style.textContent = `
-      .coords-error-bubble{
-        position:absolute;
-        left:0;
-        top:calc(100% + 4px);
-        padding:4px 8px;
-        background:#ffeaea;
-        color:#b00020;
-        border:1px solid #f3b2b2;
-        border-radius:4px;
-        font-size:12px;
-        line-height:1.2;
-        white-space:nowrap;
-        pointer-events:none;
-        box-shadow:0 1px 2px rgba(0,0,0,.05);
-        z-index:10;
-      }
-    `;
-    document.head.appendChild(style);
-  }
   window._coordsError = {
     show(input, message){
-      ensureCoordsErrorStyle();
       if (!input) return;
       let wrapper = input.closest('.input-with-clear');
       if (!wrapper) {

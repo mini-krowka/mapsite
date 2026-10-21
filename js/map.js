@@ -118,7 +118,7 @@ window.osm.addTo(map);
 // === Кнопки масштаба: правый нижний угол на десктопе, левый верхний на мобильных ===
 let zoomControlInstance = null;
 function positionZoomControl() {
-    const isMobile = window.innerWidth <= 768;
+    const isMobile = isMobileViewport();
     const pos = isMobile ? 'topleft' : 'bottomright';
     if (zoomControlInstance) {
         map.removeControl(zoomControlInstance);
@@ -557,7 +557,7 @@ function initMeasureControl() {
         unit: 'kilometres',
         clearMeasurementsOnStop: false,  // линии не стираются при disable
         showUnitControl: true,
-        backgroundColor: '#f8f8f8',
+        backgroundColor: THEME.colors.rulerBg,
         cursor: 'crosshair',
         showClearControl: true,
         clearControlLabel: '&times;',
@@ -570,11 +570,11 @@ function initMeasureControl() {
         units: t.units,
 		
 		tempLine: {                     // Styling settings for the temporary dashed line
-			color: '#f0f',              // Dashed line color
+			color: THEME.colors.rulerLine, // Dashed line color
 			weight: 2                   // Dashed line weight
 		},          
 		fixedLine: {                    // Styling for the solid line
-			color: '#F0F',              // Solid line color
+			color: THEME.colors.rulerLine, // Solid line color
 			weight: 2                   // Solid line weight
         }
     };

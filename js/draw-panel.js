@@ -10,7 +10,7 @@ class DrawPanel {
         this.map = map;
         this.isDrawing = false;
         this.currentTool = null;
-        this.currentColor = '#007bff';
+        this.currentColor = THEME.colors.primary;
         this.currentWidth = 3;
         
         // Создаем FeatureGroup и добавляем на карту правильным способом
@@ -91,7 +91,7 @@ class DrawPanel {
                 <button class="action-btn screenshot" id="save-screenshot">Сохранить скрин</button>
             </div>
             
-            <div class="drawing-status" id="drawing-status" style="margin-top: 10px; padding: 5px; background: #f8f9fa; border-radius: 4px; font-size: 12px; text-align: center;">
+            <div class="drawing-status" id="drawing-status">
                 Режим: Ожидание
             </div>
         `;
@@ -241,11 +241,11 @@ class DrawPanel {
             
             // Добавляем цветовую индикацию
             if (message.includes('Ожидание')) {
-                statusElement.style.background = '#f8f9fa';
-                statusElement.style.color = '#6c757d';
+                statusElement.style.background = THEME.colors.statusIdleBg;
+                statusElement.style.color = THEME.colors.statusIdleText;
             } else {
-                statusElement.style.background = '#d4edda';
-                statusElement.style.color = '#155724';
+                statusElement.style.background = THEME.colors.statusOkBg;
+                statusElement.style.color = THEME.colors.statusOkText;
             }
         }
     }
@@ -463,14 +463,8 @@ class DrawPanel {
     }
     
     setupEraserCursor() {
-    const style = document.createElement('style');
-    style.textContent = `
-        .leaflet-eraser-cursor {
-            cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="none" stroke="red" stroke-width="2"/><line x1="8" y1="8" x2="16" y2="16" stroke="red" stroke-width="2"/><line x1="16" y1="8" x2="8" y2="16" stroke="red" stroke-width="2"/></svg>') 12 12, auto;
-        }
-    `;
-    document.head.appendChild(style);
-}
+        // Стиль .leaflet-eraser-cursor задан в css/draw-panel.css
+    }
 
 
     toggleEraser() {
