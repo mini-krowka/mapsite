@@ -652,6 +652,7 @@ async function initFortificationLayerWithFilter(kmlFilePaths) {
                             color: feature.properties?.stroke || THEME.colors.layerRuAF,
                             weight: feature.properties?.['stroke-width'] || 2,
                             opacity: feature.properties?.['stroke-opacity'] || 1,
+                            pane: 'vectorLines',
                         };
                     },
                     onEachFeature: function(feature, layer) {
@@ -666,7 +667,8 @@ async function initFortificationLayerWithFilter(kmlFilePaths) {
                 await loadKmlToLayer(path, layerGroup, {
                     isPermanent: false,
                     preserveZoom: true,
-                    fitBounds: false
+                    fitBounds: false,
+                    pane: 'vectorLines'
                 });
             }
             window.allFortificationLayers.push({

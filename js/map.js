@@ -571,11 +571,13 @@ function initMeasureControl() {
 		
 		tempLine: {                     // Styling settings for the temporary dashed line
 			color: THEME.colors.rulerLine, // Dashed line color
-			weight: 2                   // Dashed line weight
-		},          
-		fixedLine: {                    // Styling for the solid line
+			weight: 2,                  // Dashed line weight
+			pane: 'drawPane'
+		},
+		fixedLine: {                    // Styling settings for the solid line
 			color: THEME.colors.rulerLine, // Solid line color
-			weight: 2                   // Solid line weight
+			weight: 2,                  // Solid line weight
+			pane: 'drawPane'
         }
     };
 
@@ -702,6 +704,17 @@ const interactivePane = map.createPane('interactive');
 interactivePane.style.zIndex = 500;  // выше стандартной overlay-pane (400)
 const nonInteractivePane = map.createPane('nonInteractive');
 nonInteractivePane.style.zIndex = 400; // ниже интерактивной
+
+// Панели KML-векторов (детерминированный порядок, не зависит от момента добавления):
+// Control-зоны < рисование < постоянные полигоны < линии < точки (pointsPane, 500)
+const vectorControlPane = map.createPane('vectorControl');
+vectorControlPane.style.zIndex = 405;
+const drawPane = map.createPane('drawPane');
+drawPane.style.zIndex = 407;
+const vectorPolyPane = map.createPane('vectorPoly');
+vectorPolyPane.style.zIndex = 410;
+const vectorLinesPane = map.createPane('vectorLines');
+vectorLinesPane.style.zIndex = 420;
 
 
 // Инициализация панели рисования после загрузки карты

@@ -773,7 +773,7 @@ function parseStyleMapFromKmlDoc(kmlDoc)
 }
 
 // Обработка Placemarks
-function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup, styleMode = window.kmlStyleModes.DEFAULT, iconGetter = getPointIcon, isInteractive = true) {
+function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup, styleMode = window.kmlStyleModes.DEFAULT, iconGetter = getPointIcon, isInteractive = true, pane = null) {
     let bounds = L.latLngBounds(); // Инициализация пустыми границами
     let elementCount = 0;
     
@@ -911,7 +911,7 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup, styleM
 
 			const finalInteractive = isInteractive && INTERACTIVE;
 			polyStyle.interactive = finalInteractive;
-			polyStyle.pane = isInteractive ? 'interactive' : 'nonInteractive';
+			polyStyle.pane = pane || (isInteractive ? 'interactive' : 'nonInteractive');
 
             // Создаем полигон
             const poly = L.polygon(coords, polyStyle).addTo(layerGroup);
@@ -967,7 +967,7 @@ function parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup, styleM
 			
 			const finalInteractive = isInteractive && INTERACTIVE;
 			lineStyle.interactive = finalInteractive;
-			lineStyle.pane = isInteractive ? 'interactive' : 'nonInteractive';
+			lineStyle.pane = pane || (isInteractive ? 'interactive' : 'nonInteractive');
 
             const polyline = L.polyline(coords, lineStyle).addTo(layerGroup);
 
@@ -1291,7 +1291,8 @@ async function loadKmlToLayer(filePath, layerGroup, options = {}) {
         preserveZoom = true,
         fitBounds = false,
         styleMode = null,
-		interactive = null
+ 		interactive = null,
+        pane = null
     } = options;
 
     try {
@@ -1327,7 +1328,7 @@ async function loadKmlToLayer(filePath, layerGroup, options = {}) {
             console.log('Found styleMaps:', styleMaps);
         }
 
-        const bounds = parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup, finalStyleMode, getPointIcon, useInteractive);
+        const bounds = parsePlacemarksFromKmlDoc(kmlDoc, styles, styleMaps, layerGroup, finalStyleMode, getPointIcon, useInteractive, pane);
         
         if (LOG_STYLES) console.groupEnd();
         
@@ -1374,7 +1375,8 @@ async function loadKmlFile(file, targetCRS) {
             loadKmlToLayer(path, newLayer, {
                 isPermanent: false,
                 preserveZoom: preserveZoom,
-                fitBounds: false
+                fitBounds: false,
+                pane: path.includes('Control') ? 'vectorControl' : 'vectorLines'
             })
         );
 
@@ -1402,16 +1404,29 @@ async function loadKmlFile(file, targetCRS) {
 }
 
 
-// Функция загрузки постоянных KML-слоев
+// Сборка слоя в offscreen-группу (без добавления на карту)
+async function buildLayerForPath(filePath, pane, options = {}) {
+    const layerGroup = L.layerGroup();
+    // Не передаем styleMode - будет определен автоматически
+    await loadKmlToLayer(filePath, layerGroup, {
+        isPermanent: options.isPermanent !== undefined ? options.isPermanent : false,
+        preserveZoom: true,
+        fitBounds: false,
+        pane: pane
+    });
+    return layerGroup;
+}
+
+// Функция загрузки постоянных KML-слоев (параллельный fetch, пакетное добавление)
 async function loadPermanentKmlLayers() {
     try {
         console.log("Начало загрузки постоянных слоев");
-        
+
         if (!window.permanentLayers || !Array.isArray(window.permanentLayers)) {
             console.error("window.permanentLayers не определен или не является массивом");
             return;
         }
-        
+
         console.log("Найдено постоянных слоев:", window.permanentLayers.length);
 
         // Удаляем старые постоянные слои
@@ -1420,35 +1435,24 @@ async function loadPermanentKmlLayers() {
             window.permanentLayerGroups = [];
         }
 
-        // Последовательная загрузка постоянных слоев (чтобы избежать параллельных запросов)
-        window.permanentLayerGroups = [];
-        
-        for (const layerData of window.permanentLayers) {
-            if (!layerData.path) {
-                console.error("Отсутствует путь для постоянного слоя:", layerData);
-                continue;
-            }
-            
-            console.log("Загрузка постоянного слоя:", layerData.path);
-            
-            try {
-                const layerGroup = L.layerGroup();
-                // Не передаем styleMode - будет определен автоматически
-                const result = await loadKmlToLayer(layerData.path, layerGroup, {
-                    isPermanent: true,
-                    preserveZoom: true,
-                    fitBounds: false
-                });
+        // Параллельная сборка всех постоянных слоев в offscreen-группы
+        const results = await Promise.allSettled(
+            window.permanentLayers
+                .filter(layerData => layerData.path)
+                .map(layerData => {
+                    console.log("Загрузка постоянного слоя:", layerData.path);
+                    return buildLayerForPath(layerData.path, 'vectorPoly', { isPermanent: true });
+                })
+        );
 
-                // Добавляем слой на карту после успешной загрузки
-                layerGroup.addTo(map);
-                window.permanentLayerGroups.push(layerGroup);
-                
-            } catch (error) {
-                console.error(`Ошибка обработки слоя ${layerData.path}:`, error);
-            }
-        }
-        
+        const groups = results
+            .map((r, i) => r.status === 'fulfilled' ? r.value : null)
+            .filter(g => g !== null);
+
+        // Пакетное добавление на карту
+        groups.forEach(layerGroup => layerGroup.addTo(map));
+        window.permanentLayerGroups = groups;
+
     } catch (error) {
         console.error("Ошибка загрузки постоянных KML слоев:", error);
     }
@@ -1519,7 +1523,8 @@ async function loadCurrentFrontLine() {
         await loadKmlToLayer(path, layerGroup, {
             isPermanent: true,
             preserveZoom: true,
-            fitBounds: false
+            fitBounds: false,
+            pane: 'vectorLines'
         });
         if (token !== frontLineCurrentToken) return;
         layerGroup.addTo(map);
@@ -1560,7 +1565,8 @@ async function loadArchiveFrontLine() {
         await loadKmlToLayer(path, layerGroup, {
             isPermanent: true,
             preserveZoom: true,
-            fitBounds: false
+            fitBounds: false,
+            pane: 'vectorLines'
         });
         if (token !== frontLineArchiveToken) return;
         // Фиксированный стиль архивной линии: 70% непрозрачности + пунктир
@@ -2702,80 +2708,121 @@ async function init() {
   // const deepLink = getDeepLinkViewFromUrl();
 
   try {
-    // Шаг 1: Загружаем постоянные слои
-    await loadPermanentKmlLayers();
-
-    // Проверяем, что kmlFiles сгенерирован правильно
-    console.log('KML файлов загружено:', window.kmlFiles.length);
-
-    // Шаг 2: Инициализируем selectedDate текущей датой
+    // Шаг 1: Дата и CRS — ДО парсинга данных:
+    // фильтр видимости точек считается при сборке модели (pointsDateRange),
+    // координаты из KML парсятся через map.options.crs
     window.selectedDate = getCurrentDateFormatted();
     console.log('Установлена текущая дата:', window.selectedDate);
+    map.options.crs = L.CRS.EPSG3857;
 
-    // Шаг 3: Инициализируем календарь с текущей датой
-    initDatePicker();
-
-    // Шаг 4: Инициализируем точки
-    // Инициализируем диапазон дат для точек
+    // Диапазон дат для точек (1 неделя) на основе текущей даты
     window.pointsDateRange = window.pointsDateRange || { start: null, end: null };
-    // Устанавливаем начальный диапазон (1 неделя) на основе текущей даты
     const currentDate = parseCustomDate(window.selectedDate);
     const startDate = getStartDateByRange('week', currentDate);
 
     window.pointsDateRange.start = startDate;
     window.pointsDateRange.end = currentDate;
 
-    // Загружаем точки с фильтром по дате
-    await initPointsLayer(window.pointsKmlPaths);
-
-    // Шаг 5: Инициализация кнопок фильтров
+    // Шаг 2: UI-компоненты
+    initDatePicker();
     initFilterButtons();
     initMobileFilterMenu();
-
     initUnitsUaButton();
-
-    // Кнопка полноэкранного режима
     initFullscreenControl();
-
-    // Шаг 6: Инициализируем другие UI компоненты
     populateCitiesDropdown();
     document.querySelector('.date-navigator-wrapper').style.display = 'block';
-
-    // Шаг 7: Ждем когда все элементы интерфейса будут доступны
     await waitForUIElements();
 
-    // Шаг 8: Находим и загружаем ближайший доступный KML к текущей дате
+    // Шаг 3: Определяем KML для ближайшей доступной даты
     const nearestDate = findNearestAvailableDate(window.selectedDate);
     const nearestIndex = kmlFiles.findIndex(file => file.name === nearestDate);
 
+    let dateFile = null;
     if (nearestIndex !== -1) {
         currentIndex = nearestIndex;
+        dateFile = kmlFiles[currentIndex];
         console.log(`Загружаем KML для ближайшей доступной даты: ${nearestDate} (индекс: ${nearestIndex})`);
-
-        // Загружаем данные карты
-        preserveZoom = true;
-        await loadKmlForNearestDate(nearestIndex);
     } else {
         console.log('Не найдено доступных KML файлов для загрузки');
     }
 
-    // Шаг 8.1: Загружаем линии ЛБС (текущую и архивную)
-    await loadCurrentFrontLine();
-    await loadArchiveFrontLine();
-	
+    // Шаг 4: Параллельный fetch всех слоёв (offscreen-группы, без добавления на карту)
+    // Точки — крупнейший файл, не блокируют остальные этапы
+    const pointsPromise = (async () => {
+        if (!window.pointsCanvas && window.CanvasPointsLayer) {
+            window.pointsCanvas = new window.CanvasPointsLayer(window.POINTS_CANVAS_OPTIONS || {}).addTo(map);
+        }
+        window.pointsModel.points = [];
+        const throwawayGroup = L.layerGroup();
+        for (const path of window.pointsKmlPaths) {
+            await loadPointsFromKml(path, throwawayGroup);
+        }
+    })();
+
+    // Линии ЛБС: текущая + архивная (добавляют себя на карту сами,
+    // с защитой от устаревших результатов через токены)
+    const frontLinesPromise = Promise.all([
+        loadCurrentFrontLine(),
+        loadArchiveFrontLine()
+    ]);
+
+    // Полигоны: Control-зоны выбранной даты + постоянные объекты
+    const polyPromise = (async () => {
+        const controlPaths = dateFile ? dateFile.paths.filter(p => p.includes('Control')) : [];
+        const progressPaths = dateFile ? dateFile.paths.filter(p => !p.includes('Control')) : [];
+        const dateCount = controlPaths.length + progressPaths.length;
+        const results = await Promise.allSettled([
+            ...controlPaths.map(p => buildLayerForPath(p, 'vectorControl')),
+            ...progressPaths.map(p => buildLayerForPath(p, 'vectorLines')),
+            ...window.permanentLayers
+                .filter(l => l.path)
+                .map(l => buildLayerForPath(l.path, 'vectorPoly', { isPermanent: true }))
+        ]);
+        return {
+            dateGroups: results.slice(0, dateCount)
+                .filter(r => r.status === 'fulfilled').map(r => r.value),
+            permanentGroups: results.slice(dateCount)
+                .filter(r => r.status === 'fulfilled').map(r => r.value)
+        };
+    })();
+
+    // Шаг 5: Поэтапное добавление на карту: линии → полигоны → точки
+    // Этап «линии»
+    await frontLinesPromise;
+
+    // Этап «полигоны»: слои выбранной даты + постоянные объекты
+    const { dateGroups, permanentGroups } = await polyPromise;
+    if (currentLayer) {
+        map.removeLayer(currentLayer);
+    }
+    const currentGroup = L.layerGroup();
+    dateGroups.forEach(g => currentGroup.addLayer(g));
+    currentGroup.addTo(map);
+    currentLayer = currentGroup;
+
+    if (window.permanentLayerGroups && window.permanentLayerGroups.length) {
+        window.permanentLayerGroups.forEach(layer => map.removeLayer(layer));
+    }
+    window.permanentLayerGroups = permanentGroups;
+    permanentGroups.forEach(g => g.addTo(map));
+
+    updateButtons();
+
+    // Этап «точки»
+    await pointsPromise;
+    if (window.pointsCanvas) window.pointsCanvas.applyFilter();
+
 	// Маркер при загрузке координат из url
     const urlCoords = getUrlCoords();
     if (urlCoords) {
       centerMap(urlCoords.lat, urlCoords.lng, urlCoords.zoom);
     }
 
-    // Шаг 9: Финализируем инициализацию карты
+    // Шаг 6: Финализируем инициализацию карты
     setTimeout(() => {
       if (map) map.invalidateSize();
       updateCurrentCenterDisplay();
     }, 50);
-
-    map.options.crs = L.CRS.EPSG3857;
 
     const flagInterval = setInterval(() => {
     if (document.querySelector('.leaflet-control-attribution')) {

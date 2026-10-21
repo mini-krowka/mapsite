@@ -265,7 +265,8 @@ class DrawPanel {
         
         const style = {
             color: this.currentColor,
-            weight: this.currentWidth
+            weight: this.currentWidth,
+            pane: 'drawPane'
         };
 
         switch (this.currentTool) {
@@ -350,6 +351,7 @@ class DrawPanel {
                 permanentElement = L.polyline(this.currentElement.getLatLngs(), {
                     color: this.currentColor,
                     weight: this.currentWidth,
+                    pane: 'drawPane',
                     className: 'leaflet-drawn-element'
                 });
                 break;
@@ -359,6 +361,7 @@ class DrawPanel {
                     color: this.currentColor,
                     weight: this.currentWidth,
                     fillOpacity: 0.2,
+                    pane: 'drawPane',
                     className: 'leaflet-drawn-element'
                 });
                 break;
@@ -369,6 +372,7 @@ class DrawPanel {
                     weight: this.currentWidth,
                     fillOpacity: 0.2,
                     radius: this.currentElement.getRadius(),
+                    pane: 'drawPane',
                     className: 'leaflet-drawn-element'
                 });
                 break;
@@ -377,6 +381,7 @@ class DrawPanel {
                 permanentElement = L.polyline(this.currentElement.getLatLngs(), {
                     color: this.currentColor,
                     weight: this.currentWidth,
+                    pane: 'drawPane',
                     className: 'leaflet-drawn-element'
                 });
                 break;
