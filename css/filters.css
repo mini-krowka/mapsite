@@ -166,11 +166,8 @@
     display: inline-block;
 }
 
-.mobile-filter-toggle.active {
-    border-color: var(--primary);
-    background: var(--primary-light);
-}
-
+/* Активное состояние (.active) наследуется от .filter-btn.active —
+   зелёное выделение «меню открыто», как у #nav-menu-toggle */
 .mobile-filter-toggle:hover {
     border-color: var(--primary);
 }
