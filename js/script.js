@@ -1503,21 +1503,18 @@ function applyLayerGroupOpacity(layerGroup, factor) {
 // Загружает текущую (последнюю) линию ЛБС — всегда видна, полная непрозрачность
 let frontLineCurrentToken = 0;
 
-async function loadCurrentFrontLine() {
+// Сборка группы текущей линии БЕЗ добавления на карту (для пакетного вывода).
+// Возвращает { group, error }: group = null, если дата недоступна или токен устарел;
+// error = true при сбое загрузки (старая линия в этом случае остаётся, как раньше).
+async function buildCurrentFrontLineGroup() {
     const token = ++frontLineCurrentToken;
-    
+
     const latestDate = getLatestFrontLineDate();
-    if (!latestDate) {
-        if (window.frontLineCurrentGroup) {
-            if (map.hasLayer(window.frontLineCurrentGroup)) map.removeLayer(window.frontLineCurrentGroup);
-            window.frontLineCurrentGroup = null;
-        }
-        return;
-    }
-    
+    if (!latestDate) return { group: null };
+
     const path = `kml/FrontLine/FrontLine_${formatDateForFilename(latestDate)}.kml`;
     console.log("Загрузка текущей FrontLine:", path);
-    
+
     try {
         const layerGroup = L.layerGroup();
         await loadKmlToLayer(path, layerGroup, {
@@ -1526,40 +1523,50 @@ async function loadCurrentFrontLine() {
             fitBounds: false,
             pane: 'vectorLines'
         });
-        if (token !== frontLineCurrentToken) return;
-        layerGroup.addTo(map);
-        if (window.frontLineCurrentGroup) {
-            if (map.hasLayer(window.frontLineCurrentGroup)) map.removeLayer(window.frontLineCurrentGroup);
-            window.frontLineCurrentGroup = null;
-        }
-        window.frontLineCurrentGroup = layerGroup;
+        if (token !== frontLineCurrentToken) return { group: null };
+        return { group: layerGroup };
     } catch (error) {
         console.error("Ошибка загрузки текущей FrontLine:", error);
+        return { group: null, error: true };
     }
 }
 
-// Загружает архивную линию ЛБС для выбранной даты — 50% непрозрачности
+async function loadCurrentFrontLine() {
+    const { group, error } = await buildCurrentFrontLineGroup();
+    if (error) return;
+    if (group) {
+        if (window.frontLineCurrentGroup && map.hasLayer(window.frontLineCurrentGroup)) {
+            map.removeLayer(window.frontLineCurrentGroup);
+        }
+        group.addTo(map);
+        window.frontLineCurrentGroup = group;
+    } else {
+        if (window.frontLineCurrentGroup) {
+            if (map.hasLayer(window.frontLineCurrentGroup)) map.removeLayer(window.frontLineCurrentGroup);
+            window.frontLineCurrentGroup = null;
+        }
+    }
+}
+
+// Загружает архивную линию ЛБС для выбранной даты — 70% непрозрачности + пунктир
 let frontLineArchiveToken = 0;
 
-async function loadArchiveFrontLine() {
+// Сборка группы архивной линии БЕЗ добавления на карту (для пакетного вывода).
+// Возвращает { group, error }: group = null, если архив недоступен,
+// дата = последней или токен устарел; error = true при сбое загрузки.
+async function buildArchiveFrontLineGroup() {
     const token = ++frontLineArchiveToken;
-    
+
     const dateStr = window.selectedDate || getCurrentDateFormatted();
     const latestDate = getLatestFrontLineDate();
     const flDate = findClosestFrontLineDate(dateStr);
-    
-    // Если выбранная дата = последней или архив недоступен — убираем архивную линию
-    if (!flDate || flDate === latestDate) {
-        if (window.frontLineArchiveGroup) {
-            if (map.hasLayer(window.frontLineArchiveGroup)) map.removeLayer(window.frontLineArchiveGroup);
-            window.frontLineArchiveGroup = null;
-        }
-        return;
-    }
-    
+
+    // Если выбранная дата = последней или архив недоступен — линии нет
+    if (!flDate || flDate === latestDate) return { group: null };
+
     const path = `kml/FrontLine/FrontLine_${formatDateForFilename(flDate)}.kml`;
     console.log("Загрузка архивной FrontLine:", path);
-    
+
     try {
         const layerGroup = L.layerGroup();
         await loadKmlToLayer(path, layerGroup, {
@@ -1568,19 +1575,32 @@ async function loadArchiveFrontLine() {
             fitBounds: false,
             pane: 'vectorLines'
         });
-        if (token !== frontLineArchiveToken) return;
+        if (token !== frontLineArchiveToken) return { group: null };
         // Фиксированный стиль архивной линии: 70% непрозрачности + пунктир
         layerGroup.getLayers().forEach(layer => {
             layer.setStyle({ opacity: 0.7, dashArray: '3 3' });
         });
-        layerGroup.addTo(map);
+        return { group: layerGroup };
+    } catch (error) {
+        console.error("Ошибка загрузки архивной FrontLine:", error);
+        return { group: null, error: true };
+    }
+}
+
+async function loadArchiveFrontLine() {
+    const { group, error } = await buildArchiveFrontLineGroup();
+    if (error) return;
+    if (group) {
+        if (window.frontLineArchiveGroup && map.hasLayer(window.frontLineArchiveGroup)) {
+            map.removeLayer(window.frontLineArchiveGroup);
+        }
+        group.addTo(map);
+        window.frontLineArchiveGroup = group;
+    } else {
         if (window.frontLineArchiveGroup) {
             if (map.hasLayer(window.frontLineArchiveGroup)) map.removeLayer(window.frontLineArchiveGroup);
             window.frontLineArchiveGroup = null;
         }
-        window.frontLineArchiveGroup = layerGroup;
-    } catch (error) {
-        console.error("Ошибка загрузки архивной FrontLine:", error);
     }
 }
 
@@ -2747,10 +2767,11 @@ async function init() {
     }
 
     // Шаг 4: Параллельный fetch всех слоёв (offscreen-группы, без добавления на карту)
-    // Точки — крупнейший файл, не блокируют остальные этапы
+    // Точки — крупнейший файл; канвас добавляется на карту только после завершения
+    // блока (единый бёрст), чтобы не было постепенной отрисовки флагов
     const pointsPromise = (async () => {
         if (!window.pointsCanvas && window.CanvasPointsLayer) {
-            window.pointsCanvas = new window.CanvasPointsLayer(window.POINTS_CANVAS_OPTIONS || {}).addTo(map);
+            window.pointsCanvas = new window.CanvasPointsLayer(window.POINTS_CANVAS_OPTIONS || {});
         }
         window.pointsModel.points = [];
         const throwawayGroup = L.layerGroup();
@@ -2758,13 +2779,6 @@ async function init() {
             await loadPointsFromKml(path, throwawayGroup);
         }
     })();
-
-    // Линии ЛБС: текущая + архивная (добавляют себя на карту сами,
-    // с защитой от устаревших результатов через токены)
-    const frontLinesPromise = Promise.all([
-        loadCurrentFrontLine(),
-        loadArchiveFrontLine()
-    ]);
 
     // Полигоны: Control-зоны выбранной даты + постоянные объекты
     const polyPromise = (async () => {
@@ -2786,10 +2800,18 @@ async function init() {
         };
     })();
 
-    // Шаг 5: Поэтапное добавление на карту: линии → полигоны → точки
+    // Шаг 5: Единый блок: полигоны + границы + линии ЛБС + точки (гео/флаги).
+    // Все файлы грузятся параллельно; на карту всё добавляется разом
+    // после завершения самого медленного (обычно — точек).
+    const [polyResult, flCurrent, flArchive] = await Promise.all([
+        polyPromise,
+        buildCurrentFrontLineGroup(),
+        buildArchiveFrontLineGroup(),
+        pointsPromise
+    ]);
 
-	// Этап «полигоны»: слои выбранной даты + постоянные объекты
-    const { dateGroups, permanentGroups } = await polyPromise;
+    // Полигоны: слои выбранной даты + постоянные объекты
+    const { dateGroups, permanentGroups } = polyResult;
     if (currentLayer) {
         map.removeLayer(currentLayer);
     }
@@ -2804,15 +2826,29 @@ async function init() {
     window.permanentLayerGroups = permanentGroups;
     permanentGroups.forEach(g => g.addTo(map));
 
-    updateButtons();
-	  	  
-	  
-	// Этап «линии»
-    await frontLinesPromise;
+    // Линии ЛБС: текущая + архивная (group = null, если дата сменилась во время загрузки)
+    if (flCurrent.group) {
+        if (window.frontLineCurrentGroup && map.hasLayer(window.frontLineCurrentGroup)) {
+            map.removeLayer(window.frontLineCurrentGroup);
+        }
+        flCurrent.group.addTo(map);
+        window.frontLineCurrentGroup = flCurrent.group;
+    }
+    if (flArchive.group) {
+        if (window.frontLineArchiveGroup && map.hasLayer(window.frontLineArchiveGroup)) {
+            map.removeLayer(window.frontLineArchiveGroup);
+        }
+        flArchive.group.addTo(map);
+        window.frontLineArchiveGroup = flArchive.group;
+    }
 
-	  // Этап «точки»
-    await pointsPromise;
+    // Точки (гео/флаги): канвас на карту одним кадром
+    if (window.pointsCanvas && !map.hasLayer(window.pointsCanvas)) {
+        window.pointsCanvas.addTo(map);
+    }
     if (window.pointsCanvas) window.pointsCanvas.applyFilter();
+
+    updateButtons();
 
     
 
