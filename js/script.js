@@ -193,6 +193,28 @@ async function loadKmlForNearestDate(index) {
     }
 }
 
+// ===== Загрузка старых точек (oldesPoint.kml) по требованию =====
+let oldPointsLoaded = false;
+
+// Нужен ли файл старых точек для начала диапазона
+function pointsRangeNeedsOldFile(rangeStart) {
+    const cutoff = window.pointsOldCutoff ? parseCustomDate(window.pointsOldCutoff) : null;
+    return !!(cutoff && rangeStart && rangeStart < cutoff);
+}
+
+// Идемпотентно загружает старые точки (докидывает в модель, без перезагрузки)
+async function ensureOldPointsLoaded() {
+    if (oldPointsLoaded) return;
+    oldPointsLoaded = true;
+    const paths = window.pointsKmlPathsOld || [];
+    if (!paths.length) return;
+    const throwawayGroup = L.layerGroup();
+    for (const path of paths) {
+        await loadPointsFromKml(path, throwawayGroup);
+    }
+    if (window.pointsCanvas) window.pointsCanvas.applyFilter();
+}
+
 // Новая функция для перезагрузки точек с текущим фильтром
 async function reloadPointsWithCurrentFilter() {
     // Перезагрузка не нужна — переприменяем фильтр по диапазону дат
@@ -211,6 +233,10 @@ function updatePointsDateFilterForSelectedDate() {
     window.pointsDateRange.start = startDate;
     window.pointsDateRange.end = currentDate;
     if (window.pointsCanvas) window.pointsCanvas.setDateRange(startDate, currentDate);
+    // Если диапазон ушёл в старые даты — догружаем файл старых точек
+    if (pointsRangeNeedsOldFile(startDate)) {
+        ensureOldPointsLoaded();
+    }
     // Если слой подразделений активен, обновляем его с новой датой
     if (window.reloadUnitsUaLayer) {
         window.reloadUnitsUaLayer();
@@ -2296,6 +2322,10 @@ async function updatePointsDateFilter() {
     window.pointsDateRange.start = startDate;
     window.pointsDateRange.end = currentDate;
     if (window.pointsCanvas) window.pointsCanvas.setDateRange(startDate, currentDate);
+    // Если диапазон ушёл в старые даты — догружаем файл старых точек
+    if (pointsRangeNeedsOldFile(startDate)) {
+        ensureOldPointsLoaded();
+    }
 }
 
 // Навигация к определенному индексу (для кнопок навигации по KML файлам)
@@ -2768,7 +2798,8 @@ async function init() {
 
     // Шаг 4: Параллельный fetch всех слоёв (offscreen-группы, без добавления на карту)
     // Точки — крупнейший файл; канвас добавляется на карту только после завершения
-    // блока (единый бёрст), чтобы не было постепенной отрисовки флагов
+    // блока (единый бёрст), чтобы не было постепенной отрисовки флагов.
+    // Старые точки (oldesPoint.kml) грузятся только если начальное окно их требует
     const pointsPromise = (async () => {
         if (!window.pointsCanvas && window.CanvasPointsLayer) {
             window.pointsCanvas = new window.CanvasPointsLayer(window.POINTS_CANVAS_OPTIONS || {});
@@ -2777,6 +2808,9 @@ async function init() {
         const throwawayGroup = L.layerGroup();
         for (const path of window.pointsKmlPaths) {
             await loadPointsFromKml(path, throwawayGroup);
+        }
+        if (pointsRangeNeedsOldFile(window.pointsDateRange.start)) {
+            await ensureOldPointsLoaded();
         }
     })();
 
