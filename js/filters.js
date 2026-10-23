@@ -1195,7 +1195,7 @@ async function showUnitDetailsForProfileId(profileId) {
                 bdPopup += `</div>`;
                 bdMarker.bindPopup(bdPopup, { className: 'units-ua-popup' });
                 if (!isMobileDevice()) {
-                    bdMarker.bindTooltip('Боевые действия', { direction: 'top', offset: [0, -16], className: 'map-hover-tooltip' });
+                    bdMarker.bindTooltip(escapeHtml(data.date), { direction: 'top', offset: [0, -16], className: 'map-hover-tooltip' });
                 }
                 bdMarker.addTo(window.unitsUaLayer);
                 window.unitsUaDetailMarkers.push(bdMarker);
