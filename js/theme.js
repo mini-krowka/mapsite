@@ -32,12 +32,6 @@ window.THEME = {
         warning:      '#ffc107',
         neutral:      '#6c757d',
 
-        // Стеклянная панель статусов (draw-panel)
-        statusIdleBg:   '#f8f9fa',
-        statusIdleText: '#6c757d',
-        statusOkBg:     '#d4edda',
-        statusOkText:   '#155724',
-
         // Подсветка при наведении на слои
         hoverHighlight: '#ff0000',
 

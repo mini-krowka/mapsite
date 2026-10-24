@@ -453,12 +453,6 @@ layerControlContainer.addEventListener('click', function(e) {
 // }
 // });
 
-// ИЗМЕНЕНИЕ: глобальный флаг состояния режима рисования
-let isRulerMeasuring = false;
-
-
-
-
 
 
 
@@ -486,8 +480,6 @@ function initRulerControl() {
     e.stopPropagation();
     toggleRulerPanel();
   });
-
-  // Удалён блокирующий обработчик contextmenu – плагин сам обрабатывает ПКМ
 }
 
 function toggleRulerPanel() {
@@ -499,51 +491,25 @@ function toggleRulerPanel() {
   }
 }
 
-// ИЗМЕНЕНИЕ: при показе панели – включаем режим рисования
 function showRulerPanel() {
     if (rulerToggle && rulerToggle.getContainer) {
         rulerToggle.getContainer().classList.add('active');
     }
+
     const measureContainer = window.measureControl && window.measureControl.getContainer();
     if (measureContainer) {
         measureContainer.style.display = 'block';
     }
-    // Активируем режим рисования, если контрол существует и ещё не активен
-    if (window.measureControl) {
-        if (!isRulerMeasuring) {
-            window.measureControl.enable();
-            isRulerMeasuring = true;
-            console.log('Ruler enabled');
-        }
-    } else {
-        console.warn('measureControl not initialized, initializing...');
-        initMeasureControl();
-        // Повторная попытка включения через задержку
-        setTimeout(() => {
-            if (window.measureControl && !isRulerMeasuring) {
-                window.measureControl.enable();
-                isRulerMeasuring = true;
-                console.log('Ruler enabled after init');
-            }
-        }, 200);
-    }
 }
 
-// ИЗМЕНЕНИЕ: при скрытии панели – выключаем режим рисования и очищаем все линии
 function hideRulerPanel() {
     if (rulerToggle && rulerToggle.getContainer) {
         rulerToggle.getContainer().classList.remove('active');
     }
+
     const measureContainer = window.measureControl && window.measureControl.getContainer();
     if (measureContainer) {
         measureContainer.style.display = 'none';
-    }
-    // Отключаем режим рисования и стираем все линии
-    if (window.measureControl) {
-        window.measureControl.disable();
-        window.measureControl.clearMeasurements();
-        isRulerMeasuring = false;
-        console.log('Ruler disabled and cleared');
     }
 }
 
@@ -555,7 +521,7 @@ function initMeasureControl() {
     const options = {
         position: 'topright',
         unit: 'kilometres',
-        clearMeasurementsOnStop: false,  // линии не стираются при disable
+        clearMeasurementsOnStop: false,
         showUnitControl: true,
         backgroundColor: THEME.colors.rulerBg,
         cursor: 'crosshair',
@@ -706,7 +672,7 @@ const nonInteractivePane = map.createPane('nonInteractive');
 nonInteractivePane.style.zIndex = 400; // ниже интерактивной
 
 // Панели KML-векторов (детерминированный порядок, не зависит от момента добавления):
-// Control-зоны < рисование < постоянные полигоны < линии < точки (pointsPane, 500)
+// Control-зоны < линейка (drawPane) < постоянные полигоны < линии < точки (pointsPane, 500)
 const vectorControlPane = map.createPane('vectorControl');
 vectorControlPane.style.zIndex = 405;
 const drawPane = map.createPane('drawPane');
@@ -715,14 +681,3 @@ const vectorPolyPane = map.createPane('vectorPoly');
 vectorPolyPane.style.zIndex = 410;
 const vectorLinesPane = map.createPane('vectorLines');
 vectorLinesPane.style.zIndex = 420;
-
-
-// Инициализация панели рисования после загрузки карты
-map.whenReady(function() {
-    setTimeout(() => {
-        if (typeof DrawPanel !== 'undefined' && !window.drawPanel) {
-            window.drawPanel = new DrawPanel(window.leafletMap);
-            console.log('Панель рисования инициализирована автоматически');
-        }
-    }, 1000);
-});
