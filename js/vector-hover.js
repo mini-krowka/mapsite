@@ -35,17 +35,16 @@
     }
 
     function collectInto(root) {
-        root.eachLayer(function (l) {
-            if (l.eachLayer) collectInto(l);
-            else if (isVectorLayer(l)) vectorItems.push({ layer: l, z: PANE_Z[l.options.pane] });
-        });
+        if (!root || !root.eachLayer) {
+            if (isVectorLayer(root)) vectorItems.push({ layer: root, z: PANE_Z[root.options.pane] });
+            return;
+        }
+        root.eachLayer(function (l) { collectInto(l); });
     }
 
     function eachLayerOf(root, cb) {
-        root.eachLayer(function (l) {
-            if (l.eachLayer) eachLayerOf(l, cb);
-            else cb(l);
-        });
+        if (!root || !root.eachLayer) { cb(root); return; }
+        root.eachLayer(function (l) { eachLayerOf(l, cb); });
     }
 
     map.on('layeradd', function (e) {
@@ -67,17 +66,16 @@
     // Верхний слой в точке: панели по убыванию z; внутри renderer'а —
     // порядок отрисовки сверху вниз (_drawLast → prev)
     function topmostAt(point) {
-        var byRenderer = {};
+        var byRenderer = new Map();
         for (var i = 0; i < vectorItems.length; i++) {
             var layer = vectorItems[i].layer;
             if (layer.options.interactive === false) continue;
             var r = layer._renderer;
             if (!r) continue;
-            var key = r._leafletId;
-            if (!byRenderer[key]) byRenderer[key] = { z: vectorItems[i].z, renderer: r };
+            if (!byRenderer.has(r)) byRenderer.set(r, { z: vectorItems[i].z, renderer: r });
         }
         var list = [];
-        for (var key in byRenderer) list.push(byRenderer[key]);
+        byRenderer.forEach(function (v) { list.push(v); });
         list.sort(function (a, b) { return b.z - a.z; });
         for (var k = 0; k < list.length; k++) {
             var order = list[k].renderer._drawLast;
@@ -94,6 +92,11 @@
 
     function setCursor(active) {
         L.DomUtil[active ? 'addClass' : 'removeClass'](map.getContainer(), 'leaflet-interactive');
+    }
+
+    // map.on('mousemove') и т.п. получают Leaflet-событие, а DOM-событие — в .originalEvent
+    function domEvent(e) {
+        return e && e.originalEvent ? e.originalEvent : e;
     }
 
     function clearHover(e) {
@@ -116,24 +119,25 @@
 
     function onMouseMove(e) {
         if (!map || map.dragging.moving() || map._animatingZoom) return;
-        if (overOwnInteractive(e)) {
-            clearHover(e);
+        var de = domEvent(e);
+        if (overOwnInteractive(de)) {
+            clearHover(de);
             return;
         }
         var now = Date.now();
         if (now - lastMoveTs < THROTTLE_MS) return;
         lastMoveTs = now;
 
-        var point = map.mouseEventToLayerPoint(e);
+        var point = map.mouseEventToLayerPoint(de);
         var layer = topmostAt(point);
         if (layer !== hovered) {
             if (hovered) {
-                map._fireDOMEvent(e, 'mouseout', [hovered]);
+                map._fireDOMEvent(de, 'mouseout', [hovered]);
                 hovered = null;
             }
             if (layer) {
                 setCursor(true);
-                map._fireDOMEvent(e, 'mouseover', [layer]);
+                map._fireDOMEvent(de, 'mouseover', [layer]);
                 hovered = layer;
             } else {
                 setCursor(false);
@@ -141,7 +145,7 @@
         }
         // sticky-тултипам нужен mousemove на наведённом слое (Tooltip._moveTooltip)
         if (hovered) {
-            map._fireDOMEvent(e, 'mousemove', [hovered]);
+            map._fireDOMEvent(de, 'mousemove', [hovered]);
         }
     }
 
@@ -150,11 +154,12 @@
     }
 
     function onClick(e) {
-        if (overOwnInteractive(e)) return;
-        var point = map.mouseEventToLayerPoint(e);
+        var de = domEvent(e);
+        if (overOwnInteractive(de)) return;
+        var point = map.mouseEventToLayerPoint(de);
         var layer = topmostAt(point);
         if (layer) {
-            map._fireDOMEvent(e, e.type, [layer]);
+            map._fireDOMEvent(de, de.type, [layer]);
         }
     }
 

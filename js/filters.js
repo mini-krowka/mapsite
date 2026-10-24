@@ -1,174 +1,174 @@
-﻿// filters.js
+// filters.js
 // ============================================
-// РљР°С‚РµРіРѕСЂРёРё С‚РµС…РЅРёРєРё
+// Категории техники
 const equipmentCategories = [
-    { tag: 'РђРІРёР°С†РёСЏ',                   labelRu: 'РђРІРёР°С†РёСЏ',     labelEn: 'Aircraft' },
-    { tag: 'РђСЂС‚РёР»Р»РµСЂРёСЏ',                labelRu: 'РђСЂС‚РёР»Р»РµСЂРёСЏ',  labelEn: 'Artillery' },
-    { tag: 'Р‘РџР›Рђ',                      labelRu: 'Р‘РџР›Рђ',        labelEn: 'UAV' },
-    { tag: 'Р‘СЂРѕРЅРёСЂРѕРІР°РЅРЅС‹Р№ С‚СЂР°РЅСЃРїРѕСЂС‚',   labelRu: 'Р‘СЂРѕРЅРµРјР°С€РёРЅС‹', labelEn: 'AFV' },
-    { tag: 'РџР’Рћ',                       labelRu: 'РџР’Рћ',         labelEn: 'GBAD' },
-    { tag: 'РўР°РЅРє',                      labelRu: 'РўР°РЅРєРё',       labelEn: 'Tanks' },
-    { tag: 'РќРµР±СЂРѕРЅРёСЂРѕРІР°РЅРЅС‹Р№ С‚СЂР°РЅСЃРїРѕСЂС‚', labelRu: 'РўСЂР°РЅСЃРїРѕСЂС‚',   labelEn: 'Vehicles' },
-    { tag: 'Р”СЂСѓРіРѕРµ',                    labelRu: 'Р”СЂСѓРіРѕРµ',      labelEn: 'Other' },
-    { tag: 'Р”СЂСѓРіРѕРµ/РќРµС‚ РґР°РЅРЅС‹С…',         labelRu: 'РќРµС‚ РґР°РЅРЅС‹С…',  labelEn: 'No data' }
+    { tag: 'Авиация',                   labelRu: 'Авиация',     labelEn: 'Aircraft' },
+    { tag: 'Артиллерия',                labelRu: 'Артиллерия',  labelEn: 'Artillery' },
+    { tag: 'БПЛА',                      labelRu: 'БПЛА',        labelEn: 'UAV' },
+    { tag: 'Бронированный транспорт',   labelRu: 'Бронемашины', labelEn: 'AFV' },
+    { tag: 'ПВО',                       labelRu: 'ПВО',         labelEn: 'GBAD' },
+    { tag: 'Танк',                      labelRu: 'Танки',       labelEn: 'Tanks' },
+    { tag: 'Небронированный транспорт', labelRu: 'Транспорт',   labelEn: 'Vehicles' },
+    { tag: 'Другое',                    labelRu: 'Другое',      labelEn: 'Other' },
+    { tag: 'Другое/Нет данных',         labelRu: 'Нет данных',  labelEn: 'No data' }
 ];
 
-// РљР°С‚РµРіРѕСЂРёРё Р°С‚Р°Рє (РїРѕР»РЅРѕСЃС‚СЊСЋ Р°РЅР°Р»РѕРіРёС‡РЅРѕ)
+// Категории атак (полностью аналогично)
 const attackCategories = [
-    { tag: 'РћР±СЉРµРєС‚ РЅРµСѓСЃС‚Р°РЅРѕРІР»РµРЅРЅРѕРіРѕ РЅР°Р·РЅР°С‡РµРЅРёСЏ',               labelRu: 'РћР±СЉРµРєС‚ РЅРµСѓСЃС‚Р°РЅРѕРІР»РµРЅРЅРѕРіРѕ РЅР°Р·РЅР°С‡РµРЅРёСЏ', labelEn: 'Unidentified facility' },
-    { tag: 'РџСЂРµРґРїСЂРёСЏС‚РёРµ Р’РџРљ',                                  labelRu: 'РџСЂРµРґРїСЂРёСЏС‚РёРµ Р’РџРљ',                    labelEn: 'Defense industry facility' },
-    { tag: 'Р–Р” РёРЅС„СЂР°СЃС‚СЂСѓРєС‚СѓСЂР°',                                labelRu: 'Р–Р” РёРЅС„СЂР°СЃС‚СЂСѓРєС‚СѓСЂР°',                  labelEn: 'Railway infrastructure' },
-    { tag: 'РђСЌСЂРѕРґСЂРѕРј',                                         labelRu: 'РђСЌСЂРѕРґСЂРѕРј',                           labelEn: 'Airfield' },
-    { tag: 'РџСЂРµРґРїСЂРёСЏС‚РёРµ РіСЂР°Р¶РґР°РЅСЃРєРѕРіРѕ РёР»Рё РґРІРѕР№РЅРѕРіРѕ РЅР°Р·РЅР°С‡РµРЅРёСЏ', labelRu: 'РџСЂРµРґРїСЂРёСЏС‚РёРµ РіСЂР°Р¶РґР°РЅСЃРєРѕРіРѕ РёР»Рё РґРІРѕР№РЅРѕРіРѕ РЅР°Р·РЅР°С‡РµРЅРёСЏ', labelEn: 'Civil or dual-use facility' },
-    { tag: 'РџР’Рћ, Р Р›РЎ Рё СЂР°РєРµС‚РЅРѕРµ РІРѕРѕСЂСѓР¶РµРЅРёРµ',                   labelRu: 'РџР’Рћ, Р Р›РЎ Рё СЂР°РєРµС‚РЅРѕРµ РІРѕРѕСЂСѓР¶РµРЅРёРµ',     labelEn: 'Air defense, radar, missile weapons' },
-    { tag: 'РџРѕРґСЃС‚Р°РЅС†РёСЏ',                                       labelRu: 'РџРѕРґСЃС‚Р°РЅС†РёСЏ',                         labelEn: 'Substation' },
-    { tag: 'РЎРєР»Р°Рґ',                                            labelRu: 'РЎРєР»Р°Рґ',                              labelEn: 'Warehouse' },
-    { tag: 'РЎРєР»Р°Рґ Р“РЎРњ',                                        labelRu: 'РЎРєР»Р°Рґ Р“РЎРњ',                          labelEn: 'Fuel depot' },
-    { tag: 'Р­РЅРµСЂРіРѕРіРµРЅРµСЂР°С†РёСЏ',                                  labelRu: 'Р­РЅРµСЂРіРѕРіРµРЅРµСЂР°С†РёСЏ',                    labelEn: 'Power generation' },
-    { tag: 'РўСЏРіРѕРІР°СЏ РїРѕРґСЃС‚Р°РЅС†РёСЏ',                               labelRu: 'РўСЏРіРѕРІР°СЏ РїРѕРґСЃС‚Р°РЅС†РёСЏ',                 labelEn: 'Traction substation' },
-    { tag: 'РњРѕСЃС‚',                                             labelRu: 'РњРѕСЃС‚',                               labelEn: 'Bridge' },
-    { tag: 'Р“Р°Р·РѕРІР°СЏ РёРЅС„СЂР°СЃС‚СЂСѓРєС‚СѓСЂР°',                           labelRu: 'Р“Р°Р·РѕРІР°СЏ РёРЅС„СЂР°СЃС‚СЂСѓРєС‚СѓСЂР°',             labelEn: 'Gas infrastructure' },
-    { tag: 'РЎСѓРґРЅРѕ',                                            labelRu: 'РЎСѓРґРЅРѕ',                              labelEn: 'Ship' },
-    { tag: 'РЎРєР»Р°Рґ Р±РѕРµРїСЂРёРїР°СЃРѕРІ',                                labelRu: 'РЎРєР»Р°Рґ Р±РѕРµРїСЂРёРїР°СЃРѕРІ',                  labelEn: 'Ammunition depot' },
-    { tag: 'РЎС‚РѕСЏРЅРєР° РіСЂСѓР·РѕРІРѕРіРѕ С‚СЂР°РЅСЃРїРѕСЂС‚Р°',                     labelRu: 'РЎС‚РѕСЏРЅРєР° РіСЂСѓР·РѕРІРѕРіРѕ С‚СЂР°РЅСЃРїРѕСЂС‚Р°',       labelEn: 'Truck parking' },
-    { tag: 'РџРџР”',                                              labelRu: 'РџРџР”',                                labelEn: 'Permanent deployment point' },
-    { tag: 'РџРѕРµР·РґР° Рё Р»РѕРєРѕРјРѕС‚РёРІС‹',                              labelRu: 'РџРѕРµР·РґР° Рё Р»РѕРєРѕРјРѕС‚РёРІС‹',                labelEn: 'Trains and locomotives' }
+    { tag: 'Объект неустановленного назначения',               labelRu: 'Объект неустановленного назначения', labelEn: 'Unidentified facility' },
+    { tag: 'Предприятие ВПК',                                  labelRu: 'Предприятие ВПК',                    labelEn: 'Defense industry facility' },
+    { tag: 'ЖД инфраструктура',                                labelRu: 'ЖД инфраструктура',                  labelEn: 'Railway infrastructure' },
+    { tag: 'Аэродром',                                         labelRu: 'Аэродром',                           labelEn: 'Airfield' },
+    { tag: 'Предприятие гражданского или двойного назначения', labelRu: 'Предприятие гражданского или двойного назначения', labelEn: 'Civil or dual-use facility' },
+    { tag: 'ПВО, РЛС и ракетное вооружение',                   labelRu: 'ПВО, РЛС и ракетное вооружение',     labelEn: 'Air defense, radar, missile weapons' },
+    { tag: 'Подстанция',                                       labelRu: 'Подстанция',                         labelEn: 'Substation' },
+    { tag: 'Склад',                                            labelRu: 'Склад',                              labelEn: 'Warehouse' },
+    { tag: 'Склад ГСМ',                                        labelRu: 'Склад ГСМ',                          labelEn: 'Fuel depot' },
+    { tag: 'Энергогенерация',                                  labelRu: 'Энергогенерация',                    labelEn: 'Power generation' },
+    { tag: 'Тяговая подстанция',                               labelRu: 'Тяговая подстанция',                 labelEn: 'Traction substation' },
+    { tag: 'Мост',                                             labelRu: 'Мост',                               labelEn: 'Bridge' },
+    { tag: 'Газовая инфраструктура',                           labelRu: 'Газовая инфраструктура',             labelEn: 'Gas infrastructure' },
+    { tag: 'Судно',                                            labelRu: 'Судно',                              labelEn: 'Ship' },
+    { tag: 'Склад боеприпасов',                                labelRu: 'Склад боеприпасов',                  labelEn: 'Ammunition depot' },
+    { tag: 'Стоянка грузового транспорта',                     labelRu: 'Стоянка грузового транспорта',       labelEn: 'Truck parking' },
+    { tag: 'ППД',                                              labelRu: 'ППД',                                labelEn: 'Permanent deployment point' },
+    { tag: 'Поезда и локомотивы',                              labelRu: 'Поезда и локомотивы',                labelEn: 'Trains and locomotives' }
 ];
 
-// Р“СЂСѓРїРїС‹ Р°С‚Р°Рє вЂ“ РєР°Р¶РґР°СЏ РіСЂСѓРїРїР° СЃРѕРґРµСЂР¶РёС‚ РЅРµСЃРєРѕР»СЊРєРѕ РєР°С‚РµРіРѕСЂРёР№
+// Группы атак – каждая группа содержит несколько категорий
 const attackGroups = [
     {
         tag: 'group1',
-        labelRu: 'РђСЌСЂРѕРґСЂРѕРјС‹',
+        labelRu: 'Аэродромы',
         labelEn: 'Air Bases',
         categories: [
-            'РђСЌСЂРѕРґСЂРѕРј'
+            'Аэродром'
         ]
     },
     {
         tag: 'group2',
-        labelRu: 'Р’РѕРµРЅРЅС‹Рµ Р±Р°Р·С‹',
+        labelRu: 'Военные базы',
         labelEn: 'Military sites',
         categories: [
-            'РџРџР”',
-            'РЎРєР»Р°Рґ Р±РѕРµРїСЂРёРїР°СЃРѕРІ'
+            'ППД',
+            'Склад боеприпасов'
             
          ]
         
     },
     {
         tag: 'group3',
-        labelRu: 'Р“РўРЎ/Р“РЎРњ',
+        labelRu: 'ГТС/ГСМ',
         labelEn: 'GTS/POL',
         categories: [
-            'Р“Р°Р·РѕРІР°СЏ РёРЅС„СЂР°СЃС‚СЂСѓРєС‚СѓСЂР°',
-			'РЎРєР»Р°Рґ Р“РЎРњ',
-			'РђР—РЎ'
+            'Газовая инфраструктура',
+			'Склад ГСМ',
+			'АЗС'
             
          ]
         
     },
     {
         tag: 'group4',
-        labelRu: 'Р–Р” РѕР±СЉРµРєС‚С‹',
+        labelRu: 'ЖД объекты',
         labelEn: 'Railways',
         categories: [
-            'Р–Р” РёРЅС„СЂР°СЃС‚СЂСѓРєС‚СѓСЂР°',
-            'РўСЏРіРѕРІР°СЏ РїРѕРґСЃС‚Р°РЅС†РёСЏ',
+            'ЖД инфраструктура',
+            'Тяговая подстанция',
         ]
     },
     {
         tag: 'group5',
-        labelRu: 'Р›РѕРіРёСЃС‚РёРєР°',
+        labelRu: 'Логистика',
         labelEn: 'Logistics',
         categories: [
-            'РЎС‚РѕСЏРЅРєР° РіСЂСѓР·РѕРІРѕРіРѕ С‚СЂР°РЅСЃРїРѕСЂС‚Р°',
-            'РњРѕСЃС‚'
+            'Стоянка грузового транспорта',
+            'Мост'
         ]
     },
     {
         tag: 'group6',
-        labelRu: 'РџР’Рћ/Р Р’',
+        labelRu: 'ПВО/РВ',
         labelEn: 'AD/GMW',
         categories: [
-            'РџР’Рћ, Р Р›РЎ Рё СЂР°РєРµС‚РЅРѕРµ РІРѕРѕСЂСѓР¶РµРЅРёРµ'
+            'ПВО, РЛС и ракетное вооружение'
         ]
     },
     {
         tag: 'group7',
-        labelRu: 'РџСЂРѕРёР·РІРѕРґСЃС‚РІРѕ',
+        labelRu: 'Производство',
         labelEn: 'Factories',
         categories: [
-            'РџСЂРµРґРїСЂРёСЏС‚РёРµ Р’РџРљ',
-            'РџСЂРµРґРїСЂРёСЏС‚РёРµ РіСЂР°Р¶РґР°РЅСЃРєРѕРіРѕ РёР»Рё РґРІРѕР№РЅРѕРіРѕ РЅР°Р·РЅР°С‡РµРЅРёСЏ'
+            'Предприятие ВПК',
+            'Предприятие гражданского или двойного назначения'
         ]
     },
     
     {
         tag: 'group8',
-        labelRu: 'РЎРєР»Р°РґС‹',
+        labelRu: 'Склады',
         labelEn: 'Warehouses',
         categories: [
-            'РЎРєР»Р°Рґ'
+            'Склад'
         ]
     },
         
     {
         tag: 'group9',
-        labelRu: 'РўСЂР°РЅСЃРїРѕСЂС‚',
+        labelRu: 'Транспорт',
         labelEn: 'Transport',
         categories: [
-            'РЎСѓРґРЅРѕ',
-            'РџРѕРµР·РґР° Рё Р»РѕРєРѕРјРѕС‚РёРІС‹'            
+            'Судно',
+            'Поезда и локомотивы'            
         ]
     },
     {
         tag: 'group10',
-        labelRu: 'Р­РЅРµСЂРіРµС‚РёРєР°',
+        labelRu: 'Энергетика',
         labelEn: 'Energy',
         categories: [
-            'Р­РЅРµСЂРіРѕРіРµРЅРµСЂР°С†РёСЏ',
-            'РџРѕРґСЃС‚Р°РЅС†РёСЏ',
+            'Энергогенерация',
+            'Подстанция',
                    
         ]
     },
     {
         tag: 'group11',
-        labelRu: 'РќРµ РѕРїСЂРµРґРµР»РµРЅРѕ',
+        labelRu: 'Не определено',
         labelEn: 'Undefined',
         categories: [
-            'РћР±СЉРµРєС‚ РЅРµСѓСЃС‚Р°РЅРѕРІР»РµРЅРЅРѕРіРѕ РЅР°Р·РЅР°С‡РµРЅРёСЏ',
+            'Объект неустановленного назначения',
                        
         ]
     }
 ];
 
-// РћС‚РѕР±СЂР°Р¶РµРЅРёРµ РєР°С‚РµРіРѕСЂРёРё -> РіСЂСѓРїРїР° (РґР»СЏ Р±С‹СЃС‚СЂРѕР№ РїСЂРѕРІРµСЂРєРё)
+// Отображение категории -> группа (для быстрой проверки)
 const categoryToGroupTag = {};
 attackGroups.forEach(group => {
     group.categories.forEach(cat => {
         categoryToGroupTag[cat] = group.tag;
     });
 });
-// Р”РѕСЃС‚СѓРїРµРЅ РёР· CanvasPointsLayer.applyFilter
+// Доступен из CanvasPointsLayer.applyFilter
 window.categoryToGroupTag = categoryToGroupTag;
 
 
-// Р“Р»РѕР±Р°Р»СЊРЅС‹Рµ РїРµСЂРµРјРµРЅРЅС‹Рµ РґР»СЏ С„РёР»СЊС‚СЂРѕРІ
+// Глобальные переменные для фильтров
 window.allEquipmentMarkers = [];     // { marker, category }
-// РЅР°С‡Р°Р»СЊРЅРѕРµ СЃРѕСЃС‚РѕСЏРЅРёРµ вЂ“ РЅРёС‡РµРіРѕ РЅРµ РІС‹Р±СЂР°РЅРѕ (РїСѓСЃС‚РѕР№ РјР°СЃСЃРёРІ)
-window.selectedEquipmentCategories = [];  // null = РІСЃРµ, РёРЅР°С‡Рµ РјР°СЃСЃРёРІ
+// начальное состояние – ничего не выбрано (пустой массив)
+window.selectedEquipmentCategories = [];  // null = все, иначе массив
 window.isMilEquipVisible = false;
 
 window.allAttacksMarkers = [];
-// РЅР°С‡Р°Р»СЊРЅРѕРµ СЃРѕСЃС‚РѕСЏРЅРёРµ вЂ“ РЅРёС‡РµРіРѕ РЅРµ РІС‹Р±СЂР°РЅРѕ (РїСѓСЃС‚РѕР№ РјР°СЃСЃРёРІ)
-window.selectedAttacksCategories = []; // С…СЂР°РЅРёС‚ РјР°СЃСЃРёРІ tag РіСЂСѓРїРї (РёР»Рё null)
+// начальное состояние – ничего не выбрано (пустой массив)
+window.selectedAttacksCategories = []; // хранит массив tag групп (или null)
 window.isAttacksVisible = false;
 
-// Р’СЃРїРѕРјРѕРіР°С‚РµР»СЊРЅС‹Р№ С„Р»Р°Рі РґР»СЏ РїСЂРµРґРѕС‚РІСЂР°С‰РµРЅРёСЏ СЂРµРєСѓСЂСЃРёРё
+// Вспомогательный флаг для предотвращения рекурсии
 let isUpdatingFilter = false;
 
-// ========== РћР‘Р©РР• РЈРўРР›РРўР« ==========
+// ========== ОБЩИЕ УТИЛИТЫ ==========
 function syncSelectAllState(selectAllId, checkboxClass) {
     const selectAll = document.getElementById(selectAllId);
     if (!selectAll) return;
@@ -177,7 +177,7 @@ function syncSelectAllState(selectAllId, checkboxClass) {
     selectAll.checked = allChecked;
 }
 
-// ========== Р¤РР›Р¬РўР  РўР•РҐРќРРљР ==========
+// ========== ФИЛЬТР ТЕХНИКИ ==========
 function initEquipmentFilter() {
     const container = document.getElementById('equip-category-list');
     if (!container) return;
@@ -192,9 +192,9 @@ function initEquipmentFilter() {
     const selectAll = document.getElementById('equip-select-all');
     const catCheckboxes = document.querySelectorAll('.equip-cat-checkbox');
     
-    // Р’РѕСЃСЃС‚Р°РЅРѕРІР»РµРЅРёРµ СЃРѕСЃС‚РѕСЏРЅРёСЏ вЂ“ РїСѓСЃС‚РѕР№ РјР°СЃСЃРёРІ РѕР·РЅР°С‡Р°РµС‚ РЅРёС‡РµРіРѕ РЅРµ РІС‹Р±СЂР°РЅРѕ
+    // Восстановление состояния – пустой массив означает ничего не выбрано
     if (window.selectedEquipmentCategories === null) {
-        // null РѕР·РЅР°С‡Р°РµС‚ В«РІСЃРµВ», РЅРѕ РїСЂРё РёРЅРёС†РёР°Р»РёР·Р°С†РёРё С‚Р°РєРѕРіРѕ Р±С‹С‚СЊ РЅРµ РґРѕР»Р¶РЅРѕ
+        // null означает «все», но при инициализации такого быть не должно
         selectAll.checked = true;
         catCheckboxes.forEach(cb => cb.checked = true);
     } else if (window.selectedEquipmentCategories.length === 0) {
@@ -220,7 +220,7 @@ function initEquipmentFilter() {
         });
     });
     
-    // РџСЂРёРјРµРЅСЏРµРј РЅР°С‡Р°Р»СЊРЅРѕРµ СЃРѕСЃС‚РѕСЏРЅРёРµ С„РёР»СЊС‚СЂР° (СЃРєСЂС‹РІР°РµРј РІСЃС‘)
+    // Применяем начальное состояние фильтра (скрываем всё)
     updateEquipmentFilter();
 }
 
@@ -294,22 +294,22 @@ function toggleEquipmentMenu() {
     }
 }
 
-// Р¤СѓРЅРєС†РёСЏ РґР»СЏ РѕР±РЅРѕРІР»РµРЅРёСЏ Р·Р°РіРѕР»РѕРІРєР° РєРЅРѕРїРєРё С‚РµС…РЅРёРєРё
+// Функция для обновления заголовка кнопки техники
 function updateMilEquipButtonTitle() {
     const btn = document.getElementById('mil-equip-btn');
     if (btn) {
         const t = translations[currentLang];
-        btn.title = window.isMilEquipVisible ? (t.hideEquipment || 'РЎРєСЂС‹С‚СЊ С‚РµС…РЅРёРєСѓ') : (t.showEquipment || 'РџРѕРєР°Р·Р°С‚СЊ С‚РµС…РЅРёРєСѓ');
+        btn.title = window.isMilEquipVisible ? (t.hideEquipment || 'Скрыть технику') : (t.showEquipment || 'Показать технику');
     }
 }
 
-// ========== Р¤РР›Р¬РўР  РђРўРђРљ ==========
+// ========== ФИЛЬТР АТАК ==========
 function initAttacksFilter() {
     const container = document.getElementById('attacks-category-list');
     if (!container) return;
     container.innerHTML = '';
     
-    // РЎС‚СЂРѕРёРј С‡РµРєР±РѕРєСЃС‹ РґР»СЏ РіСЂСѓРїРї
+    // Строим чекбоксы для групп
     attackGroups.forEach(group => {
         const label = currentLang === 'ru' ? group.labelRu : group.labelEn;
         const div = document.createElement('div');
@@ -424,53 +424,53 @@ function updateAttacksOnUaButtonTitle() {
     if (btn) {
         const t = translations[currentLang];
         btn.title = window.isAttacksVisible ? 
-            (t.hideAttacksOnUa || 'РЎРєСЂС‹С‚СЊ СѓРґР°СЂС‹ РїРѕ РЈРєСЂР°РёРЅРµ') : 
-            (t.showAttacksOnUa || 'РџРѕРєР°Р·Р°С‚СЊ СѓРґР°СЂС‹ РїРѕ РЈРєСЂР°РёРЅРµ');
+            (t.hideAttacksOnUa || 'Скрыть удары по Украине') : 
+            (t.showAttacksOnUa || 'Показать удары по Украине');
     }
 }
 
-// ========== Р¤РР›Р¬РўР  Р¤РћР РўРР¤РРљРђР¦РР™ ==========
-// Р“Р»РѕР±Р°Р»СЊРЅС‹Рµ РїРµСЂРµРјРµРЅРЅС‹Рµ
-window.allFortificationLayers = [];    // РјР°СЃСЃРёРІ { layerGroup, filePath, displayName }
-window.selectedFortificationFiles = []; // РїСѓСЃС‚РѕР№ РјР°СЃСЃРёРІ вЂ“ РЅРёС‡РµРіРѕ РЅРµ РІС‹Р±СЂР°РЅРѕ // null = РІСЃРµ, РёРЅР°С‡Рµ РјР°СЃСЃРёРІ РІС‹Р±СЂР°РЅРЅС‹С… РїСѓС‚РµР№
-window.isFortificationVisible = false; // РїРµСЂРµРѕРїСЂРµРґРµР»РёРј, С‡С‚РѕР±С‹ СѓРїСЂР°РІР»СЏС‚СЊ С‡РµСЂРµР· РєРЅРѕРїРєСѓ
+// ========== ФИЛЬТР ФОРТИФИКАЦИЙ ==========
+// Глобальные переменные
+window.allFortificationLayers = [];    // массив { layerGroup, filePath, displayName }
+window.selectedFortificationFiles = []; // пустой массив – ничего не выбрано // null = все, иначе массив выбранных путей
+window.isFortificationVisible = false; // переопределим, чтобы управлять через кнопку
 
-// РќР°Р·РІР°РЅРёСЏ С„Р°Р№Р»РѕРІ С„РѕСЂС‚РёС„РёРєР°С†РёР№ РЅР° СЂР°Р·РЅС‹С… СЏР·С‹РєР°С…
+// Названия файлов фортификаций на разных языках
 const fortificationFileNames = {
-    'CK_Trenches':   { ru: 'РўСЂР°РЅС€РµРё',      en: 'Trenches' },
-    'CK_Teeth':      { ru: 'РќР°РґРѕР»Р±С‹',      en: 'Dragon\'s teeth' },
-    'CK_Ditches':    { ru: 'Р РІС‹',          en: 'Ditches' },
-    'CK_Wire':       { ru: 'РљРѕР»СЋС‡РєР°',      en: 'Barbed wire' }
-    // 'ditches3':      { ru: 'Р РІС‹ (СЃС‚Р°СЂС‹Рµ)', en: 'Ditches (old)' },
-    // 'Barbed_wire':   { ru: 'РљРѕР»СЋС‡РєР° (СЃС‚Р°СЂР°СЏ)', en: 'Barbed wire (old)' },
-    // 'teeth':         { ru: 'РќР°РґРѕР»Р±С‹ (СЃС‚Р°СЂС‹Рµ)', en: 'Dragon\'s teeth (old)' }
+    'CK_Trenches':   { ru: 'Траншеи',      en: 'Trenches' },
+    'CK_Teeth':      { ru: 'Надолбы',      en: 'Dragon\'s teeth' },
+    'CK_Ditches':    { ru: 'Рвы',          en: 'Ditches' },
+    'CK_Wire':       { ru: 'Колючка',      en: 'Barbed wire' }
+    // 'ditches3':      { ru: 'Рвы (старые)', en: 'Ditches (old)' },
+    // 'Barbed_wire':   { ru: 'Колючка (старая)', en: 'Barbed wire (old)' },
+    // 'teeth':         { ru: 'Надолбы (старые)', en: 'Dragon\'s teeth (old)' }
 };
 
-// Р¤СѓРЅРєС†РёСЏ РґР»СЏ РїРѕР»СѓС‡РµРЅРёСЏ РѕС‚РѕР±СЂР°Р¶Р°РµРјРѕРіРѕ РёРјРµРЅРё С„Р°Р№Р»Р°
+// Функция для получения отображаемого имени файла
 function getFortificationDisplayName(filePath, lang = currentLang) {
     let name = filePath.split('/').pop();
     name = name.replace(/\.(kml|geojson)$/i, '');
     if (fortificationFileNames[name] && fortificationFileNames[name][lang]) {
         return fortificationFileNames[name][lang];
     }
-    return null; // С„Р°Р№Р» РЅРµ РїРѕРґРґРµСЂР¶РёРІР°РµС‚СЃСЏ, РЅРµ РїРѕРєР°Р·С‹РІР°С‚СЊ РІ РјРµРЅСЋ
+    return null; // файл не поддерживается, не показывать в меню
 }
 
-// РРЅРёС†РёР°Р»РёР·Р°С†РёСЏ РјРµРЅСЋ С„РёР»СЊС‚СЂР° С„РѕСЂС‚РёС„РёРєР°С†РёР№
+// Инициализация меню фильтра фортификаций
 function initFortificationFilter() {
     const container = document.getElementById('fortif-category-list');
     if (!container) return;
     container.innerHTML = '';
     
     if (!window.fortificationKmlPaths || !window.fortificationKmlPaths.length) {
-        container.innerHTML = '<div style="color:gray;">РќРµС‚ РґР°РЅРЅС‹С…</div>';
+        container.innerHTML = '<div style="color:gray;">Нет данных</div>';
         return;
     }
     
     let hasAny = false;
     window.fortificationKmlPaths.forEach(filePath => {
         const displayName = getFortificationDisplayName(filePath, currentLang);
-        if (!displayName) return; // РїСЂРѕРїСѓСЃРєР°РµРј С„Р°Р№Р»С‹ Р±РµР· РїРµСЂРµРІРѕРґР°
+        if (!displayName) return; // пропускаем файлы без перевода
         hasAny = true;
         const div = document.createElement('div');
         div.innerHTML = `<label><input type="checkbox" class="fortif-cat-checkbox" value="${filePath.replace(/"/g, '&quot;')}"> ${displayName}</label>`;
@@ -478,14 +478,14 @@ function initFortificationFilter() {
     });
     
     if (!hasAny) {
-        container.innerHTML = '<div style="color:gray;">РќРµС‚ РґР°РЅРЅС‹С…</div>';
+        container.innerHTML = '<div style="color:gray;">Нет данных</div>';
         return;
     }
     
     const selectAll = document.getElementById('fortif-select-all');
     const catCheckboxes = document.querySelectorAll('.fortif-cat-checkbox');
     
-    // Р’РѕСЃСЃС‚Р°РЅРѕРІР»РµРЅРёРµ СЃРѕСЃС‚РѕСЏРЅРёСЏ (РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ РЅРёС‡РµРіРѕ РЅРµ РІС‹Р±СЂР°РЅРѕ)
+    // Восстановление состояния (по умолчанию ничего не выбрано)
     if (window.selectedFortificationFiles === null) {
         selectAll.checked = true;
         catCheckboxes.forEach(cb => cb.checked = true);
@@ -512,11 +512,11 @@ function initFortificationFilter() {
         });
     });
     
-    // РџСЂРёРјРµРЅСЏРµРј РЅР°С‡Р°Р»СЊРЅРѕРµ СЃРѕСЃС‚РѕСЏРЅРёРµ
+    // Применяем начальное состояние
     updateFortificationFilter();
 }
 
-// РћР±РЅРѕРІР»РµРЅРёРµ С„РёР»СЊС‚СЂР° (РІС‹Р·С‹РІР°РµС‚СЃСЏ РїСЂРё РёР·РјРµРЅРµРЅРёРё С‡РµРєР±РѕРєСЃРѕРІ)
+// Обновление фильтра (вызывается при изменении чекбоксов)
 function updateFortificationFilter() {
     if (isUpdatingFilter) return;
     isUpdatingFilter = true;
@@ -548,7 +548,7 @@ function updateFortificationFilter() {
     isUpdatingFilter = false;
 }
 
-// РџСЂРёРјРµРЅРµРЅРёРµ С‚РµРєСѓС‰РµРіРѕ С„РёР»СЊС‚СЂР° Рє СЃР»РѕСЏРј
+// Применение текущего фильтра к слоям
 function applyFortificationFilter() {
     if (!window.allFortificationLayers.length) return;
     
@@ -557,7 +557,7 @@ function applyFortificationFilter() {
         return;
     }
     
-    // Р•СЃР»Рё РІС‹Р±СЂР°РЅС‹ РІСЃРµ С„Р°Р№Р»С‹ (null) вЂ“ РїРѕРєР°Р·С‹РІР°РµРј РІСЃРµ СЃР»РѕРё
+    // Если выбраны все файлы (null) – показываем все слои
     if (window.selectedFortificationFiles === null) {
         window.allFortificationLayers.forEach(item => {
             if (!map.hasLayer(item.layerGroup)) item.layerGroup.addTo(map);
@@ -565,7 +565,7 @@ function applyFortificationFilter() {
         return;
     }
     
-    // РРЅР°С‡Рµ РїРѕРєР°Р·С‹РІР°РµРј С‚РѕР»СЊРєРѕ РІС‹Р±СЂР°РЅРЅС‹Рµ
+    // Иначе показываем только выбранные
     const selectedSet = new Set(window.selectedFortificationFiles);
     window.allFortificationLayers.forEach(item => {
         const shouldShow = selectedSet.has(item.filePath);
@@ -583,7 +583,7 @@ function hideAllFortificationLayers() {
     });
 }
 
-// РџРµСЂРµРєР»СЋС‡РµРЅРёРµ РІРёРґРёРјРѕСЃС‚Рё РјРµРЅСЋ С„РёР»СЊС‚СЂР° С„РѕСЂС‚РёС„РёРєР°С†РёР№
+// Переключение видимости меню фильтра фортификаций
 function toggleFortificationMenu() {
     const menu = document.getElementById('fortification-filter-menu');
     if (!menu) return;
@@ -601,7 +601,7 @@ function toggleFortificationMenu() {
             menu.style.bottom = 'auto';
         }
         menu.style.display = 'block';
-        // Р•СЃР»Рё СЃР»РѕРё РµС‰С‘ РЅРµ Р·Р°РіСЂСѓР¶РµРЅС‹, Р·Р°РіСЂСѓР¶Р°РµРј РёС…
+        // Если слои ещё не загружены, загружаем их
         if (window.allFortificationLayers.length === 0 && window.fortificationKmlPaths) {
             initFortificationLayerWithFilter(window.fortificationKmlPaths).then(() => applyFortificationFilter());
         } else {
@@ -612,20 +612,20 @@ function toggleFortificationMenu() {
     }
 }
 
-// РћР±РЅРѕРІР»РµРЅРёРµ Р·Р°РіРѕР»РѕРІРєР° РєРЅРѕРїРєРё
+// Обновление заголовка кнопки
 function updateFortificationButtonTitle() {
     const btn = document.getElementById('fortification-btn');
     if (btn) {
         const t = translations[currentLang];
         btn.title = window.isFortificationVisible ? 
-            (t.hideFortifications || 'РЎРєСЂС‹С‚СЊ С„РѕСЂС‚РёС„РёРєР°С†РёРё') : 
-            (t.showFortifications || 'РџРѕРєР°Р·Р°С‚СЊ С„РѕСЂС‚РёС„РёРєР°С†РёРё');
+            (t.hideFortifications || 'Скрыть фортификации') : 
+            (t.showFortifications || 'Показать фортификации');
     }
 }
 
-// РќРѕРІР°СЏ С„СѓРЅРєС†РёСЏ Р·Р°РіСЂСѓР·РєРё С„РѕСЂС‚РёС„РёРєР°С†РёР№ СЃ РїРѕРґРґРµСЂР¶РєРѕР№ РѕС‚РґРµР»СЊРЅС‹С… СЃР»РѕС‘РІ
+// Новая функция загрузки фортификаций с поддержкой отдельных слоёв
 async function initFortificationLayerWithFilter(kmlFilePaths) {
-    // РћС‡РёС‰Р°РµРј СЃС‚Р°СЂС‹Рµ РґР°РЅРЅС‹Рµ
+    // Очищаем старые данные
     if (window.allFortificationLayers.length) {
         window.allFortificationLayers.forEach(item => {
             if (map.hasLayer(item.layerGroup)) map.removeLayer(item.layerGroup);
@@ -634,9 +634,9 @@ async function initFortificationLayerWithFilter(kmlFilePaths) {
     }
     
     for (const path of kmlFilePaths) {
-        // РџСЂРѕРІРµСЂСЏРµРј, РґРѕР»Р¶РµРЅ Р»Рё СЌС‚РѕС‚ С„Р°Р№Р» РѕС‚РѕР±СЂР°Р¶Р°С‚СЊСЃСЏ РІ РјРµРЅСЋ
+        // Проверяем, должен ли этот файл отображаться в меню
         const displayName = getFortificationDisplayName(path, currentLang);
-        if (!displayName) continue; // РїСЂРѕРїСѓСЃРєР°РµРј
+        if (!displayName) continue; // пропускаем
     
         const layerGroup = L.layerGroup();
         const ext = path.split('.').pop().toLowerCase();
@@ -676,9 +676,9 @@ async function initFortificationLayerWithFilter(kmlFilePaths) {
                 filePath: path,
                 displayName: displayName
             });
-            console.log(`Р—Р°РіСЂСѓР¶РµРЅ СЃР»РѕР№ С„РѕСЂС‚РёС„РёРєР°С†РёРё: ${path}`);
+            console.log(`Загружен слой фортификации: ${path}`);
         } catch (error) {
-            console.error(`РћС€РёР±РєР° Р·Р°РіСЂСѓР·РєРё С„РѕСЂС‚РёС„РёРєР°С†РёРё ${path}:`, error);
+            console.error(`Ошибка загрузки фортификации ${path}:`, error);
         }
     }
     
@@ -688,22 +688,22 @@ async function initFortificationLayerWithFilter(kmlFilePaths) {
     return window.allFortificationLayers;
 }
 
-// ========== РЎР›РћР™ РџРћР”Р РђР—Р”Р•Р›Р•РќРР™ Р’РЎРЈ ==========
+// ========== СЛОЙ ПОДРАЗДЕЛЕНИЙ ВСУ ==========
 
-// Р“Р»РѕР±Р°Р»СЊРЅС‹Рµ РїРµСЂРµРјРµРЅРЅС‹Рµ РґР»СЏ СЃР»РѕСЏ
-window.unitsUaMarkers = [];          // РјР°СЃСЃРёРІ РјР°СЂРєРµСЂРѕРІ
-window.isUnitsUaVisible = false;     // С„Р»Р°Рі РІРёРґРёРјРѕСЃС‚Рё
-window.unitsUaLayer = null;          // РіСЂСѓРїРї-СЃР»РѕР№
-window.unitsUaIconsMap = {};         // СЃР»РѕРІР°СЂСЊ id в†’ { photo, title }
-window.unitsUaIconsLoaded = false;   // Р·Р°РіСЂСѓР¶РµРЅ Р»Рё result.json
-window.unitsUaDetailsMap = {};       // Р”РѕРїРѕР»РЅРёС‚РµР»СЊРЅС‹Р№ РѕР±СЉРµРєС‚ РґР»СЏ С…СЂР°РЅРµРЅРёСЏ РґРµС‚Р°Р»СЊРЅРѕР№ РёРЅС„РѕСЂРјР°С†РёРё Рѕ РїРѕРґСЂР°Р·РґРµР»РµРЅРёРё
-window.unitsUaDetailMode = false;    // СЂРµР¶РёРј РґРµС‚Р°Р»СЊРЅРѕРіРѕ РїСЂРѕСЃРјРѕС‚СЂР°
-window.unitsUaDetailProfileId = null; // ID РїРѕРґСЂР°Р·РґРµР»РµРЅРёСЏ РІ СЂРµР¶РёРјРµ РґРµС‚Р°Р»РµР№
-window.unitsUaSavedMarkers = [];     // СЃРѕС…СЂР°РЅС‘РЅРЅС‹Рµ РјР°СЂРєРµСЂС‹ РџР’Р” РґР»СЏ РІРѕСЃСЃС‚Р°РЅРѕРІР»РµРЅРёСЏ
-window.unitsUaDetailMarkers = [];    // РјР°СЂРєРµСЂС‹ Р‘Р” РІ СЂРµР¶РёРјРµ РґРµС‚Р°Р»РµР№
-window.unitsUaDetailPvdMarkers = []; // РјР°СЂРєРµСЂС‹ РџР’Р” РІ СЂРµР¶РёРјРµ РґРµС‚Р°Р»РµР№
+// Глобальные переменные для слоя
+window.unitsUaMarkers = [];          // массив маркеров
+window.isUnitsUaVisible = false;     // флаг видимости
+window.unitsUaLayer = null;          // групп-слой
+window.unitsUaIconsMap = {};         // словарь id → { photo, title }
+window.unitsUaIconsLoaded = false;   // загружен ли result.json
+window.unitsUaDetailsMap = {};       // Дополнительный объект для хранения детальной информации о подразделении
+window.unitsUaDetailMode = false;    // режим детального просмотра
+window.unitsUaDetailProfileId = null; // ID подразделения в режиме деталей
+window.unitsUaSavedMarkers = [];     // сохранённые маркеры ПВД для восстановления
+window.unitsUaDetailMarkers = [];    // маркеры БД в режиме деталей
+window.unitsUaDetailPvdMarkers = []; // маркеры ПВД в режиме деталей
 
-// Р¤СѓРЅРєС†РёСЏ РїР°СЂСЃРёРЅРіР° С‚РµРєСЃС‚Р° СЃРѕРѕР±С‰РµРЅРёСЏ РґР»СЏ РёР·РІР»РµС‡РµРЅРёСЏ СЃРѕСЃС‚Р°РІР°, РІРѕРѕСЂСѓР¶РµРЅРёСЏ Рё РјРµС‚РѕРє
+// Функция парсинга текста сообщения для извлечения состава, вооружения и меток
 function parseUnitsUaDetails(text) {
     const details = {
         composition: '',
@@ -714,29 +714,29 @@ function parseUnitsUaDetails(text) {
     };
     if (!text) return details;
 
-    // РџР°СЂСЃРёРЅРі "РћРїРёСЃР°РЅРёРµ" вЂ“ РёСЃРєР»СЋС‡Р°РµРј СЃС‚СЂРѕРєРё, РЅР°С‡РёРЅР°СЋС‰РёРµСЃСЏ СЃ РїСЂРµС„РёРєСЃРѕРІ СЃСЃС‹Р»РѕРє
-    const descRegex = /РћРїРёСЃР°РЅРёРµ:?\s*([\s\S]*?)(?=\n\s*(?:РўР“|Р¤Р‘|Р®С‚|РўРІ|РРЅСЃС‚|РўРёРє|X|Facebook|Telegram|Youtube|Instagram|TikTok|Twitter|Link|РЎР°Р№С‚|Р’РµР±|http|РЎРѕСЃС‚Р°РІ|Р’РѕРѕСЂСѓР¶РµРЅРёРµ|$))/i;
+    // Парсинг "Описание" – исключаем строки, начинающиеся с префиксов ссылок
+    const descRegex = /Описание:?\s*([\s\S]*?)(?=\n\s*(?:ТГ|ФБ|Ют|Тв|Инст|Тик|X|Facebook|Telegram|Youtube|Instagram|TikTok|Twitter|Link|Сайт|Веб|http|Состав|Вооружение|$))/i;
     const descMatch = text.match(descRegex);
     if (descMatch) {
         details.description = descMatch[1].trim();
     }
 
-    // РС‰РµРј СЃРµРєС†РёСЋ "РЎРѕСЃС‚Р°РІ" вЂ“ РѕС‚ СЃР»РѕРІР° "РЎРѕСЃС‚Р°РІ" (СЃ РґРІРѕРµС‚РѕС‡РёРµРј РёР»Рё Р±РµР·) РґРѕ СЃР»РµРґСѓСЋС‰РµРіРѕ РїСѓСЃС‚РѕРіРѕ Р±Р»РѕРєР° РёР»Рё РґРѕ "Р’РѕРѕСЂСѓР¶РµРЅРёРµ"
-    const compRegex = /РЎРѕСЃС‚Р°РІ:?[\s\n]*([\s\S]*?)Р’РѕРѕСЂСѓР¶РµРЅРёРµ/i;
+    // Ищем секцию "Состав" – от слова "Состав" (с двоеточием или без) до следующего пустого блока или до "Вооружение"
+    const compRegex = /Состав:?[\s\n]*([\s\S]*?)Вооружение/i;
     const compMatch = text.match(compRegex);
     if (compMatch) {
         details.composition = compMatch[1].trim();
     }
 
-    // РС‰РµРј СЃРµРєС†РёСЋ "Р’РѕРѕСЂСѓР¶РµРЅРёРµ" вЂ“ РѕС‚ СЃР»РѕРІР° "Р’РѕРѕСЂСѓР¶РµРЅРёРµ" РґРѕ СЃР»РµРґСѓСЋС‰РµРіРѕ РїСѓСЃС‚РѕРіРѕ Р±Р»РѕРєР° РёР»Рё РґРѕ Р·Р°РіРѕР»РѕРІРєРѕРІ (Р РЎР—Рћ, РўСЏР¶С‘Р»Р°СЏ Р±СЂРѕРЅРµС‚РµС…РЅРёРєР°, Р—РµРЅРёС‚РЅРѕ-СЂР°РєРµС‚РЅС‹Рµ, #)
-    const armRegex = /Р’РѕРѕСЂСѓР¶РµРЅРёРµ:?[\s\n]*([^#]+)/i;
+    // Ищем секцию "Вооружение" – от слова "Вооружение" до следующего пустого блока или до заголовков (РСЗО, Тяжёлая бронетехника, Зенитно-ракетные, #)
+    const armRegex = /Вооружение:?[\s\n]*([^#]+)/i;
     const armMatch = text.match(armRegex);
     if (armMatch) {
         details.armament = armMatch[1].trim();
     }
 
-    // Р¤РѕСЂРјРёСЂРѕРІР°РЅРёРµ РїРѕ С…СЌС€С‚РµРіСѓ
-    const formationTags = ['#Р’РЎРЈ', '#РќР“РЈ', '#Р“РџРЎРЈ', '#РњР’Р”'];
+    // Формирование по хэштегу
+    const formationTags = ['#ВСУ', '#НГУ', '#ГПСУ', '#МВД'];
     for (const tag of formationTags) {
         if (text.includes(tag)) {
             details.formation = tag.substring(1);
@@ -744,20 +744,20 @@ function parseUnitsUaDetails(text) {
         }
     }
 
-    // РђСЂРјРµР№СЃРєРёР№ РєРѕСЂРїСѓСЃ
-    const akMatch = text.match(/#РђРљ_(\d+)/);
+    // Армейский корпус
+    const akMatch = text.match(/#АК_(\d+)/);
     if (akMatch) details.armyCorps = akMatch[1];
 
     return details;
 }
 
-// Р—Р°РіСЂСѓР·РєР° РёРєРѕРЅРѕРє Рё РЅР°Р·РІР°РЅРёР№ РёР· result.json (РїРѕРґРґРµСЂР¶РєР° photo Рё file_name)
+// Загрузка иконок и названий из result.json (поддержка photo и file_name)
 async function loadUnitsUaIcons() {
     if (window.unitsUaIconsLoaded) return;
 
     const jsonPath = window.unitsUaJsonPath;
     if (!jsonPath) {
-        console.error('РџСѓС‚СЊ Рє UnitsUA.json РЅРµ Р·Р°РґР°РЅ (window.unitsUaJsonPath)');
+        console.error('Путь к UnitsUA.json не задан (window.unitsUaJsonPath)');
         return;
     }
 
@@ -786,11 +786,11 @@ async function loadUnitsUaIcons() {
 
             const profileId = idMatch[1];
             
-            // console.log(`РћР±СЂР°Р±РѕС‚РєР° СЃРѕРѕР±С‰РµРЅРёСЏ ID: ${idMatch ? idMatch[1] : 'unknown'}`);
+            // console.log(`Обработка сообщения ID: ${idMatch ? idMatch[1] : 'unknown'}`);
             const details = parseUnitsUaDetails(fullText);
-            // console.log(`Р”РµС‚Р°Р»Рё РґР»СЏ ID ${profileId}:`, details);
+            // console.log(`Детали для ID ${profileId}:`, details);
 
-            // РР·РІР»РµРєР°РµРј РЅР°Р·РІР°РЅРёРµ (РїРµСЂРІР°СЏ РЅРµРїСѓСЃС‚Р°СЏ СЃС‚СЂРѕРєР° РїРѕСЃР»Рµ ID)
+            // Извлекаем название (первая непустая строка после ID)
             const lines = fullText.split('\n');
             let title = '';
             for (let i = 1; i < lines.length; i++) {
@@ -801,20 +801,20 @@ async function loadUnitsUaIcons() {
                 }
             }
 
-            // РЎРѕС…СЂР°РЅСЏРµРј РёРєРѕРЅРєСѓ Рё РЅР°Р·РІР°РЅРёРµ
+            // Сохраняем иконку и название
             window.unitsUaIconsMap[profileId] = {
                 photo: imagePath,
-                title: title || `РџРѕРґСЂР°Р·РґРµР»РµРЅРёРµ ID:${profileId}`
+                title: title || `Подразделение ID:${profileId}`
             };
 
-            // РџР°СЂСЃРёРј РґРµС‚Р°Р»Рё (СЃРѕСЃС‚Р°РІ, РІРѕРѕСЂСѓР¶РµРЅРёРµ, С„РѕСЂРјРёСЂРѕРІР°РЅРёРµ, Р°СЂРјРµР№СЃРєРёР№ РєРѕСЂРїСѓСЃ)
+            // Парсим детали (состав, вооружение, формирование, армейский корпус)
             window.unitsUaDetailsMap[profileId] = parseUnitsUaDetails(fullText);
         }
 
         window.unitsUaIconsLoaded = true;
-        // console.log(`Р—Р°РіСЂСѓР¶РµРЅРѕ ${Object.keys(window.unitsUaIconsMap).length} РїСЂРѕС„РёР»РµР№ СЃ РґРµС‚Р°Р»СЏРјРё`);
+        // console.log(`Загружено ${Object.keys(window.unitsUaIconsMap).length} профилей с деталями`);
     } catch (error) {
-        console.error('РћС€РёР±РєР° Р·Р°РіСЂСѓР·РєРё UnitsUA.json:', error);
+        console.error('Ошибка загрузки UnitsUA.json:', error);
         window.unitsUaIconsLoaded = true;
     }
 }
@@ -826,21 +826,21 @@ function getMessageText(msg) {
     return '';
 }
 
-// РњРѕР±РёР»СЊРЅРѕРµ СѓСЃС‚СЂРѕР№СЃС‚РІРѕ (hover-С‚СѓР»С‚РёРїС‹ РЅР° СЃРµРЅСЃРѕСЂРЅРѕРј СЌРєСЂР°РЅРµ РЅРµ СЂР°Р±РѕС‚Р°СЋС‚)
+// Мобильное устройство (hover-тултипы на сенсорном экране не работают)
 function isMobileDevice() {
     return isMobileViewport();
 }
 
-// Р¤СѓРЅРєС†РёСЏ РїРѕРёСЃРєР° РїСЂРѕС„РёР»РµР№ РїРѕ С†РёС„СЂР°Рј
-// С‚РѕС‡РЅРѕРµ СЃРѕРІРїР°РґРµРЅРёРµ С‡РёСЃР»Р°, РґР»СЏ РѕР±РѕРёС… С‚СЌРіРѕРІ
+// Функция поиска профилей по цифрам
+// точное совпадение числа, для обоих тэгов
 function getProfileIdsBySearchDigits(digits) {
     const result = new Set();
     if (!window.unitsUaData || !window.unitsUaData.messages) return result;
 
-    const reBr = /#Р‘СЂ_(\d+)/g;
-    const rePk = /#РџРє_(\d+)/g;
-    const reBt = /#Р‘С‚_(\d+)/g;
-    const reGw = /#Р“Р’_(\d+)/g;
+    const reBr = /#Бр_(\d+)/g;
+    const rePk = /#Пк_(\d+)/g;
+    const reBt = /#Бт_(\d+)/g;
+    const reGw = /#ГВ_(\d+)/g;
 
     for (const msg of window.unitsUaData.messages) {
         const text = getMessageText(msg);
@@ -868,18 +868,18 @@ function getProfileIdsBySearchDigits(digits) {
     return result;
 }
 
-// Р¤СѓРЅРєС†РёСЏ РїРѕРёСЃРєР° РїСЂРѕС„РёР»РµР№ РїРѕ Р±СѓРєРІРµРЅРЅРѕРјСѓ РЅР°Р·РІР°РЅРёСЋ
-// С‚РѕС‡РЅРѕРµ СЃРѕРІРїР°РґРµРЅРёРµ РЅР°Р·РІР°РЅРёСЏ РґР»СЏ РІСЃРµС… С‚РµРіРѕРІ: РџРє_, Р‘СЂ_, Р‘С‚_, Р“Р’_, РђРљ_
+// Функция поиска профилей по буквенному названию
+// точное совпадение названия для всех тегов: Пк_, Бр_, Бт_, ГВ_, АК_
 function getProfileIdsBySearchText(text) {
     const result = new Set();
     if (!window.unitsUaData || !window.unitsUaData.messages) return result;
 
-    // РС‰РµРј РїРѕ РІСЃРµРј С‚РµРіР°Рј, С‚РѕС‡РЅРѕРµ СЃРѕРІРїР°РґРµРЅРёРµ РЅР°Р·РІР°РЅРёСЏ РїРѕСЃР»Рµ РїРѕРґС‡РµСЂРєРёРІР°РЅРёСЏ
-    const reBr = /#Р‘СЂ_([Рђ-РЇР°-СЏA-Za-z]+)/g;
-    const rePk = /#РџРє_([Рђ-РЇР°-СЏA-Za-z]+)/g;
-    const reBt = /#Р‘С‚_([Рђ-РЇР°-СЏA-Za-z]+)/g;
-    const reGw = /#Р“Р’_([Рђ-РЇР°-СЏA-Za-z]+)/g;
-    const reAk = /#РђРљ_([Рђ-РЇР°-СЏA-Za-z]+)/g;
+    // Ищем по всем тегам, точное совпадение названия после подчеркивания
+    const reBr = /#Бр_([А-Яа-яA-Za-z]+)/g;
+    const rePk = /#Пк_([А-Яа-яA-Za-z]+)/g;
+    const reBt = /#Бт_([А-Яа-яA-Za-z]+)/g;
+    const reGw = /#ГВ_([А-Яа-яA-Za-z]+)/g;
+    const reAk = /#АК_([А-Яа-яA-Za-z]+)/g;
 
     for (const msg of window.unitsUaData.messages) {
         const fullText = getMessageText(msg);
@@ -910,21 +910,21 @@ function getProfileIdsBySearchText(text) {
     return result;
 }
 
-// РџР°СЂСЃРёРЅРі РґР°С‚С‹ РёР· CSV (С„РѕСЂРјР°С‚ YYYY.MM.DD)
+// Парсинг даты из CSV (формат YYYY.MM.DD)
 function parseCsvDate(dateStr) {
     if (!dateStr) return null;
     const parts = dateStr.split('.');
     if (parts.length !== 3) return null;
     const year = parseInt(parts[0], 10);
-    const month = parseInt(parts[1], 10) - 1; // РјРµСЃСЏС†С‹ РІ JS 0-11
+    const month = parseInt(parts[1], 10) - 1; // месяцы в JS 0-11
     const day = parseInt(parts[2], 10);
     return new Date(year, month, day);
 }
 
-// РџР°СЂСЃРёРЅРі СЃС‚СЂРѕРєРё CSV
+// Парсинг строки CSV
 function parseUnitsCsvRow(row) {
     const parts = row.split(',');
-    if (parts.length < 7) return null; // РјРёРЅРёРјСѓРј РґРѕ СЃС‚РѕР»Р±С†Р° "РСЃС‚РѕС‡РЅРёРє"
+    if (parts.length < 7) return null; // минимум до столбца "Источник"
     return {
         profileId: parts[1].trim(),
         date: parts[2].trim(),
@@ -936,10 +936,10 @@ function parseUnitsCsvRow(row) {
     };
 }
 
-// Р¤СѓРЅРєС†РёСЏ Р·Р°РіСЂСѓР·РєРё С‚РѕС‡РµРє СЃ С„РёР»СЊС‚СЂРѕРј РїРѕ РґР°С‚Рµ (С‚РѕР»СЊРєРѕ РџР’Р”, РЅРµ Р±РѕР»РµРµ РѕРґРЅРѕР№ РЅР° ID)
+// Функция загрузки точек с фильтром по дате (только ПВД, не более одной на ID)
 async function loadUnitsUaWithDateFilter(targetDateStr, allowedProfileIds = null) {
     if (!window.unitsUaCsvPath) {
-        console.error('РџСѓС‚СЊ Рє CSV РЅРµ Р·Р°РґР°РЅ РІ data.js');
+        console.error('Путь к CSV не задан в data.js');
         return;
     }
 
@@ -950,14 +950,14 @@ async function loadUnitsUaWithDateFilter(targetDateStr, allowedProfileIds = null
         const lines = csvText.split(/\r?\n/).filter(line => line.trim().length > 0);
         if (lines.length === 0) return;
 
-        const dataLines = lines.slice(1); // Р±РµР· Р·Р°РіРѕР»РѕРІРєР°
+        const dataLines = lines.slice(1); // без заголовка
 
         const allRows = [];
         for (const line of dataLines) {
             const data = parseUnitsCsvRow(line);
             if (!data) continue;
             if (isNaN(data.lat) || isNaN(data.lng)) continue;
-            if (data.characteristic !== 'РџР’Р”') continue;
+            if (data.characteristic !== 'ПВД') continue;
             if (allowedProfileIds && !allowedProfileIds.has(data.profileId)) continue;
             allRows.push(data);
         }
@@ -986,7 +986,7 @@ async function loadUnitsUaWithDateFilter(targetDateStr, allowedProfileIds = null
             selectedRows.push(latestRow);
         }
 
-        await loadUnitsUaIcons(); // РіР°СЂР°РЅС‚РёСЂСѓРµРј, С‡С‚Рѕ РґРµС‚Р°Р»Рё Р·Р°РіСЂСѓР¶РµРЅС‹
+        await loadUnitsUaIcons(); // гарантируем, что детали загружены
 
         if (window.unitsUaLayer) {
             window.unitsUaLayer.clearLayers();
@@ -996,7 +996,7 @@ async function loadUnitsUaWithDateFilter(targetDateStr, allowedProfileIds = null
         window.unitsUaMarkers = [];
 
         const defaultIcon = L.icon({
-            iconUrl: 'img/attack types/Р’Р·СЂС‹РІС‡РёРє.png',
+            iconUrl: 'img/attack types/Взрывчик.png',
             iconSize: [28, 28],
             iconAnchor: [14, 14],
             popupAnchor: [0, 0]
@@ -1020,51 +1020,51 @@ async function loadUnitsUaWithDateFilter(targetDateStr, allowedProfileIds = null
 
             const marker = L.marker([row.lat, row.lng], { icon: icon, _profileId: row.profileId });
 
-            // РџРѕР»СѓС‡Р°РµРј РґРµС‚Р°Р»Рё РґР»СЏ РґР°РЅРЅРѕРіРѕ profileId, РµСЃР»Рё РЅРµС‚ вЂ” СЃРѕР·РґР°С‘Рј СЃ РїСѓСЃС‚С‹РјРё Р·РЅР°С‡РµРЅРёСЏРјРё
+            // Получаем детали для данного profileId, если нет — создаём с пустыми значениями
 			const details = window.unitsUaDetailsMap[row.profileId] || { composition: '', armament: '', formation: '', armyCorps: '?', description: '' };
 
-			// Р”Р»СЏ РµРґРёРЅРѕРѕР±СЂР°Р·РёСЏ РІСЃРµРіРґР° РїРѕРєР°Р·С‹РІР°РµРј Р±Р»РѕРєРё, РґР°Р¶Рµ РµСЃР»Рё РґР°РЅРЅС‹Рµ РѕС‚СЃСѓС‚СЃС‚РІСѓСЋС‚
+			// Для единообразия всегда показываем блоки, даже если данные отсутствуют
             const descriptionText = details.description.trim() ? details.description : '?';
 			const compositionText = details.composition.trim() ? details.composition : '?';
 			const armamentText = details.armament.trim() ? details.armament : '?';
 			const formationText = details.formation.trim() ? details.formation : '?';
 			const armyCorpsText = details.armyCorps || '?';
 
-			// Р¤РѕСЂРјРёСЂСѓРµРј HTML popup
+			// Формируем HTML popup
 			let popupHtml = `<div style="font-size:14px;"><strong>${escapeHtml(unitTitle)}</strong>`;
 
-            // РћРїРёСЃР°РЅРёРµ (РІСЃРµРіРґР° СЃРІРѕСЂР°С‡РёРІР°РµРјС‹Р№ Р±Р»РѕРє)
+            // Описание (всегда сворачиваемый блок)
             popupHtml += `
                 <details class="collapse-block" style="margin-top:8px;">
-                <summary>рџ“„ РћРїРёСЃР°РЅРёРµ</summary>
+                <summary>📄 Описание</summary>
                 <div class="collapse-content" style="margin-top: 4px; white-space: pre-wrap;">${escapeHtml(descriptionText).replace(/\n/g, '<br>')}</div>
                 </details>`;
 
-			// РЎРѕСЃС‚Р°РІ (РІСЃРµРіРґР° СЃРІРѕСЂР°С‡РёРІР°РµРјС‹Р№ Р±Р»РѕРє)
+			// Состав (всегда сворачиваемый блок)
 			popupHtml += `
 				<details class="collapse-block" style="margin-top:8px;">
-					<summary>рџ“„ РЎРѕСЃС‚Р°РІ</summary>
+					<summary>📄 Состав</summary>
 					<div class="collapse-content" style="margin-top: 4px; white-space: pre-wrap;">${escapeHtml(compositionText).replace(/\n/g, '<br>')}</div>
 				</details>`;
 
-			// Р’РѕРѕСЂСѓР¶РµРЅРёРµ (РІСЃРµРіРґР° СЃРІРѕСЂР°С‡РёРІР°РµРјС‹Р№ Р±Р»РѕРє)
+			// Вооружение (всегда сворачиваемый блок)
 			popupHtml += `
 				<details class="collapse-block" style="margin-top:8px;">
-					<summary>рџ“„ Р’РѕРѕСЂСѓР¶РµРЅРёРµ</summary>
+					<summary>📄 Вооружение</summary>
 					<div class="collapse-content" style="margin-top: 4px; white-space: pre-wrap;">${escapeHtml(armamentText).replace(/\n/g, '<br>')}</div>
 				</details>`;
 
-			// Р¤РѕСЂРјРёСЂРѕРІР°РЅРёРµ (РІСЃРµРіРґР° РІРёРґРёРјР°СЏ СЃС‚СЂРѕРєР°)
-			popupHtml += `<div style="margin-top:4px;"><strong>Р¤РѕСЂРјРёСЂРѕРІР°РЅРёРµ:</strong> ${escapeHtml(formationText)}</div>`;
+			// Формирование (всегда видимая строка)
+			popupHtml += `<div style="margin-top:4px;"><strong>Формирование:</strong> ${escapeHtml(formationText)}</div>`;
 
-			// РђСЂРјРµР№СЃРєРёР№ РєРѕСЂРїСѓСЃ (РІСЃРµРіРґР° РІРёРґРёРјР°СЏ СЃС‚СЂРѕРєР°)
-			popupHtml += `<div style="margin-top:4px;"><strong>РђСЂРјРµР№СЃРєРёР№ РєРѕСЂРїСѓСЃ:</strong> ${escapeHtml(armyCorpsText)}</div>`;
+			// Армейский корпус (всегда видимая строка)
+			popupHtml += `<div style="margin-top:4px;"><strong>Армейский корпус:</strong> ${escapeHtml(armyCorpsText)}</div>`;
 			
 			//
-			popupHtml += `<div style="margin-top:4px;"><strong>Р”Р°С‚Р°:</strong> ${escapeHtml(row.date)}</div>`;
+			popupHtml += `<div style="margin-top:4px;"><strong>Дата:</strong> ${escapeHtml(row.date)}</div>`;
 
 			//
-			popupHtml += `<div class="units-ua-details-btn-wrap"><button class="units-ua-details-btn" onclick="window.showUnitDetailsForProfileId('${row.profileId}'); map.closePopup();">Р“РµРѕРґР°РЅРЅС‹Рµ</button></div>`;
+			popupHtml += `<div class="units-ua-details-btn-wrap"><button class="units-ua-details-btn" onclick="window.showUnitDetailsForProfileId('${row.profileId}'); map.closePopup();">Геоданные</button></div>`;
 			popupHtml += `</div>`;
 
             marker.bindPopup(popupHtml, { className: 'units-ua-popup' });
@@ -1075,20 +1075,20 @@ async function loadUnitsUaWithDateFilter(targetDateStr, allowedProfileIds = null
             window.unitsUaMarkers.push(marker);
         }
 
-        // console.log(`Р—Р°РіСЂСѓР¶РµРЅРѕ ${window.unitsUaMarkers.length} С‚РѕС‡РµРє РџР’Р” СЃ СЂР°СЃС€РёСЂРµРЅРЅРѕР№ РёРЅС„РѕСЂРјР°С†РёРµР№ РґР»СЏ РґР°С‚С‹ ${targetDateStr}`);
+        // console.log(`Загружено ${window.unitsUaMarkers.length} точек ПВД с расширенной информацией для даты ${targetDateStr}`);
     } catch (error) {
-        console.error('РћС€РёР±РєР° Р·Р°РіСЂСѓР·РєРё CSV РїРѕРґСЂР°Р·РґРµР»РµРЅРёР№ Р’РЎРЈ:', error);
+        console.error('Ошибка загрузки CSV подразделений ВСУ:', error);
     }
 }
 
-// РџРѕРєР°Р·С‹РІР°РµС‚ РґРµС‚Р°Р»Рё РґР»СЏ РІС‹Р±СЂР°РЅРЅРѕРіРѕ РїРѕРґСЂР°Р·РґРµР»РµРЅРёСЏ
+// Показывает детали для выбранного подразделения
 async function showUnitDetailsForProfileId(profileId) {
     if (window.unitsUaDetailMode && window.unitsUaDetailProfileId === profileId) {
         resetUnitDetails();
         return;
     }
 
-    // РЎР±СЂР°СЃС‹РІР°РµРј РїСЂРµРґС‹РґСѓС‰РёР№ СЂРµР¶РёРј РґРµС‚Р°Р»РµР№, РµСЃР»Рё РѕРЅ Р±С‹Р»
+    // Сбрасываем предыдущий режим деталей, если он был
     if (window.unitsUaDetailMode) {
         resetUnitDetails();
     }
@@ -1096,10 +1096,10 @@ async function showUnitDetailsForProfileId(profileId) {
     window.unitsUaDetailMode = true;
     window.unitsUaDetailProfileId = profileId;
 
-    // РЎРѕС…СЂР°РЅСЏРµРј С‚РµРєСѓС‰РёРµ РјР°СЂРєРµСЂС‹ РџР’Р” РґР»СЏ РІРѕСЃСЃС‚Р°РЅРѕРІР»РµРЅРёСЏ
+    // Сохраняем текущие маркеры ПВД для восстановления
     window.unitsUaSavedMarkers = [...window.unitsUaMarkers];
 
-    // РћС‡РёС‰Р°РµРј СЃР»РѕР№
+    // Очищаем слой
     if (window.unitsUaLayer) {
         window.unitsUaLayer.clearLayers();
     }
@@ -1107,7 +1107,7 @@ async function showUnitDetailsForProfileId(profileId) {
     window.unitsUaDetailMarkers = [];
     window.unitsUaDetailPvdMarkers = [];
 
-    // РћРїСЂРµРґРµР»СЏРµРј РёРєРѕРЅРєСѓ РїРѕРґСЂР°Р·РґРµР»РµРЅРёСЏ
+    // Определяем иконку подразделения
     const unitIconInfo = window.unitsUaIconsMap[profileId];
     const unitTitle = unitIconInfo ? unitIconInfo.title : `ID:${profileId}`;
     const unitIcon = unitIconInfo
@@ -1118,13 +1118,13 @@ async function showUnitDetailsForProfileId(profileId) {
             popupAnchor: [0, -16]
         })
         : L.icon({
-            iconUrl: 'img/attack types/Р’Р·СЂС‹РІС‡РёРє.png',
+            iconUrl: 'img/attack types/Взрывчик.png',
             iconSize: [28, 28],
             iconAnchor: [14, 14],
             popupAnchor: [0, 0]
         });
 
-    // Р”РѕР±Р°РІР»СЏРµРј РѕР±СЂР°С‚РЅРѕ Р°РєС‚СѓР°Р»СЊРЅС‹Р№ РјР°СЂРєРµСЂ (СЃ РѕСЂРёРіРёРЅР°Р»СЊРЅС‹Рј РїРѕРїР°РїРѕРј Рё РєРЅРѕРїРєРѕР№)
+    // Добавляем обратно актуальный маркер (с оригинальным попапом и кнопкой)
     const currentMarker = window.unitsUaSavedMarkers.find(function(m) {
         return m && m.options && m.options._profileId === profileId;
     });
@@ -1133,7 +1133,7 @@ async function showUnitDetailsForProfileId(profileId) {
         window.unitsUaMarkers.push(currentMarker);
     }
 
-    // Р—Р°РіСЂСѓР¶Р°РµРј РІСЃРµ РіРµРѕР»РѕРєР°С†РёРё (РџР’Р” Рё Р‘Р”) РґР»СЏ СЌС‚РѕРіРѕ profileId
+    // Загружаем все геолокации (ПВД и БД) для этого profileId
     try {
         const response = await fetch(window.unitsUaCsvPath);
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
@@ -1148,7 +1148,7 @@ async function showUnitDetailsForProfileId(profileId) {
             if (isNaN(data.lat) || isNaN(data.lng)) continue;
             if (data.profileId !== profileId) continue;
 
-            // РџСЂРѕРїСѓСЃРєР°РµРј Р·Р°РїРёСЃСЊ, РєРѕС‚РѕСЂР°СЏ СѓР¶Рµ РѕС‚РѕР±СЂР°Р¶РµРЅР° Р°РєС‚СѓР°Р»СЊРЅС‹Рј РјР°СЂРєРµСЂРѕРј
+            // Пропускаем запись, которая уже отображена актуальным маркером
             if (currentMarker) {
                 const curLatLng = currentMarker.getLatLng();
                 if (Math.abs(data.lat - curLatLng.lat) < 0.0001 && Math.abs(data.lng - curLatLng.lng) < 0.0001) {
@@ -1156,9 +1156,9 @@ async function showUnitDetailsForProfileId(profileId) {
                 }
             }
 
-            if (data.characteristic === 'РџР’Р”') {
+            if (data.characteristic === 'ПВД') {
                 const oldPvdIcon = L.icon({
-                    iconUrl: unitIconInfo ? `units/ua/${unitIconInfo.photo}` : 'img/attack types/Р’Р·СЂС‹РІС‡РёРє.png',
+                    iconUrl: unitIconInfo ? `units/ua/${unitIconInfo.photo}` : 'img/attack types/Взрывчик.png',
                     iconSize: [24, 28],
                     iconAnchor: [10, 12],
                     popupAnchor: [0, -12]
@@ -1167,7 +1167,7 @@ async function showUnitDetailsForProfileId(profileId) {
                 pvdMarker.bindPopup(
                     `<div style="font-size:13px;">
                         <strong>${escapeHtml(unitTitle)}</strong>
-                        <div style="margin-top:4px;"><strong>Р”Р°С‚Р°:</strong> ${escapeHtml(data.date)}</div>
+                        <div style="margin-top:4px;"><strong>Дата:</strong> ${escapeHtml(data.date)}</div>
                     </div>`,
                     { className: 'units-ua-popup' }
                 );
@@ -1176,21 +1176,21 @@ async function showUnitDetailsForProfileId(profileId) {
                 }
                 pvdMarker.addTo(window.unitsUaLayer);
                 window.unitsUaDetailPvdMarkers.push(pvdMarker);
-            } else if (data.characteristic === 'Р‘Р”') {
+            } else if (data.characteristic === 'БД') {
                 const bdIcon = L.icon({
-                    iconUrl: 'img/attack types/Р’Р·СЂС‹РІС‡РёРє.png',
+                    iconUrl: 'img/attack types/Взрывчик.png',
                     iconSize: [32, 32],
                     iconAnchor: [16, 24],
                     popupAnchor: [0, -24]
                 });
                 const bdMarker = L.marker([data.lat, data.lng], { icon: bdIcon });
-                let bdPopup = `<div style="font-size:13px;"><strong>Р‘РѕРµРІС‹Рµ РґРµР№СЃС‚РІРёСЏ</strong>`;
-                bdPopup += `<div style="margin-top:4px;"><strong>Р”Р°С‚Р°:</strong> ${escapeHtml(data.date)}</div>`;
+                let bdPopup = `<div style="font-size:13px;"><strong>Боевые действия</strong>`;
+                bdPopup += `<div style="margin-top:4px;"><strong>Дата:</strong> ${escapeHtml(data.date)}</div>`;
                 if (data.details) {
-                    bdPopup += `<div style="margin-top:4px;"><strong>РџСЂРёРјРµС‡Р°РЅРёРµ:</strong> ${escapeHtml(data.details)}</div>`;
+                    bdPopup += `<div style="margin-top:4px;"><strong>Примечание:</strong> ${escapeHtml(data.details)}</div>`;
                 }
                 if (data.link) {
-                    bdPopup += `<div style="margin-top:4px;"><a href="${escapeHtml(data.link)}" target="_blank" rel="noopener" title="${escapeHtml(data.link)}">РСЃС‚РѕС‡РЅРёРє</a></div>`;
+                    bdPopup += `<div style="margin-top:4px;"><a href="${escapeHtml(data.link)}" target="_blank" rel="noopener" title="${escapeHtml(data.link)}">Источник</a></div>`;
                 }
                 bdPopup += `</div>`;
                 bdMarker.bindPopup(bdPopup, { className: 'units-ua-popup' });
@@ -1202,11 +1202,11 @@ async function showUnitDetailsForProfileId(profileId) {
             }
         }
     } catch (error) {
-        console.error('РћС€РёР±РєР° Р·Р°РіСЂСѓР·РєРё CSV РґР»СЏ РґРµС‚Р°Р»РµР№:', error);
+        console.error('Ошибка загрузки CSV для деталей:', error);
     }
 }
 
-// Р’РѕСЃСЃС‚Р°РЅР°РІР»РёРІР°РµС‚ РІСЃРµ РјР°СЂРєРµСЂС‹ РџР’Р” Рё СѓР±РёСЂР°РµС‚ Р‘Р” РјР°СЂРєРµСЂС‹
+// Восстанавливает все маркеры ПВД и убирает БД маркеры
 function resetUnitDetails() {
     if (!window.unitsUaDetailMode) return;
 
@@ -1230,7 +1230,7 @@ function resetUnitDetails() {
     window.unitsUaSavedMarkers = [];
 }
 
-// РџСЂРѕСЃС‚Р°СЏ С„СѓРЅРєС†РёСЏ СЌРєСЂР°РЅРёСЂРѕРІР°РЅРёСЏ HTML (С‡С‚РѕР±С‹ РёР·Р±РµР¶Р°С‚СЊ XSS)
+// Простая функция экранирования HTML (чтобы избежать XSS)
 function escapeHtml(str) {
     if (!str) return '';
     return str
@@ -1241,7 +1241,7 @@ function escapeHtml(str) {
         .replace(/'/g, '&#39;');
 }
 
-// РџРµСЂРµР·Р°РіСЂСѓР·РєР° СЃР»РѕСЏ СЃ СѓС‡С‘С‚РѕРј С‚РµРєСѓС‰РµР№ selectedDate
+// Перезагрузка слоя с учётом текущей selectedDate
 function reloadUnitsUaLayer() {
     if (window.isUnitsUaVisible) {
         resetUnitDetails();
@@ -1254,7 +1254,7 @@ function reloadUnitsUaLayer() {
         }
         if (filterSet && filterSet.size === 0) filterSet = new Set();
         loadUnitsUaWithDateFilter(currentDate, filterSet).then(() => {
-            // РЈР±РµРґРёРјСЃСЏ, С‡С‚Рѕ СЃР»РѕР№ СЃСѓС‰РµСЃС‚РІСѓРµС‚ (Р·Р°С‰РёС‚Р° РѕС‚ null)
+            // Убедимся, что слой существует (защита от null)
             if (!window.unitsUaLayer) {
                 window.unitsUaLayer = L.layerGroup();
             }
@@ -1265,7 +1265,7 @@ function reloadUnitsUaLayer() {
     }
 }
 
-// Р¤СѓРЅРєС†РёСЏ РїРѕРёСЃРєР°
+// Функция поиска
 function applyUnitsSearch() {
     const input = document.getElementById('units-search-input');
     const raw = input.value.trim();
@@ -1283,13 +1283,13 @@ function applyUnitsSearch() {
     reloadUnitsUaLayer();
 }
 
-// РџРµСЂРµРєР»СЋС‡РµРЅРёРµ РІРёРґРёРјРѕСЃС‚Рё СЃР»РѕСЏ
+// Переключение видимости слоя
 async function toggleUnitsUa() {
     const panel = document.getElementById('units-search-panel');
     const btn = document.getElementById('units-ua-btn');
     
     if (!window.isUnitsUaVisible) {
-        // ===== Р’РєР»СЋС‡РµРЅРёРµ СЃР»РѕСЏ =====
+        // ===== Включение слоя =====
         const currentDate = window.selectedDate || getCurrentDateFormatted();
         if (!window.unitsUaLayer) {
             window.unitsUaLayer = L.layerGroup();
@@ -1304,19 +1304,19 @@ async function toggleUnitsUa() {
         try {
             await loadUnitsUaWithDateFilter(currentDate, filterSet);
         } catch (err) {
-            console.error('РћС€РёР±РєР° Р·Р°РіСЂСѓР·РєРё UnitsUA СЃР»РѕСЏ:', err);
+            console.error('Ошибка загрузки UnitsUA слоя:', err);
         }
         window.unitsUaLayer.addTo(map);
         
-        // РџРѕР·РёС†РёРѕРЅРёСЂРѕРІР°РЅРёРµ РїР°РЅРµР»Рё
+        // Позиционирование панели
         if (panel && btn) {
             if (isMobileViewport()) {
-                // РјРѕР±РёР»СЊРЅС‹Рµ: С„РёРєСЃРёСЂРѕРІР°РЅРЅС‹Р№ Р»РµРІС‹Р№ РІРµСЂС…РЅРёР№ СѓРіРѕР»
+                // мобильные: фиксированный левый верхний угол
                 panel.style.position = 'fixed';
                 panel.style.top = '0px';
                 panel.style.left = '0px';
             } else {
-                // РґРµСЃРєС‚РѕРї: РїРѕРґ РєРЅРѕРїРєРѕР№
+                // десктоп: под кнопкой
                 const rect = btn.getBoundingClientRect();
                 panel.style.position = 'absolute';
                 panel.style.top = (rect.bottom + window.scrollY) + 'px';
@@ -1328,7 +1328,7 @@ async function toggleUnitsUa() {
         window.isUnitsUaVisible = true;
         btn.classList.add('active');
     } else {
-        // ===== Р’С‹РєР»СЋС‡РµРЅРёРµ СЃР»РѕСЏ =====
+        // ===== Выключение слоя =====
         resetUnitDetails();
         if (window.unitsUaLayer && map.hasLayer(window.unitsUaLayer)) {
             map.removeLayer(window.unitsUaLayer);
@@ -1344,29 +1344,29 @@ async function toggleUnitsUa() {
         btn.classList.remove('active');
     }
 
-    // РћР±РЅРѕРІР»СЏРµРј title РєРЅРѕРїРєРё
+    // Обновляем title кнопки
     // if (btn) {
         // const t = translations[currentLang];
         // btn.title = window.isUnitsUaVisible ?
-            // (t.hideUnitsUa || 'РЎРєСЂС‹С‚СЊ РїРѕРґСЂР°Р·РґРµР»РµРЅРёСЏ Р’РЎРЈ') :
-            // (t.showUnitsUa || 'РџРѕРєР°Р·Р°С‚СЊ РїРѕРґСЂР°Р·РґРµР»РµРЅРёСЏ Р’РЎРЈ');
+            // (t.hideUnitsUa || 'Скрыть подразделения ВСУ') :
+            // (t.showUnitsUa || 'Показать подразделения ВСУ');
     // }
 }
 
-// РћР±РЅРѕРІР»РµРЅРёРµ РІСЃРїР»С‹РІР°СЋС‰РµР№ РїРѕРґСЃРєР°Р·РєРё РєРЅРѕРїРєРё РїРѕРґСЂР°Р·РґРµР»РµРЅРёР№ Р’РЎРЈ
+// Обновление всплывающей подсказки кнопки подразделений ВСУ
 function updateUnitsUaButtonTitle() {
     const btn = document.getElementById('units-ua-btn');
     if (!btn) return;
     const t = translations[currentLang];
-    btn.title = t.showUnitsUa || 'РџРѕРґСЂР°Р·РґРµР»РµРЅРёСЏ Р’РЎРЈ';
+    btn.title = t.showUnitsUa || 'Подразделения ВСУ';
 }
 
-// РРЅРёС†РёР°Р»РёР·Р°С†РёСЏ РєРЅРѕРїРєРё РїРѕРґСЂР°Р·РґРµР»РµРЅРёР№
+// Инициализация кнопки подразделений
 function initUnitsUaButton() {
     const btn = document.getElementById('units-ua-btn');
     if (!btn) return;
 
-    // РЎРѕР·РґР°С‘Рј РїР°РЅРµР»СЊ РїРѕРёСЃРєР°
+    // Создаём панель поиска
     const t = translations[currentLang];
     const searchPanel = document.createElement('div');
     searchPanel.id = 'units-search-panel';
@@ -1374,9 +1374,9 @@ function initUnitsUaButton() {
     searchPanel.innerHTML = `
         <span class="units-search-input-wrap">
             <input type="text" id="units-search-input" placeholder="${t.unitsSearchPlaceholder}" enterkeyhint="search">
-            <button id="units-search-clear" class="units-search-clear-inside" title="${t.clearSearch}">вњ•</button>
+            <button id="units-search-clear" class="units-search-clear-inside" title="${t.clearSearch}">✕</button>
         </span>
-        <button id="units-search-btn" title="${t.searchBtn}">рџ”Ќ</button>
+        <button id="units-search-btn" title="${t.searchBtn}">🔍</button>
     `;
     // btn.parentNode.insertBefore(searchPanel, btn.nextSibling);
     document.body.appendChild(searchPanel);
@@ -1384,12 +1384,12 @@ function initUnitsUaButton() {
     const searchInput = document.getElementById('units-search-input');
     const searchClearBtn = document.getElementById('units-search-clear');
 
-    // РЈРїСЂР°РІР»РµРЅРёРµ РІРёРґРёРјРѕСЃС‚СЊСЋ РєСЂРµСЃС‚РёРєР°
+    // Управление видимостью крестика
     searchInput.addEventListener('input', function() {
         searchClearBtn.style.display = this.value.trim() ? 'block' : 'none';
     });
 
-    // РћР±СЂР°Р±РѕС‚С‡РёРєРё РїР°РЅРµР»Рё
+    // Обработчики панели
     document.getElementById('units-search-btn').addEventListener('click', applyUnitsSearch);
     searchClearBtn.addEventListener('click', () => {
         searchInput.value = '';
@@ -1397,33 +1397,33 @@ function initUnitsUaButton() {
         window.unitsSearchText = null;
         reloadUnitsUaLayer();
     });
-    // keydown (Р° РЅРµ СѓСЃС‚Р°СЂРµРІС€РёР№ keypress): РЅР°РґС‘Р¶РЅРѕ СЃСЂР°Р±Р°С‚С‹РІР°РµС‚ Рё СЃ РІРёСЂС‚СѓР°Р»СЊРЅРѕР№ РєР»Р°РІРёР°С‚СѓСЂРѕР№ (Gboard)
+    // keydown (а не устаревший keypress): надёжно срабатывает и с виртуальной клавиатурой (Gboard)
     searchInput.addEventListener('keydown', (e) => {
         if (e.key === 'Enter') applyUnitsSearch();
     });
 
-    // РћР±СЂР°Р±РѕС‚С‡РёРє СЃР°РјРѕР№ РєРЅРѕРїРєРё
+    // Обработчик самой кнопки
     btn.addEventListener('click', toggleUnitsUa);
 
     window.isUnitsUaVisible = false;
     btn.classList.remove('active');
-    btn.title = t.showUnitsUa || 'РџРѕРєР°Р·Р°С‚СЊ РїРѕРґСЂР°Р·РґРµР»РµРЅРёСЏ Р’РЎРЈ';
+    btn.title = t.showUnitsUa || 'Показать подразделения ВСУ';
 }
 
-// Р­РєСЃРїРѕСЂС‚РёСЂСѓРµРј РЅРѕРІС‹Рµ С„СѓРЅРєС†РёРё
+// Экспортируем новые функции
 
-// ========== РРќРР¦РРђР›РР—РђР¦РРЇ Р’РЎР•РҐ Р¤РР›Р¬РўР РћР’ ==========
+// ========== ИНИЦИАЛИЗАЦИЯ ВСЕХ ФИЛЬТРОВ ==========
 function initFilters() {
     initEquipmentFilter();
     initAttacksFilter();
     initFortificationFilter();
-    // РћР±РЅРѕРІРёРј Р·Р°РіРѕР»РѕРІРєРё РєРЅРѕРїРѕРє
+    // Обновим заголовки кнопок
     // updateMilEquipButtonTitle();
     // updateAttacksOnUaButtonTitle();
     // updateFortificationButtonTitle();
 }
 
-// Р­РєСЃРїРѕСЂС‚РёСЂСѓРµРј С„СѓРЅРєС†РёРё, РєРѕС‚РѕСЂС‹Рµ Р±СѓРґСѓС‚ РЅСѓР¶РЅС‹ РІ script.js
+// Экспортируем функции, которые будут нужны в script.js
 window.initFilters = initFilters;
 window.initFortificationFilter = initFortificationFilter;
 window.initFortificationLayerWithFilter = initFortificationLayerWithFilter;
@@ -1451,25 +1451,25 @@ window.showUnitDetailsForProfileId = showUnitDetailsForProfileId;
 
 //
 document.addEventListener('DOMContentLoaded', function() {
-    // РџРµСЂРµРјРµС‰Р°РµРј РјРµРЅСЋ С‚РµС…РЅРёРєРё РІ body
+    // Перемещаем меню техники в body
     const equipMenu = document.getElementById('equipment-filter-menu');
     if (equipMenu && equipMenu.parentNode !== document.body) {
         document.body.appendChild(equipMenu);
     }
     
-    // РџРµСЂРµРјРµС‰Р°РµРј РјРµРЅСЋ Р°С‚Р°Рє РІ body
+    // Перемещаем меню атак в body
     const attacksMenu = document.getElementById('attacks-filter-menu');
     if (attacksMenu && attacksMenu.parentNode !== document.body) {
         document.body.appendChild(attacksMenu);
     }
     
-    // РџРµСЂРµРјРµС‰Р°РµРј РјРµРЅСЋ С„РѕСЂС‚РёС„РёРєР°С†РёР№ РІ body
+    // Перемещаем меню фортификаций в body
     const fortificationMenu = document.getElementById('fortification-filter-menu');
     if (fortificationMenu && fortificationMenu.parentNode !== document.body) {
         document.body.appendChild(fortificationMenu);
     }
     
-    // Р—Р°РєСЂС‹С‚РёРµ РјРµРЅСЋ С„РёР»СЊС‚СЂРѕРІ РїСЂРё РєР»РёРєРµ РІРЅРµ РёС… РѕР±Р»Р°СЃС‚Рё
+    // Закрытие меню фильтров при клике вне их области
     document.addEventListener('click', function(e) {
         var filters = [
             { menu: document.getElementById('equipment-filter-menu'), btn: document.getElementById('mil-equip-btn') },
