@@ -1402,7 +1402,7 @@ async function loadKmlFile(file, targetCRS) {
                 isPermanent: false,
                 preserveZoom: preserveZoom,
                 fitBounds: false,
-                pane: 'vector'
+                pane: path.includes('Control') ? 'vectorControl' : 'vectorLines'
             })
         );
 
@@ -1467,7 +1467,7 @@ async function loadPermanentKmlLayers() {
                 .filter(layerData => layerData.path)
                 .map(layerData => {
                     console.log("Загрузка постоянного слоя:", layerData.path);
-                    return buildLayerForPath(layerData.path, 'vector', { isPermanent: true });
+                    return buildLayerForPath(layerData.path, 'vectorPoly', { isPermanent: true });
                 })
         );
 
@@ -1547,7 +1547,7 @@ async function buildCurrentFrontLineGroup() {
             isPermanent: true,
             preserveZoom: true,
             fitBounds: false,
-            pane: 'vector'
+            pane: 'vectorLines'
         });
         if (token !== frontLineCurrentToken) return { group: null };
         return { group: layerGroup };
@@ -1599,7 +1599,7 @@ async function buildArchiveFrontLineGroup() {
             isPermanent: true,
             preserveZoom: true,
             fitBounds: false,
-            pane: 'vector'
+            pane: 'vectorLines'
         });
         if (token !== frontLineArchiveToken) return { group: null };
         // Фиксированный стиль архивной линии: 70% непрозрачности + пунктир
@@ -2818,21 +2818,18 @@ async function init() {
     const polyPromise = (async () => {
         const controlPaths = dateFile ? dateFile.paths.filter(p => p.includes('Control')) : [];
         const progressPaths = dateFile ? dateFile.paths.filter(p => !p.includes('Control')) : [];
+        const dateCount = controlPaths.length + progressPaths.length;
         const results = await Promise.allSettled([
-            ...controlPaths.map(p => buildLayerForPath(p, 'vector')),
-            ...progressPaths.map(p => buildLayerForPath(p, 'vector')),
+            ...controlPaths.map(p => buildLayerForPath(p, 'vectorControl')),
+            ...progressPaths.map(p => buildLayerForPath(p, 'vectorLines')),
             ...window.permanentLayers
                 .filter(l => l.path)
-                .map(l => buildLayerForPath(l.path, 'vector', { isPermanent: true }))
+                .map(l => buildLayerForPath(l.path, 'vectorPoly', { isPermanent: true }))
         ]);
-        const progressStart = controlPaths.length;
-        const progressEnd = progressStart + progressPaths.length;
         return {
-            controlGroups: results.slice(0, progressStart)
+            dateGroups: results.slice(0, dateCount)
                 .filter(r => r.status === 'fulfilled').map(r => r.value),
-            progressLineGroups: results.slice(progressStart, progressEnd)
-                .filter(r => r.status === 'fulfilled').map(r => r.value),
-            permanentGroups: results.slice(progressEnd)
+            permanentGroups: results.slice(dateCount)
                 .filter(r => r.status === 'fulfilled').map(r => r.value)
         };
     })();
@@ -2847,25 +2844,21 @@ async function init() {
         pointsPromise
     ]);
 
-    // Слои выбранной даты (control + линии) + постоянные объекты.
-    // Единая панель 'vector' → один canvas. Визуальный порядок задаётся
-    // порядком addTo: полигоны (дно) → control-зоны → линии (верх).
-    const { controlGroups, progressLineGroups, permanentGroups } = polyResult;
+    // Полигоны: слои выбранной даты + постоянные объекты
+    const { dateGroups, permanentGroups } = polyResult;
     if (currentLayer) {
         map.removeLayer(currentLayer);
     }
+    const currentGroup = L.layerGroup();
+    dateGroups.forEach(g => currentGroup.addLayer(g));
+    currentGroup.addTo(map);
+    currentLayer = currentGroup;
+
     if (window.permanentLayerGroups && window.permanentLayerGroups.length) {
         window.permanentLayerGroups.forEach(layer => map.removeLayer(layer));
     }
-    // 1) Постоянные полигоны — дно
     window.permanentLayerGroups = permanentGroups;
     permanentGroups.forEach(g => g.addTo(map));
-    // 2) Control-зоны + линии выбранной даты — поверх полигонов
-    const currentGroup = L.layerGroup();
-    controlGroups.forEach(g => currentGroup.addLayer(g));
-    progressLineGroups.forEach(g => currentGroup.addLayer(g));
-    currentGroup.addTo(map);
-    currentLayer = currentGroup;
 
     // Линии ЛБС: текущая + архивная (group = null, если дата сменилась во время загрузки)
     if (flCurrent.group) {

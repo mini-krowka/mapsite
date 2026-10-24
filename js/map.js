@@ -671,12 +671,19 @@ interactivePane.style.zIndex = 500;  // выше стандартной overlay-
 const nonInteractivePane = map.createPane('nonInteractive');
 nonInteractivePane.style.zIndex = 400; // ниже интерактивной
 
-// Единая панель KML-векторов: Control-зоны + полигоны + линии в одном канвасе.
-// Важно: один canvas = один renderer = корректный hit-test и клики для всех слоёв.
-// Раздельные панели (vectorControl/vectorPoly/vectorLines) ломали hover: верхний
-// canvas перехватывал все pointer-события, и слои ниже не получали mouseover.
-// Визуальный порядок (control < полигоны < линии) задаётся порядком отрисовки.
-const vectorPane = map.createPane('vector');
-vectorPane.style.zIndex = 410;
+// Панели KML-векторов (детерминированный порядок, не зависит от момента добавления):
+// Control-зоны < линейка (drawPane) < постоянные полигоны < линии < точки (pointsPane, 500)
+const vectorControlPane = map.createPane('vectorControl');
+vectorControlPane.style.zIndex = 405;
 const drawPane = map.createPane('drawPane');
 drawPane.style.zIndex = 407;
+const vectorPolyPane = map.createPane('vectorPoly');
+vectorPolyPane.style.zIndex = 410;
+const vectorLinesPane = map.createPane('vectorLines');
+vectorLinesPane.style.zIndex = 420;
+// canvas'ы векторных панелей не перехватывают pointer-события: иначе верхний canvas
+// (vectorLines) забирает все hover'ы и слои ниже не получают mouseover.
+// Обработка hover/click по всем трём панелям — в js/vector-hover.js.
+vectorControlPane.style.pointerEvents = 'none';
+vectorPolyPane.style.pointerEvents = 'none';
+vectorLinesPane.style.pointerEvents = 'none';
