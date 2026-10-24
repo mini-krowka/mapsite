@@ -652,7 +652,7 @@ async function initFortificationLayerWithFilter(kmlFilePaths) {
                             color: feature.properties?.stroke || THEME.colors.layerRuAF,
                             weight: feature.properties?.['stroke-width'] || 2,
                             opacity: feature.properties?.['stroke-opacity'] || 1,
-                            pane: 'vectorLines',
+                            pane: 'vector',
                         };
                     },
                     onEachFeature: function(feature, layer) {
@@ -668,7 +668,7 @@ async function initFortificationLayerWithFilter(kmlFilePaths) {
                     isPermanent: false,
                     preserveZoom: true,
                     fitBounds: false,
-                    pane: 'vectorLines'
+                    pane: 'vector'
                 });
             }
             window.allFortificationLayers.push({
