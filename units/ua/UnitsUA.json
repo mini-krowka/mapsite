@@ -1262,8 +1262,8 @@
    "type": "message",
    "date": "2026-03-11T15:48:14",
    "date_unixtime": "1773233294",
-   "edited": "2026-10-25T22:33:51",
-   "edited_unixtime": "1792956831",
+   "edited": "2026-10-26T15:57:18",
+   "edited_unixtime": "1793019438",
    "from": "Вооруженные формирования Украины",
    "from_id": "channel3718425800",
    "file": "files/13.png",
@@ -1345,7 +1345,7 @@
      "type": "hashtag",
      "text": "#АК_12"
     },
-    ""
+    "\n\n4 ШБ 321\n1 ШБ 322"
    ],
    "text_entities": [
     {
@@ -1462,7 +1462,7 @@
     },
     {
      "type": "plain",
-     "text": ""
+     "text": "\n\n4 ШБ 321\n1 ШБ 322"
     }
    ]
   },
@@ -10556,8 +10556,8 @@
    "type": "message",
    "date": "2026-03-17T23:05:45",
    "date_unixtime": "1773777945",
-   "edited": "2026-10-19T12:50:11",
-   "edited_unixtime": "1792403411",
+   "edited": "2026-10-26T16:18:44",
+   "edited_unixtime": "1793020724",
    "from": "Вооруженные формирования Украины",
    "from_id": "channel3718425800",
    "file": "files/78.png",
@@ -10603,6 +10603,16 @@
     {
      "type": "link",
      "text": "https://t.me/nrk_92sabr"
+    },
+    "\nФБ ",
+    {
+     "type": "link",
+     "text": "https://www.facebook.com/profile.php?id=61560583125211#"
+    },
+    "\nФБ ",
+    {
+     "type": "link",
+     "text": "https://www.facebook.com/rozvidbat92ab"
     },
     "\n\nСостав\n1-й штурмовой батальон \n2-й штурмовой батальон \n3-й штурмовой батальон\n4-й штурмовой батальон \n5-й штурмовой батальон\n22-й отдельный мотопехотный батальон \nСамоходный артиллерийский дивизион \nАртиллерийский дивизион \nРеактивный артиллерийский дивизион\nТанковый батальон\nЗенитный ракетно-артиллерийский дивизион \nБатальон беспилотных систем\n\nВооружение\n\nББМ\nБТР-4Е\nМТ-ЛБ с БМ-7 «Парус»\nHMMWV\nТигр\nTerradyne Gurkha\n\nСАУ и буксируемая артиллерия \n122-мм САУ 2С1 «Гвоздика»\n152-мм САУ 2С3 «Акация»\n155-мм САУ M109A6 «Paladin»\n120-мм орудие 2Б16 «Нона-К»\n105-мм гаубица M119\n\nРСЗО\nБМ-21 «Град»\n\nТяжёлая бронетехника\nТ-64(БВ/БМ)\nТ-84 «Оплот»\nТ-80БВ\n\nЗРК\n9К35 «Стрела-10»\n\n",
     {
@@ -10682,6 +10692,22 @@
     {
      "type": "link",
      "text": "https://t.me/nrk_92sabr"
+    },
+    {
+     "type": "plain",
+     "text": "\nФБ "
+    },
+    {
+     "type": "link",
+     "text": "https://www.facebook.com/profile.php?id=61560583125211#"
+    },
+    {
+     "type": "plain",
+     "text": "\nФБ "
+    },
+    {
+     "type": "link",
+     "text": "https://www.facebook.com/rozvidbat92ab"
     },
     {
      "type": "plain",
@@ -13410,8 +13436,8 @@
    "type": "message",
    "date": "2026-03-24T00:30:17",
    "date_unixtime": "1774301417",
-   "edited": "2026-08-25T16:55:11",
-   "edited_unixtime": "1787666111",
+   "edited": "2026-10-26T16:21:33",
+   "edited_unixtime": "1793020893",
    "from": "Вооруженные формирования Украины",
    "from_id": "channel3718425800",
    "file": "files/98.png",
@@ -13432,6 +13458,11 @@
     {
      "type": "link",
      "text": "https://www.facebook.com/brigadaA7043"
+    },
+    "\nФБ ",
+    {
+     "type": "link",
+     "text": "https://www.facebook.com/61569880599436"
     },
     "\nЮт ",
     {
@@ -13476,6 +13507,14 @@
     {
      "type": "link",
      "text": "https://www.facebook.com/brigadaA7043"
+    },
+    {
+     "type": "plain",
+     "text": "\nФБ "
+    },
+    {
+     "type": "link",
+     "text": "https://www.facebook.com/61569880599436"
     },
     {
      "type": "plain",
@@ -17418,8 +17457,8 @@
    "type": "message",
    "date": "2026-04-04T01:04:03",
    "date_unixtime": "1775253843",
-   "edited": "2026-10-25T23:32:26",
-   "edited_unixtime": "1792960346",
+   "edited": "2026-10-26T16:30:52",
+   "edited_unixtime": "1793021452",
    "from": "Вооруженные формирования Украины",
    "from_id": "channel3718425800",
    "file": "files/128.png",
@@ -17444,7 +17483,17 @@
     "\nФБ ",
     {
      "type": "link",
-     "text": "https://www.facebook.com/profile.php?id=61574222876377&mibextid=ZbWKwL"
+     "text": "https://www.facebook.com/1battalion158"
+    },
+    "\nФБ ",
+    {
+     "type": "link",
+     "text": "https://www.facebook.com/61571366593773"
+    },
+    "\nФБ ",
+    {
+     "type": "link",
+     "text": "https://www.facebook.com/profile.php?id=61574222876377"
     },
     "\nИнст ",
     {
@@ -17496,7 +17545,23 @@
     },
     {
      "type": "link",
-     "text": "https://www.facebook.com/profile.php?id=61574222876377&mibextid=ZbWKwL"
+     "text": "https://www.facebook.com/1battalion158"
+    },
+    {
+     "type": "plain",
+     "text": "\nФБ "
+    },
+    {
+     "type": "link",
+     "text": "https://www.facebook.com/61571366593773"
+    },
+    {
+     "type": "plain",
+     "text": "\nФБ "
+    },
+    {
+     "type": "link",
+     "text": "https://www.facebook.com/profile.php?id=61574222876377"
     },
     {
      "type": "plain",
@@ -24737,8 +24802,8 @@
    "type": "message",
    "date": "2026-04-25T18:07:20",
    "date_unixtime": "1777129640",
-   "edited": "2026-10-04T21:58:53",
-   "edited_unixtime": "1791140333",
+   "edited": "2026-10-26T16:16:50",
+   "edited_unixtime": "1793020610",
    "from": "Вооруженные формирования Украины",
    "from_id": "channel3718425800",
    "file": "files/192.png",
@@ -24774,6 +24839,11 @@
     {
      "type": "link",
      "text": "https://www.facebook.com/share/1FhFw8y3xT/"
+    },
+    "\nФБ ",
+    {
+     "type": "link",
+     "text": "https://www.facebook.com/1st.assault.battalion.33sar"
     },
     "\nЮт ",
     {
@@ -24852,6 +24922,14 @@
     {
      "type": "link",
      "text": "https://www.facebook.com/share/1FhFw8y3xT/"
+    },
+    {
+     "type": "plain",
+     "text": "\nФБ "
+    },
+    {
+     "type": "link",
+     "text": "https://www.facebook.com/1st.assault.battalion.33sar"
     },
     {
      "type": "plain",
@@ -27020,8 +27098,8 @@
    "type": "message",
    "date": "2026-04-30T13:01:42",
    "date_unixtime": "1777543302",
-   "edited": "2026-10-25T11:25:11",
-   "edited_unixtime": "1792916711",
+   "edited": "2026-10-26T16:51:35",
+   "edited_unixtime": "1793022695",
    "from": "Вооруженные формирования Украины",
    "from_id": "channel3718425800",
    "file": "files/215.png",
@@ -27063,7 +27141,7 @@
      "type": "hashtag",
      "text": "#АК_21"
     },
-    ""
+    "\n\n3 бат 323"
    ],
    "text_entities": [
     {
@@ -27116,7 +27194,7 @@
     },
     {
      "type": "plain",
-     "text": ""
+     "text": "\n\n3 бат 323"
     }
    ]
   },
@@ -34694,6 +34772,59 @@
     {
      "type": "hashtag",
      "text": "#Бр_5"
+    },
+    {
+     "type": "plain",
+     "text": ""
+    }
+   ]
+  },
+  {
+   "id": 323,
+   "type": "message",
+   "date": "2026-10-26T16:43:15",
+   "date_unixtime": "1793022195",
+   "edited": "2026-10-26T16:45:13",
+   "edited_unixtime": "1793022313",
+   "from": "Вооруженные формирования Украины",
+   "from_id": "channel3718425800",
+   "file": "files/323.png",
+   "file_name": "323.png",
+   "file_size": 129331,
+   "thumbnail": "files/323.png_thumb.jpg",
+   "thumbnail_file_size": 35476,
+   "mime_type": "image/png",
+   "width": 700,
+   "height": 800,
+   "text": [
+    "ID:323\n\n433-й отдельный полк беспилотных систем. 3 Батальон \"Сечь\"\n\nОписание:\n(433-й окремий полк безпілотних систем) 3 Батальйон СІЧ\n\n\nФБ ",
+    {
+     "type": "link",
+     "text": "https://www.facebook.com/profile.php?id=61595479380825"
+    },
+    "\n\nСостав\n\n\n",
+    {
+     "type": "hashtag",
+     "text": "#Пк_433"
+    },
+    ""
+   ],
+   "text_entities": [
+    {
+     "type": "plain",
+     "text": "ID:323\n\n433-й отдельный полк беспилотных систем. 3 Батальон \"Сечь\"\n\nОписание:\n(433-й окремий полк безпілотних систем) 3 Батальйон СІЧ\n\n\nФБ "
+    },
+    {
+     "type": "link",
+     "text": "https://www.facebook.com/profile.php?id=61595479380825"
+    },
+    {
+     "type": "plain",
+     "text": "\n\nСостав\n\n\n"
+    },
+    {
+     "type": "hashtag",
+     "text": "#Пк_433"
     },
     {
      "type": "plain",
