@@ -358,8 +358,6 @@
 .units-ua-details-btn-wrap {
     margin-top: 10px;
     text-align: left;
-    display: flex;
-    gap: 6px;
 }
 
 .units-ua-details-btn {
@@ -371,7 +369,8 @@
     font-size: var(--font-size-sm);
     cursor: pointer;
     font-weight: bold;
-    flex: 1;
+    width: 50%;
+    margin: 0 auto;
 }
 
 .units-ua-details-btn:hover {
