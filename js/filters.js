@@ -1330,6 +1330,16 @@ async function showUnitDetailsForProfileId(profileId) {
                 window.unitsUaDetailMarkers.push(bdMarker);
             }
         }
+
+        // Подстраиваем карту под все найденные точки с небольшими отступами
+        const allDetailPoints = [...window.unitsUaDetailMarkers, ...window.unitsUaDetailPvdMarkers];
+        if (currentMarker) {
+            allDetailPoints.push(currentMarker);
+        }
+        if (allDetailPoints.length > 0) {
+            const detailBounds = L.latLngBounds(allDetailPoints.map(function(m) { return m.getLatLng(); }));
+            map.fitBounds(detailBounds, { padding: [40, 40] });
+        }
     } catch (error) {
         console.error('Ошибка загрузки CSV для деталей:', error);
     }
