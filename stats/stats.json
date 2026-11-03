@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-03T15:44:05.913Z",
+  "generatedAt": "2026-11-03T15:59:58.941Z",
   "generator": "post_helper",
   "source": {
     "dataset": "ControlZones",
@@ -31,7 +31,7 @@
   },
   "snapshotCount": 38,
   "firstSnapshot": "2023-10-06",
-  "lastSnapshot": "2026-10-28",
+  "lastSnapshot": "2026-11-01",
   "periods": [
     {
       "id": "2023-10",
@@ -4246,22 +4246,22 @@
       }
     },
     {
-      "id": "2026-10-partial",
+      "id": "2026-10",
       "month": "2026-10",
       "label": "Октябрь 2026",
       "from": "2026-10-04",
       "fromName": "Control_26_10_04.kml",
-      "to": "2026-10-28",
-      "toName": "Control_26_10_28.kml",
-      "days": 24,
-      "daysCount": 24,
-      "partial": true,
-      "rate": -1.16,
+      "to": "2026-11-01",
+      "toName": "Control_26_11_01.kml",
+      "days": 28,
+      "daysCount": 28,
+      "partial": false,
+      "rate": -0.14,
       "areaFrom": 513776.08,
-      "areaTo": 513748.31,
-      "gain": 225.91,
-      "loss": 253.68,
-      "net": -27.77,
+      "areaTo": 513772.09,
+      "gain": 252.12,
+      "loss": 256.11,
+      "net": -4,
       "micro": {
         "gain": 0,
         "loss": 0,
@@ -4269,13 +4269,13 @@
         "lossCount": 0
       },
       "components": {
-        "gain": 70,
-        "loss": 70
+        "gain": 71,
+        "loss": 73
       },
       "raw": {
-        "gain": 225.91,
-        "loss": 253.68,
-        "net": -27.77
+        "gain": 252.12,
+        "loss": 256.11,
+        "net": -4
       },
       "directions": [
         {
@@ -4288,9 +4288,9 @@
         {
           "id": "kharkiv",
           "name": "Харьковское",
-          "gain": 105.7,
-          "loss": 18.61,
-          "net": 87.09
+          "gain": 123.95,
+          "loss": 18.87,
+          "net": 105.08
         },
         {
           "id": "kupyansk",
@@ -4309,16 +4309,16 @@
         {
           "id": "slavyansk",
           "name": "Славянское",
-          "gain": 8.11,
-          "loss": 153.58,
-          "net": -145.47
+          "gain": 9.7,
+          "loss": 155.64,
+          "net": -145.94
         },
         {
           "id": "krasnoarmeysk",
           "name": "Красноармейское",
-          "gain": 68.34,
-          "loss": 0.45,
-          "net": 67.89
+          "gain": 74.71,
+          "loss": 0.57,
+          "net": 74.14
         },
         {
           "id": "dnipropetrovsk",
@@ -4364,14 +4364,14 @@
     }
   ],
   "totals": {
-    "gain": 13226.11,
-    "loss": 2512.64,
-    "net": 10713.51
+    "gain": 13252.32,
+    "loss": 2515.07,
+    "net": 10737.28
   },
   "fullTotals": {
-    "gain": 13000.2,
-    "loss": 2258.96,
-    "net": 10741.28
+    "gain": 13252.32,
+    "loss": 2515.07,
+    "net": 10737.28
   },
   "directions": [
     {
@@ -4815,13 +4815,13 @@
           "month": "2026-10",
           "label": "Октябрь 2026",
           "from": "2026-10-04",
-          "to": "2026-10-28",
-          "days": 24,
-          "partial": true,
+          "to": "2026-11-01",
+          "days": 28,
+          "partial": false,
           "gain": 3.93,
           "loss": 0.18,
           "net": 3.75,
-          "rate": 0.16
+          "rate": 0.13
         }
       ],
       "totals": {
@@ -4830,9 +4830,9 @@
         "net": 412.95
       },
       "fullTotals": {
-        "gain": 1594.62,
-        "loss": 1185.42,
-        "net": 409.2
+        "gain": 1598.55,
+        "loss": 1185.6,
+        "net": 412.95
       }
     },
     {
@@ -5276,24 +5276,24 @@
           "month": "2026-10",
           "label": "Октябрь 2026",
           "from": "2026-10-04",
-          "to": "2026-10-28",
-          "days": 24,
-          "partial": true,
-          "gain": 105.7,
-          "loss": 18.61,
-          "net": 87.09,
-          "rate": 3.63
+          "to": "2026-11-01",
+          "days": 28,
+          "partial": false,
+          "gain": 123.95,
+          "loss": 18.87,
+          "net": 105.08,
+          "rate": 3.75
         }
       ],
       "totals": {
-        "gain": 746.5,
-        "loss": 44.1,
-        "net": 702.4
+        "gain": 764.75,
+        "loss": 44.36,
+        "net": 720.39
       },
       "fullTotals": {
-        "gain": 640.8,
-        "loss": 25.49,
-        "net": 615.31
+        "gain": 764.75,
+        "loss": 44.36,
+        "net": 720.39
       }
     },
     {
@@ -5737,13 +5737,13 @@
           "month": "2026-10",
           "label": "Октябрь 2026",
           "from": "2026-10-04",
-          "to": "2026-10-28",
-          "days": 24,
-          "partial": true,
+          "to": "2026-11-01",
+          "days": 28,
+          "partial": false,
           "gain": 2.8,
           "loss": 0.07,
           "net": 2.73,
-          "rate": 0.11
+          "rate": 0.1
         }
       ],
       "totals": {
@@ -5752,9 +5752,9 @@
         "net": 608.33
       },
       "fullTotals": {
-        "gain": 672.98,
-        "loss": 67.38,
-        "net": 605.6
+        "gain": 675.78,
+        "loss": 67.45,
+        "net": 608.33
       }
     },
     {
@@ -6198,9 +6198,9 @@
           "month": "2026-10",
           "label": "Октябрь 2026",
           "from": "2026-10-04",
-          "to": "2026-10-28",
-          "days": 24,
-          "partial": true,
+          "to": "2026-11-01",
+          "days": 28,
+          "partial": false,
           "gain": 0.11,
           "loss": 0.06,
           "net": 0.05,
@@ -6213,9 +6213,9 @@
         "net": 393.17
       },
       "fullTotals": {
-        "gain": 444.33,
-        "loss": 51.21,
-        "net": 393.12
+        "gain": 444.44,
+        "loss": 51.27,
+        "net": 393.17
       }
     },
     {
@@ -6659,24 +6659,24 @@
           "month": "2026-10",
           "label": "Октябрь 2026",
           "from": "2026-10-04",
-          "to": "2026-10-28",
-          "days": 24,
-          "partial": true,
-          "gain": 8.11,
-          "loss": 153.58,
-          "net": -145.47,
-          "rate": -6.06
+          "to": "2026-11-01",
+          "days": 28,
+          "partial": false,
+          "gain": 9.7,
+          "loss": 155.64,
+          "net": -145.94,
+          "rate": -5.21
         }
       ],
       "totals": {
-        "gain": 2415.98,
-        "loss": 402.32,
-        "net": 2013.66
+        "gain": 2417.57,
+        "loss": 404.38,
+        "net": 2013.19
       },
       "fullTotals": {
-        "gain": 2407.87,
-        "loss": 248.74,
-        "net": 2159.13
+        "gain": 2417.57,
+        "loss": 404.38,
+        "net": 2013.19
       }
     },
     {
@@ -7120,24 +7120,24 @@
           "month": "2026-10",
           "label": "Октябрь 2026",
           "from": "2026-10-04",
-          "to": "2026-10-28",
-          "days": 24,
-          "partial": true,
-          "gain": 68.34,
-          "loss": 0.45,
-          "net": 67.89,
-          "rate": 2.83
+          "to": "2026-11-01",
+          "days": 28,
+          "partial": false,
+          "gain": 74.71,
+          "loss": 0.57,
+          "net": 74.14,
+          "rate": 2.65
         }
       ],
       "totals": {
-        "gain": 3525.95,
-        "loss": 105.82,
-        "net": 3420.13
+        "gain": 3532.32,
+        "loss": 105.94,
+        "net": 3426.38
       },
       "fullTotals": {
-        "gain": 3457.61,
-        "loss": 105.37,
-        "net": 3352.24
+        "gain": 3532.32,
+        "loss": 105.94,
+        "net": 3426.38
       }
     },
     {
@@ -7581,9 +7581,9 @@
           "month": "2026-10",
           "label": "Октябрь 2026",
           "from": "2026-10-04",
-          "to": "2026-10-28",
-          "days": 24,
-          "partial": true,
+          "to": "2026-11-01",
+          "days": 28,
+          "partial": false,
           "gain": 0,
           "loss": 0,
           "net": 0,
@@ -8042,13 +8042,13 @@
           "month": "2026-10",
           "label": "Октябрь 2026",
           "from": "2026-10-04",
-          "to": "2026-10-28",
-          "days": 24,
-          "partial": true,
+          "to": "2026-11-01",
+          "days": 28,
+          "partial": false,
           "gain": 28.95,
           "loss": 78.82,
           "net": -49.87,
-          "rate": -2.08
+          "rate": -1.78
         }
       ],
       "totals": {
@@ -8057,9 +8057,9 @@
         "net": 2495.62
       },
       "fullTotals": {
-        "gain": 2737.72,
-        "loss": 192.23,
-        "net": 2545.49
+        "gain": 2766.67,
+        "loss": 271.05,
+        "net": 2495.62
       }
     },
     {
@@ -8503,13 +8503,13 @@
           "month": "2026-10",
           "label": "Октябрь 2026",
           "from": "2026-10-04",
-          "to": "2026-10-28",
-          "days": 24,
-          "partial": true,
+          "to": "2026-11-01",
+          "days": 28,
+          "partial": false,
           "gain": 7.98,
           "loss": 1.91,
           "net": 6.07,
-          "rate": 0.25
+          "rate": 0.22
         }
       ],
       "totals": {
@@ -8518,9 +8518,9 @@
         "net": 292.21
       },
       "fullTotals": {
-        "gain": 415.26,
-        "loss": 129.12,
-        "net": 286.14
+        "gain": 423.24,
+        "loss": 131.03,
+        "net": 292.21
       }
     },
     {
@@ -8964,9 +8964,9 @@
           "month": "2026-10",
           "label": "Октябрь 2026",
           "from": "2026-10-04",
-          "to": "2026-10-28",
-          "days": 24,
-          "partial": true,
+          "to": "2026-11-01",
+          "days": 28,
+          "partial": false,
           "gain": 0,
           "loss": 0,
           "net": 0,
@@ -9425,9 +9425,9 @@
           "month": "2026-10",
           "label": "Октябрь 2026",
           "from": "2026-10-04",
-          "to": "2026-10-28",
-          "days": 24,
-          "partial": true,
+          "to": "2026-11-01",
+          "days": 28,
+          "partial": false,
           "gain": 0,
           "loss": 0,
           "net": 0,
