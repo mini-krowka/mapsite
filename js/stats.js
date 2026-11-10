@@ -1926,7 +1926,7 @@
         if (lib && typeof lib.domToPng === 'function') {
             lib.domToPng(frame, {
                 backgroundColor: '#ffffff',
-                scale: Math.min(2, window.devicePixelRatio || 1),
+                scale: 2,
                 font: false,
                 filter: pngFilter,
                 onCloneNode: function (node) {
