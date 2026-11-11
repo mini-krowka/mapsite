@@ -147,6 +147,16 @@ test('KML направлений: 12 полигонов с id', () => {
     assert.ok(!fs.existsSync(path.join(ROOT, 'kml/PermanentObjects/Directions_fragments.kml')));
 });
 
+test('KML направлений: Сумское и Курская область не пересекаются', () => {
+    const text = fs.readFileSync(path.join(ROOT, 'kml/PermanentObjects/Directions.kml'), 'utf8');
+    const directions = StatsEngine.parseKmlPolygons(text);
+    const sumy = directions.find(direction => direction.id === 'sumy');
+    const kursk = directions.find(direction => direction.id === 'kursk');
+    const overlap = clip.intersection([sumy.polygon], [kursk.polygon]);
+    const area = overlap.reduce((sum, polygon) => sum + StatsEngine.multiPolygonAreaKm2([polygon]), 0);
+    assert.ok(area < 0.01, 'пересечение ' + area.toFixed(3) + ' км²');
+});
+
 test('LineString не считается полигоном направления', () => {
     const line = '<Placemark><name>Линия</name><LineString><coordinates>30,45,0 31,46,0</coordinates></LineString></Placemark>';
     assert.equal(StatsEngine.parseKmlPolygons(line).length, 0);
