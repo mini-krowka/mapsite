@@ -672,6 +672,31 @@
     var MAIN_GAIN_LINE = 'rgba(224, 27, 11, 0.78)';
     var MAIN_LOSS_LINE = 'rgba(47, 99, 184, 0.78)';
 
+    var directionZonesPlugin = {
+        id: 'directionZones',
+        beforeDraw: function (chart) {
+            var opts = chart.options.plugins.directionZones;
+            if (!opts || !opts.enabled) return;
+            var area = chart.chartArea;
+            var scale = chart.scales && chart.scales.y;
+            if (!area || !scale) return;
+            var zero = scale.getPixelForValue(0);
+            if (!isFinite(zero)) return;
+            zero = Math.max(area.top, Math.min(area.bottom, zero));
+            var ctx = chart.ctx;
+            ctx.save();
+            if (zero > area.top) {
+                ctx.fillStyle = 'rgba(224, 27, 11, 0.08)';
+                ctx.fillRect(area.left, area.top, area.right - area.left, zero - area.top);
+            }
+            if (zero < area.bottom) {
+                ctx.fillStyle = 'rgba(47, 99, 184, 0.10)';
+                ctx.fillRect(area.left, zero, area.right - area.left, area.bottom - zero);
+            }
+            ctx.restore();
+        }
+    };
+
     var currentLevelPlugin = {
         id: 'currentLevel',
         afterDatasetsDraw: function (chart) {
@@ -1282,6 +1307,7 @@
         destroyChart('direction');
         charts.direction = new Chart(canvas.getContext('2d'), {
             type: 'line',
+            plugins: [directionZonesPlugin],
             data: { labels: labels, datasets: datasets },
             options: {
                 responsive: true,
@@ -1289,6 +1315,7 @@
                 interaction: { mode: 'index', intersect: false },
                 animation: false,
                 plugins: {
+                    directionZones: { enabled: multiple },
                     legend: {
                         display: multiple,
                         position: 'top',
