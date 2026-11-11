@@ -24,9 +24,11 @@
     var MONTHS_FULL = MONTHS.ru.full;
     var numberFormat = new Intl.NumberFormat('ru-RU', { maximumFractionDigits: 1 });
     var charts = { main: null, total: null, direction: null, groups: null };
-    var state = { data: null, range: 'all', direction: null, detail: false, granularity: 'month', matrixRange: null };
+    var state = { data: null, range: 'all', directions: null, detail: false, granularity: 'month', matrixRange: null };
     var GROUP_FALLBACK = 'Без группы';
     var GROUP_COLORS = ['#c81e0f', '#2f63b8', '#1f8a4c', '#b8860b', '#7a4fb3', '#6c757d'];
+    var DIRECTION_COLORS = ['#c81e0f', '#2f63b8', '#1f8a4c', '#b8860b', '#7a4fb3', '#0f8b8d',
+        '#d1495b', '#3d5a80', '#8a5a44', '#5c8001', '#9c6644', '#6c757d', '#bc6c25'];
     // Порядок и подписи строк таблицы направлений. Id, которых нет в KML,
     // остаются в таблице с прочерками — геометрию для них ещё нужно нарезать.
     var DIRECTION_ROWS = [
@@ -76,6 +78,23 @@
         var label = DIRECTION_LABELS[direction.id];
         if (label) return isEn() ? label.en : label.ru;
         return direction.name || '';
+    }
+
+    function directionColor(direction) {
+        var index = -1;
+        for (var i = 0; i < DIRECTION_ROWS.length; i++) {
+            if (DIRECTION_ROWS[i].id === direction.id) { index = i; break; }
+        }
+        if (index < 0 && state.data && Array.isArray(state.data.directions)) {
+            index = state.data.directions.indexOf(direction);
+        }
+        if (index < 0) index = 0;
+        return DIRECTION_COLORS[index % DIRECTION_COLORS.length];
+    }
+
+    function hexToRgba(hex, alpha) {
+        var value = parseInt(String(hex).slice(1), 16);
+        return 'rgba(' + ((value >> 16) & 255) + ', ' + ((value >> 8) & 255) + ', ' + (value & 255) + ', ' + alpha + ')';
     }
 
     function groupDisplayName(name) {
@@ -1206,7 +1225,7 @@
         });
     }
 
-    function renderDirectionChart(direction, periods) {
+    function renderDirectionChart(directions, periods) {
         var canvas = document.getElementById('direction-chart');
         if (!canvas) return;
         var wrap = canvas.closest('.stats-chart-wrap');
@@ -1215,10 +1234,20 @@
             chartUnavailable(wrap, fallback);
             return;
         }
-        if (!periods.length) {
+        if (!directions.length) {
+            destroyChart('direction');
             chartUnavailable(wrap, fallback);
             if (fallback) {
-                fallback.textContent = tr('За выбранный период данных по направлению нет.', 'No data for this direction in the selected period.');
+                fallback.textContent = tr('Выберите направления для сравнения.', 'Select directions to compare.');
+                fallback.classList.remove('hidden');
+            }
+            return;
+        }
+        if (!periods.length) {
+            destroyChart('direction');
+            chartUnavailable(wrap, fallback);
+            if (fallback) {
+                fallback.textContent = tr('За выбранный период данных по направлениям нет.', 'No direction data for the selected period.');
                 fallback.classList.remove('hidden');
             }
             return;
@@ -1228,32 +1257,50 @@
         var labels = periods.map(function (period) {
             return shortMonth(period.month) + (period.partial ? '*' : '');
         });
-        var net = periods.map(function (period) { return Number(period.net) || 0; });
+        var aligned = directions.map(function (direction) {
+            var byMonth = {};
+            (direction.periods || []).forEach(function (period) { byMonth[period.month] = period; });
+            return periods.map(function (period) { return byMonth[period.month] || null; });
+        });
+        var multiple = directions.length > 1;
+        var datasets = directions.map(function (direction, index) {
+            var color = directionColor(direction);
+            return {
+                label: directionDisplayName(direction),
+                data: aligned[index].map(function (item) { return item ? Number(item.net) || 0 : null; }),
+                borderColor: color,
+                backgroundColor: multiple ? color : hexToRgba(color, 0.12),
+                borderWidth: 2,
+                pointRadius: 2.5,
+                pointHoverRadius: 4,
+                fill: !multiple,
+                tension: 0.25,
+                spanGaps: false
+            };
+        });
 
         destroyChart('direction');
         charts.direction = new Chart(canvas.getContext('2d'), {
             type: 'line',
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: tr('Всего', 'Total'),
-                    data: net,
-                    borderColor: '#1f2328',
-                    backgroundColor: 'rgba(31, 35, 40, 0.10)',
-                    borderWidth: 2,
-                    pointRadius: 2.5,
-                    pointHoverRadius: 4,
-                    fill: true,
-                    tension: 0.25
-                }]
-            },
+            data: { labels: labels, datasets: datasets },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
                 interaction: { mode: 'index', intersect: false },
                 animation: false,
                 plugins: {
-                    legend: { display: false },
+                    legend: {
+                        display: multiple,
+                        position: 'top',
+                        labels: {
+                            color: '#1f2328',
+                            boxWidth: 10,
+                            boxHeight: 10,
+                            usePointStyle: true,
+                            padding: 10,
+                            font: { family: 'Roboto, Arial, sans-serif', size: 11 }
+                        }
+                    },
                     tooltip: {
                         backgroundColor: 'rgba(31, 35, 40, 0.94)',
                         titleFont: { family: 'Roboto, Arial, sans-serif', size: 13 },
@@ -1265,15 +1312,18 @@
                                 return period ? fullMonthLabel(period.month) : '';
                             },
                             label: function (context) {
+                                if (multiple) {
+                                    return context.dataset.label + ': ' + signed(context.parsed.y) + ' ' + unitKm2();
+                                }
                                 return tr('Всего: ', 'Total: ') + signed(context.parsed.y) + ' ' + unitKm2();
                             },
-                            afterBody: function (items) {
-                                var period = periods[items[0].dataIndex];
-                                if (!period) return '';
+                            afterBody: multiple ? undefined : function (items) {
+                                var item = aligned[0][items[0].dataIndex];
+                                if (!item) return '';
                                 return [
-                                    tr('Продвижение: +', 'Advance: +') + formatNumber(period.gain),
-                                    tr('Отход: −', 'Withdrawal: −') + formatNumber(period.loss),
-                                    tr('Дней: ', 'Days: ') + period.days
+                                    tr('Продвижение: +', 'Advance: +') + formatNumber(item.gain),
+                                    tr('Отход: −', 'Withdrawal: −') + formatNumber(item.loss),
+                                    tr('Дней: ', 'Days: ') + item.days
                                 ];
                             }
                         }
@@ -1292,6 +1342,7 @@
                     },
                     y: {
                         beginAtZero: true,
+                        grace: '10%',
                         grid: { color: 'rgba(0, 0, 0, 0.07)' },
                         ticks: {
                             color: '#6c757d',
@@ -1535,30 +1586,60 @@
         renderGroupChart(data, periods, model);
     }
 
-    function ensureSelectedDirection(data) {
+    function defaultDirection(data) {
         var directions = data && data.directions ? data.directions : [];
-        var selected = findDirection(data, state.direction);
-        if (selected) return selected;
         var best = null;
         for (var i = 0; i < directions.length; i++) {
             var net = directions[i].fullTotals ? Number(directions[i].fullTotals.net) || 0 : 0;
             if (!best || net > best.net) best = { direction: directions[i], net: net };
         }
-        selected = best ? best.direction : (directions[0] || null);
-        state.direction = selected ? selected.id : null;
+        return best ? best.direction : (directions[0] || null);
+    }
+
+    function ensureSelectedDirections(data) {
+        function fallback() {
+            var initial = defaultDirection(data);
+            state.directions = initial ? [initial.id] : [];
+            return initial ? [initial] : [];
+        }
+        if (!Array.isArray(state.directions)) return fallback();
+        var selected = [];
+        var seen = {};
+        for (var i = 0; i < state.directions.length; i++) {
+            var id = state.directions[i];
+            if (seen[id]) continue;
+            var direction = findDirection(data, id);
+            if (!direction) continue;
+            seen[id] = true;
+            selected.push(direction);
+        }
+        if (!selected.length && state.directions.length) return fallback();
+        state.directions = selected.map(function (direction) { return direction.id; });
         return selected;
     }
 
-    function renderDirectionDetail(data, direction, periods) {
+    function renderDirectionDetail(data, selected, periods) {
         var title = document.getElementById('stats-direction-title');
         var sub = document.getElementById('stats-direction-sub');
         var totalsBox = document.getElementById('stats-direction-totals');
-        if (!direction) {
-            if (title) title.textContent = '';
-            if (sub) sub.textContent = '';
+        if (!selected.length) {
+            if (title) title.textContent = tr('Выберите направления', 'Select directions');
+            if (sub) sub.textContent = tr('Отметьте строки в таблице, чтобы сравнить направления на графике.', 'Select rows in the table to compare directions on the chart.');
             if (totalsBox) totalsBox.innerHTML = '';
+            renderDirectionChart([], periods);
             return;
         }
+        if (selected.length > 1) {
+            if (title) title.textContent = tr('Сравнение направлений', 'Directions comparison');
+            if (sub) {
+                sub.textContent = tr('Выбрано ', 'Selected ') + selected.length + ' · '
+                    + periodsCaption(periods) + ' · ' + rangeLabel(state.range) + ' · ' + tr('* — неполный месяц.', '* — incomplete month.');
+            }
+            if (totalsBox) totalsBox.innerHTML = '';
+            renderDirectionChart(selected, periods);
+            return;
+        }
+        var direction = selected[0];
         var directionPeriods = filterPeriods(direction.periods, state.range);
         var totals = directionTotals(direction, state.range);
         if (title) title.textContent = directionDisplayName(direction);
@@ -1571,7 +1652,7 @@
                 + '<span class="loss">−' + formatNumber(totals.loss) + '</span>'
                 + '<span class="net">' + signed(totals.net) + ' ' + unitKm2() + '</span>';
         }
-        renderDirectionChart(direction, directionPeriods);
+        renderDirectionChart(selected, periods);
     }
 
     function matrixValue(value) {
@@ -1611,8 +1692,8 @@
         var foot = document.getElementById('stats-matrix-foot');
         var sub = document.getElementById('stats-directions-sub');
         var note = document.getElementById('stats-directions-note');
-        var select = document.getElementById('stats-direction-select');
         if (!head || !body || !foot) return;
+        var selectedIds = selected.map(function (direction) { return direction.id; });
 
         var groups = [];
         for (var i = 0; i < periods.length; i++) {
@@ -1675,7 +1756,7 @@
             var rowClasses = ['stats-matrix-row'];
             if (direction) rowClasses.push('is-clickable');
             if (inactive) rowClasses.push('is-inactive');
-            if (direction && selected && direction.id === selected.id) rowClasses.push('is-selected');
+            if (direction && selectedIds.indexOf(direction.id) !== -1) rowClasses.push('is-selected');
             rows.push('<tr class="' + rowClasses.join(' ') + '"'
                 + (direction ? ' data-direction="' + escapeHtml(direction.id) + '" tabindex="0"' : '')
                 + '>'
@@ -1695,20 +1776,13 @@
             + '<td class="stats-matrix-name">' + escapeHtml(tr('Итого', 'Total')) + '</td>'
             + '</tr>';
 
-        if (select) {
-            var options = matrixDirections(data).filter(function (row) { return row.direction; });
-            select.innerHTML = options.map(function (row) {
-                return '<option value="' + escapeHtml(row.id) + '">' + escapeHtml(row.label) + '</option>';
-            }).join('');
-            select.value = selected ? selected.id : '';
-        }
-
         if (sub) {
             sub.textContent = tr('Показано ', 'Showing ') + periodsCaption(periods)
                 + ' · ' + rangeLabel(state.range) + ' · ' + tr('нетто, км²', 'net, km²') + '.';
         }
         if (note) {
-            var parts = [tr('Нажмите на направление, чтобы открыть его график.', 'Click a direction to open its chart.')];
+            var parts = [tr('Нажмите на направления, чтобы выбрать их для сравнения (можно несколько).',
+                'Click directions to include them in the comparison (multiple allowed).')];
             if (missing) {
                 parts.push(tr('«—» — направление ещё не размечено в KML границ.',
                     '"—" — the direction is not mapped in the boundary KML yet.'));
@@ -1735,7 +1809,7 @@
             return;
         }
 
-        var selected = ensureSelectedDirection(data);
+        var selected = ensureSelectedDirections(data);
         renderDirectionMatrix(data, periods, selected);
 
         section.classList.remove('hidden');
@@ -1844,7 +1918,7 @@
         var params = new URLSearchParams(window.location.search);
         if (state.range === 'all') params.delete('range');
         else params.set('range', state.range);
-        if (state.direction) params.set('direction', state.direction);
+        if (Array.isArray(state.directions) && state.directions.length) params.set('direction', state.directions.join(','));
         else params.delete('direction');
         var query = params.toString();
         var next = window.location.pathname + (query ? '?' + query : '');
@@ -1854,7 +1928,8 @@
     function readUrlState() {
         var params = new URLSearchParams(window.location.search);
         state.range = params.get('range') || 'all';
-        state.direction = params.get('direction') || null;
+        var rawDirection = params.get('direction');
+        state.directions = rawDirection === null ? null : rawDirection.split(',').filter(Boolean);
     }
 
     function selectMonth(month) {
@@ -1864,9 +1939,13 @@
         syncUrl();
     }
 
-    function selectDirection(id) {
+    function toggleDirection(id) {
         if (!state.data || !findDirection(state.data, id)) return;
-        state.direction = id;
+        var list = Array.isArray(state.directions) ? state.directions.slice() : [];
+        var index = list.indexOf(id);
+        if (index >= 0) list.splice(index, 1);
+        else list.push(id);
+        state.directions = list;
         renderDirections(state.data, filterPeriods(state.data.periods, state.range));
         syncUrl();
     }
@@ -2000,13 +2079,6 @@
             });
         }
 
-        var directionSelect = document.getElementById('stats-direction-select');
-        if (directionSelect) {
-            directionSelect.addEventListener('change', function () {
-                selectDirection(directionSelect.value);
-            });
-        }
-
         var tableBody = document.getElementById('stats-table-body');
         if (tableBody) {
             tableBody.addEventListener('click', function (event) {
@@ -2026,14 +2098,14 @@
         if (directionBody) {
             directionBody.addEventListener('click', function (event) {
                 var row = event.target.closest ? event.target.closest('tr[data-direction]') : null;
-                if (row) selectDirection(row.getAttribute('data-direction'));
+                if (row) toggleDirection(row.getAttribute('data-direction'));
             });
             directionBody.addEventListener('keydown', function (event) {
                 if (event.key !== 'Enter' && event.key !== ' ') return;
                 var row = event.target.closest ? event.target.closest('tr[data-direction]') : null;
                 if (!row) return;
                 event.preventDefault();
-                selectDirection(row.getAttribute('data-direction'));
+                toggleDirection(row.getAttribute('data-direction'));
             });
         }
     }

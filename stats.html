@@ -10,11 +10,11 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Wallpoet&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/variables.css">
-    <link rel="stylesheet" href="css/stats.css?v=20261110b">
+    <link rel="stylesheet" href="css/stats.css?v=20261111">
     <link rel="stylesheet" href="css/language.css">
     <script src="js/vendor/chart.umd.js" defer></script>
     <script src="js/vendor/modern-screenshot.js" defer></script>
-    <script src="js/stats.js?v=20261110b" defer></script>
+    <script src="js/stats.js?v=20261111" defer></script>
 </head>
 <body class="stats-page">
     <header class="stats-header">
@@ -181,10 +181,6 @@
                             <p id="stats-directions-sub" class="stats-panel-sub" data-ru="Нетто по месяцам за выбранный период." data-en="Monthly net for the selected period.">Нетто по месяцам за выбранный период.</p>
                         </div>
                         <div class="stats-panel-actions">
-                            <label class="stats-inline-select">
-                                <span data-ru="Направление" data-en="Direction">Направление</span>
-                                <select id="stats-direction-select" aria-label="Выбрать направление" data-aria-ru="Выбрать направление" data-aria-en="Select direction"></select>
-                            </label>
                             <a class="stats-map-link" href="index.html?directions=1" target="_blank" rel="noopener"><span data-ru="Границы на карте" data-en="Borders on map">Границы на карте</span></a>
                         </div>
                     </div>
@@ -214,7 +210,7 @@
                         </div>
                     </div>
                     <div class="stats-chart-wrap stats-chart-wrap--small">
-                        <canvas id="direction-chart" aria-label="График выбранного направления" data-aria-ru="График выбранного направления" data-aria-en="Selected direction chart" role="img"></canvas>
+                        <canvas id="direction-chart" aria-label="График выбранных направлений" data-aria-ru="График выбранных направлений" data-aria-en="Selected directions chart" role="img"></canvas>
                     </div>
                     <p id="direction-chart-fallback" class="stats-note hidden" data-ru="График недоступен: не загрузилась библиотека Chart.js." data-en="Chart unavailable: Chart.js failed to load.">График недоступен: не загрузилась библиотека Chart.js.</p>
                 </div>
