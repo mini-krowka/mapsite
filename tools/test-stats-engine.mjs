@@ -125,10 +125,10 @@ test('реальные срезы 01.10.2024 → 01.11.2024', () => {
     assert.equal(all.micro.loss, 0);
 });
 
-test('KML направлений: 11 полигонов с id', () => {
+test('KML направлений: 12 полигонов с id', () => {
     const text = fs.readFileSync(path.join(ROOT, 'kml/PermanentObjects/Directions.kml'), 'utf8');
     const directions = StatsEngine.parseKmlPolygons(text);
-    assert.equal(directions.length, 11);
+    assert.equal(directions.length, 12);
     assert.equal(directions[0].id, 'sumy');
     assert.equal(directions[0].name, 'Сумское');
     assert.equal(directions[0].group, 'Север');
@@ -137,6 +137,10 @@ test('KML направлений: 11 полигонов с id', () => {
     assert.ok(directions.some(direction => direction.id === 'herson'));
     assert.equal(directions.find(direction => direction.id === 'orekhiv').group, 'Днепр');
     assert.ok(directions.some(direction => direction.id === 'chernihiv'));
+    const kursk = directions.find(direction => direction.id === 'kursk');
+    assert.equal(kursk.name, 'Курская область');
+    assert.equal(kursk.group, 'Север');
+    assert.ok(kursk.polygon.length > 1000);
     assert.ok(!directions.some(direction => direction.id === 'krasny_liman'));
     assert.ok(directions.every(direction => direction.polygon.length >= 5));
     assert.ok(directions.find(direction => direction.id === 'dnipropetrovsk').polygon.length > 1000);
