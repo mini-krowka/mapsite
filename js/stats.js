@@ -23,23 +23,31 @@
     var MONTHS_SHORT = MONTHS.ru.short;
     var MONTHS_FULL = MONTHS.ru.full;
     var numberFormat = new Intl.NumberFormat('ru-RU', { maximumFractionDigits: 1 });
-    var charts = { main: null, direction: null, groups: null };
-    var state = { data: null, range: 'all', direction: null, detail: false, granularity: 'month' };
+    var charts = { main: null, total: null, direction: null, groups: null };
+    var state = { data: null, range: 'all', directions: null, detail: false, granularity: 'month', matrixRange: null };
     var GROUP_FALLBACK = 'Без группы';
     var GROUP_COLORS = ['#c81e0f', '#2f63b8', '#1f8a4c', '#b8860b', '#7a4fb3', '#6c757d'];
-    var DIRECTION_EN = {
-        sumy: 'Sumy',
-        kharkiv: 'Kharkiv',
-        chernihiv: 'Chernihiv',
-        kupyansk: 'Kupyansk',
-        borovaya: 'Borovaya',
-        slavyansk: 'Slavyansk',
-        krasnoarmeysk: 'Krasnoarmeysk',
-        dnipropetrovsk: 'Dnipropetrovsk',
-        donetsk_zaporizhzhia: 'Donetsk–Zaporizhzhia',
-        orekhiv: 'Dnipro–Zaporizhzhia',
-        herson: 'Kherson'
-    };
+    var DIRECTION_COLORS = ['#c81e0f', '#2f63b8', '#1f8a4c', '#b8860b', '#7a4fb3', '#0f8b8d',
+        '#d1495b', '#3d5a80', '#8a5a44', '#5c8001', '#9c6644', '#6c757d', '#bc6c25'];
+    // Порядок и подписи строк таблицы направлений. Id, которых нет в KML,
+    // остаются в таблице с прочерками — геометрию для них ещё нужно нарезать.
+    var DIRECTION_ROWS = [
+        { id: 'chernihiv', ru: 'Черниговская зона безопасности', en: 'Chernihiv security zone' },
+        { id: 'sumy', ru: 'Сумская зона безопасности', en: 'Sumy security zone' },
+        { id: 'kursk', ru: 'Курская область', en: 'Kursk region' },
+        { id: 'kharkiv', ru: 'Харьковская зона безопасности', en: 'Kharkiv security zone' },
+        { id: 'kupyansk', ru: 'Купянское направление', en: 'Kupyansk direction' },
+        { id: 'borovaya', ru: 'Сватово-Боровая', en: 'Svatovo–Borovaya' },
+        { id: 'krasnolimansk', ru: 'Краснолиманское направление', en: 'Krasny Liman direction' },
+        { id: 'slavyansk', ru: 'Славянское направление', en: 'Slavyansk direction' },
+        { id: 'krasnoarmeysk', ru: 'Красноармейское направление', en: 'Krasnoarmeysk direction' },
+        { id: 'donetsk_zaporizhzhia', ru: 'Южнодонецко-Запорожское направление', en: 'South Donetsk–Zaporizhzhia direction' },
+        { id: 'dnipropetrovsk', ru: 'Днепропетровская зона безопасности', en: 'Dnipropetrovsk security zone' },
+        { id: 'orekhiv', ru: 'Днепровско-Запорожское направление', en: 'Dnipro–Zaporizhzhia direction' },
+        { id: 'herson', ru: 'Херсонское направление', en: 'Kherson direction' }
+    ];
+    var DIRECTION_LABELS = {};
+    DIRECTION_ROWS.forEach(function (row) { DIRECTION_LABELS[row.id] = row; });
     var GROUP_EN = {
         'Север': 'North',
         'Запад': 'West',
@@ -66,8 +74,27 @@
     }
 
     function directionDisplayName(direction) {
-        if (isEn() && direction && DIRECTION_EN[direction.id]) return DIRECTION_EN[direction.id];
-        return direction && direction.name ? direction.name : '';
+        if (!direction) return '';
+        var label = DIRECTION_LABELS[direction.id];
+        if (label) return isEn() ? label.en : label.ru;
+        return direction.name || '';
+    }
+
+    function directionColor(direction) {
+        var index = -1;
+        for (var i = 0; i < DIRECTION_ROWS.length; i++) {
+            if (DIRECTION_ROWS[i].id === direction.id) { index = i; break; }
+        }
+        if (index < 0 && state.data && Array.isArray(state.data.directions)) {
+            index = state.data.directions.indexOf(direction);
+        }
+        if (index < 0) index = 0;
+        return DIRECTION_COLORS[index % DIRECTION_COLORS.length];
+    }
+
+    function hexToRgba(hex, alpha) {
+        var value = parseInt(String(hex).slice(1), 16);
+        return 'rgba(' + ((value >> 16) & 255) + ', ' + ((value >> 8) & 255) + ', ' + (value & 255) + ', ' + alpha + ')';
     }
 
     function groupDisplayName(name) {
@@ -645,6 +672,31 @@
     var MAIN_GAIN_LINE = 'rgba(224, 27, 11, 0.78)';
     var MAIN_LOSS_LINE = 'rgba(47, 99, 184, 0.78)';
 
+    var directionZonesPlugin = {
+        id: 'directionZones',
+        beforeDraw: function (chart) {
+            var opts = chart.options.plugins.directionZones;
+            if (!opts || !opts.enabled) return;
+            var area = chart.chartArea;
+            var scale = chart.scales && chart.scales.y;
+            if (!area || !scale) return;
+            var zero = scale.getPixelForValue(0);
+            if (!isFinite(zero)) return;
+            zero = Math.max(area.top, Math.min(area.bottom, zero));
+            var ctx = chart.ctx;
+            ctx.save();
+            if (zero > area.top) {
+                ctx.fillStyle = 'rgba(224, 27, 11, 0.08)';
+                ctx.fillRect(area.left, area.top, area.right - area.left, zero - area.top);
+            }
+            if (zero < area.bottom) {
+                ctx.fillStyle = 'rgba(47, 99, 184, 0.10)';
+                ctx.fillRect(area.left, zero, area.right - area.left, area.bottom - zero);
+            }
+            ctx.restore();
+        }
+    };
+
     var currentLevelPlugin = {
         id: 'currentLevel',
         afterDatasetsDraw: function (chart) {
@@ -743,6 +795,43 @@
                 var labelX = Math.min(area.right - 4, Math.max(area.left + 4, point.x));
                 ctx.strokeText(signed(value), labelX, labelY);
                 ctx.fillText(signed(value), labelX, labelY);
+            }
+            ctx.restore();
+        }
+    };
+
+    var totalLabelsPlugin = {
+        id: 'totalLabels',
+        afterDatasetsDraw: function (chart) {
+            var meta = chart.getDatasetMeta(0);
+            if (!meta || !meta.data || !meta.data.length) return;
+            var area = chart.chartArea;
+            if (!area) return;
+            var values = chart.data.datasets[0].data;
+            var spacing = meta.data.length > 1
+                ? Math.abs(meta.data[1].x - meta.data[0].x)
+                : area.width;
+            var step = Math.max(1, Math.ceil(11 / Math.max(1, spacing)));
+            var compact = area.width < 520;
+            var ctx = chart.ctx;
+            ctx.save();
+            ctx.font = (compact ? 8 : 9) + 'px Roboto, Arial, sans-serif';
+            ctx.textAlign = 'left';
+            ctx.textBaseline = 'middle';
+            ctx.lineWidth = 3;
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.92)';
+            ctx.fillStyle = 'rgba(31, 35, 40, 0.82)';
+            for (var i = 0; i < meta.data.length; i++) {
+                if (i % step !== 0 && i !== meta.data.length - 1) continue;
+                var point = meta.data[i];
+                var value = Number(values[i]);
+                if (!point || !isFinite(point.x) || !isFinite(point.y) || !isFinite(value)) continue;
+                ctx.save();
+                ctx.translate(point.x, Math.max(area.top + 26, point.y - 4));
+                ctx.rotate(-Math.PI / 2);
+                ctx.strokeText(formatNumber(value), 0, 0);
+                ctx.fillText(formatNumber(value), 0, 0);
+                ctx.restore();
             }
             ctx.restore();
         }
@@ -1026,45 +1115,74 @@
         });
     }
 
-    function renderDirectionChart(direction, periods) {
-        var canvas = document.getElementById('direction-chart');
+    /**
+     * Накопленный итог с начала наступления по каждой точке периода.
+     * База — площадь контроля на первом срезе, то есть та же величина,
+     * что в четвёртой карточке («Всего с начала наступления»).
+     */
+    function cumulativeControlSeries(data, periods) {
+        var all = data && data.periods ? data.periods : [];
+        var base = all.length && all[0].areaFrom != null ? Number(all[0].areaFrom) : null;
+        var running = 0;
+        var byMonth = {};
+        for (var i = 0; i < all.length; i++) {
+            running += Number(all[i].net) || 0;
+            byMonth[all[i].month] = running;
+        }
+        return periods.map(function (period) {
+            if (base != null && period.areaTo != null) {
+                return Math.round((Number(period.areaTo) - base) * 100) / 100;
+            }
+            return Math.round((byMonth[period.month] || 0) * 100) / 100;
+        });
+    }
+
+    function renderTotalChart(data, periods) {
+        var canvas = document.getElementById('total-chart');
         if (!canvas) return;
         var wrap = canvas.closest('.stats-chart-wrap');
-        var fallback = document.getElementById('direction-chart-fallback');
+        var fallback = document.getElementById('total-chart-fallback');
+        var note = document.getElementById('stats-total-note');
         if (typeof Chart === 'undefined') {
             chartUnavailable(wrap, fallback);
             return;
         }
         if (!periods.length) {
+            if (fallback) fallback.textContent = tr('За выбранный период данных нет.', 'No data for the selected period.');
             chartUnavailable(wrap, fallback);
-            if (fallback) {
-                fallback.textContent = tr('За выбранный период данных по направлению нет.', 'No data for this direction in the selected period.');
-                fallback.classList.remove('hidden');
-            }
+            if (note) note.textContent = '';
             return;
         }
         chartAvailable(wrap, fallback);
 
+        var values = cumulativeControlSeries(data, periods);
         var labels = periods.map(function (period) {
             return shortMonth(period.month) + (period.partial ? '*' : '');
         });
-        var net = periods.map(function (period) { return Number(period.net) || 0; });
+        var last = values[values.length - 1];
+        if (note) {
+            note.textContent = tr(
+                'На конец периода: ' + signed(last) + ' ' + unitKm2()
+                    + ' с начала наступления. * — неполный месяц.',
+                'At the end of the period: ' + signed(last) + ' ' + unitKm2()
+                    + ' since the start of the offensive. * — incomplete month.'
+            );
+        }
 
-        destroyChart('direction');
-        charts.direction = new Chart(canvas.getContext('2d'), {
-            type: 'line',
+        destroyChart('total');
+        charts.total = new Chart(canvas.getContext('2d'), {
+            type: 'bar',
+            plugins: [totalLabelsPlugin],
             data: {
                 labels: labels,
                 datasets: [{
-                    label: tr('Всего', 'Total'),
-                    data: net,
-                    borderColor: '#1f2328',
-                    backgroundColor: 'rgba(31, 35, 40, 0.10)',
-                    borderWidth: 2,
-                    pointRadius: 2.5,
-                    pointHoverRadius: 4,
-                    fill: true,
-                    tension: 0.25
+                    label: tr('Всего с начала наступления', 'Total since the start'),
+                    data: values,
+                    backgroundColor: 'rgba(224, 27, 11, 0.55)',
+                    borderColor: 'rgba(224, 27, 11, 0.85)',
+                    borderWidth: 1,
+                    borderRadius: 2,
+                    maxBarThickness: 34
                 }]
             },
             options: {
@@ -1082,18 +1200,157 @@
                         callbacks: {
                             title: function (items) {
                                 var period = periods[items[0].dataIndex];
-                                return period ? fullMonthLabel(period.month) : '';
+                                return period ? fullMonthLabel(period.month) + (period.partial ? ' *' : '') : '';
                             },
                             label: function (context) {
-                                return tr('Всего: ', 'Total: ') + signed(context.parsed.y) + ' ' + unitKm2();
+                                return tr('С начала наступления: ', 'Since the start: ')
+                                    + signed(context.parsed.y) + ' ' + unitKm2();
                             },
                             afterBody: function (items) {
                                 var period = periods[items[0].dataIndex];
                                 if (!period) return '';
                                 return [
-                                    tr('Продвижение: +', 'Advance: +') + formatNumber(period.gain),
-                                    tr('Отход: −', 'Withdrawal: −') + formatNumber(period.loss),
-                                    tr('Дней: ', 'Days: ') + period.days
+                                    tr('За месяц: ', 'Month: ') + signed(period.net) + ' ' + unitKm2(),
+                                    tr('Продвижение: +', 'Advance: +') + formatNumber(period.gain)
+                                        + ' · ' + tr('отход: −', 'withdrawal: −') + formatNumber(period.loss)
+                                ];
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: { display: false },
+                        ticks: {
+                            color: '#6c757d',
+                            maxRotation: 0,
+                            autoSkip: true,
+                            maxTicksLimit: 18,
+                            font: { family: 'Roboto, Arial, sans-serif', size: 11 }
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        grace: '10%',
+                        grid: { color: 'rgba(0, 0, 0, 0.07)' },
+                        ticks: {
+                            color: '#6c757d',
+                            callback: function (value) { return numberFormat.format(value); },
+                            font: { family: 'Roboto, Arial, sans-serif', size: 11 }
+                        },
+                        title: {
+                            display: true,
+                            text: unitKm2(),
+                            color: '#6c757d',
+                            font: { family: 'Roboto, Arial, sans-serif', size: 11 }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    function renderDirectionChart(directions, periods) {
+        var canvas = document.getElementById('direction-chart');
+        if (!canvas) return;
+        var wrap = canvas.closest('.stats-chart-wrap');
+        var fallback = document.getElementById('direction-chart-fallback');
+        if (typeof Chart === 'undefined') {
+            chartUnavailable(wrap, fallback);
+            return;
+        }
+        if (!directions.length) {
+            destroyChart('direction');
+            chartUnavailable(wrap, fallback);
+            if (fallback) {
+                fallback.textContent = tr('Выберите направления для сравнения.', 'Select directions to compare.');
+                fallback.classList.remove('hidden');
+            }
+            return;
+        }
+        if (!periods.length) {
+            destroyChart('direction');
+            chartUnavailable(wrap, fallback);
+            if (fallback) {
+                fallback.textContent = tr('За выбранный период данных по направлениям нет.', 'No direction data for the selected period.');
+                fallback.classList.remove('hidden');
+            }
+            return;
+        }
+        chartAvailable(wrap, fallback);
+
+        var labels = periods.map(function (period) {
+            return shortMonth(period.month) + (period.partial ? '*' : '');
+        });
+        var aligned = directions.map(function (direction) {
+            var byMonth = {};
+            (direction.periods || []).forEach(function (period) { byMonth[period.month] = period; });
+            return periods.map(function (period) { return byMonth[period.month] || null; });
+        });
+        var multiple = directions.length > 1;
+        var datasets = directions.map(function (direction, index) {
+            var color = directionColor(direction);
+            return {
+                label: directionDisplayName(direction),
+                data: aligned[index].map(function (item) { return item ? Number(item.net) || 0 : null; }),
+                borderColor: color,
+                backgroundColor: multiple ? color : hexToRgba(color, 0.12),
+                borderWidth: 2,
+                pointRadius: 2.5,
+                pointHoverRadius: 4,
+                fill: !multiple,
+                tension: 0.25,
+                spanGaps: false
+            };
+        });
+
+        destroyChart('direction');
+        charts.direction = new Chart(canvas.getContext('2d'), {
+            type: 'line',
+            plugins: [directionZonesPlugin],
+            data: { labels: labels, datasets: datasets },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: { mode: 'index', intersect: false },
+                animation: false,
+                plugins: {
+                    directionZones: { enabled: multiple },
+                    legend: {
+                        display: multiple,
+                        position: 'top',
+                        labels: {
+                            color: '#1f2328',
+                            boxWidth: 10,
+                            boxHeight: 10,
+                            usePointStyle: true,
+                            padding: 10,
+                            font: { family: 'Roboto, Arial, sans-serif', size: 11 }
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(31, 35, 40, 0.94)',
+                        titleFont: { family: 'Roboto, Arial, sans-serif', size: 13 },
+                        bodyFont: { family: 'Roboto, Arial, sans-serif', size: 12 },
+                        padding: 10,
+                        callbacks: {
+                            title: function (items) {
+                                var period = periods[items[0].dataIndex];
+                                return period ? fullMonthLabel(period.month) : '';
+                            },
+                            label: function (context) {
+                                if (multiple) {
+                                    return context.dataset.label + ': ' + signed(context.parsed.y) + ' ' + unitKm2();
+                                }
+                                return tr('Всего: ', 'Total: ') + signed(context.parsed.y) + ' ' + unitKm2();
+                            },
+                            afterBody: multiple ? undefined : function (items) {
+                                var item = aligned[0][items[0].dataIndex];
+                                if (!item) return '';
+                                return [
+                                    tr('Продвижение: +', 'Advance: +') + formatNumber(item.gain),
+                                    tr('Отход: −', 'Withdrawal: −') + formatNumber(item.loss),
+                                    tr('Дней: ', 'Days: ') + item.days
                                 ];
                             }
                         }
@@ -1112,6 +1369,7 @@
                     },
                     y: {
                         beginAtZero: true,
+                        grace: '10%',
                         grid: { color: 'rgba(0, 0, 0, 0.07)' },
                         ticks: {
                             color: '#6c757d',
@@ -1355,30 +1613,60 @@
         renderGroupChart(data, periods, model);
     }
 
-    function ensureSelectedDirection(data) {
+    function defaultDirection(data) {
         var directions = data && data.directions ? data.directions : [];
-        var selected = findDirection(data, state.direction);
-        if (selected) return selected;
         var best = null;
         for (var i = 0; i < directions.length; i++) {
             var net = directions[i].fullTotals ? Number(directions[i].fullTotals.net) || 0 : 0;
             if (!best || net > best.net) best = { direction: directions[i], net: net };
         }
-        selected = best ? best.direction : (directions[0] || null);
-        state.direction = selected ? selected.id : null;
+        return best ? best.direction : (directions[0] || null);
+    }
+
+    function ensureSelectedDirections(data) {
+        function fallback() {
+            var initial = defaultDirection(data);
+            state.directions = initial ? [initial.id] : [];
+            return initial ? [initial] : [];
+        }
+        if (!Array.isArray(state.directions)) return fallback();
+        var selected = [];
+        var seen = {};
+        for (var i = 0; i < state.directions.length; i++) {
+            var id = state.directions[i];
+            if (seen[id]) continue;
+            var direction = findDirection(data, id);
+            if (!direction) continue;
+            seen[id] = true;
+            selected.push(direction);
+        }
+        if (!selected.length && state.directions.length) return fallback();
+        state.directions = selected.map(function (direction) { return direction.id; });
         return selected;
     }
 
-    function renderDirectionDetail(data, direction, periods) {
+    function renderDirectionDetail(data, selected, periods) {
         var title = document.getElementById('stats-direction-title');
         var sub = document.getElementById('stats-direction-sub');
         var totalsBox = document.getElementById('stats-direction-totals');
-        if (!direction) {
-            if (title) title.textContent = '';
-            if (sub) sub.textContent = '';
+        if (!selected.length) {
+            if (title) title.textContent = tr('Выберите направления', 'Select directions');
+            if (sub) sub.textContent = tr('Отметьте строки в таблице, чтобы сравнить направления на графике.', 'Select rows in the table to compare directions on the chart.');
             if (totalsBox) totalsBox.innerHTML = '';
+            renderDirectionChart([], periods);
             return;
         }
+        if (selected.length > 1) {
+            if (title) title.textContent = tr('Сравнение направлений', 'Directions comparison');
+            if (sub) {
+                sub.textContent = tr('Выбрано ', 'Selected ') + selected.length + ' · '
+                    + periodsCaption(periods) + ' · ' + rangeLabel(state.range) + ' · ' + tr('* — неполный месяц.', '* — incomplete month.');
+            }
+            if (totalsBox) totalsBox.innerHTML = '';
+            renderDirectionChart(selected, periods);
+            return;
+        }
+        var direction = selected[0];
         var directionPeriods = filterPeriods(direction.periods, state.range);
         var totals = directionTotals(direction, state.range);
         if (title) title.textContent = directionDisplayName(direction);
@@ -1391,13 +1679,156 @@
                 + '<span class="loss">−' + formatNumber(totals.loss) + '</span>'
                 + '<span class="net">' + signed(totals.net) + ' ' + unitKm2() + '</span>';
         }
-        renderDirectionChart(direction, directionPeriods);
+        renderDirectionChart(selected, periods);
+    }
+
+    function matrixValue(value) {
+        var number = Number(value);
+        if (!Number.isFinite(number)) return '—';
+        if (number < 0) return '−' + formatNumber(Math.abs(number));
+        return formatNumber(number);
+    }
+
+    function directionRowLabel(id) {
+        var row = DIRECTION_LABELS[id];
+        if (row) return isEn() ? row.en : row.ru;
+        var direction = findDirection(state.data, id);
+        return direction ? directionDisplayName(direction) : id;
+    }
+
+    function matrixDirections(data) {
+        var list = [];
+        var seen = {};
+        function add(id, direction) {
+            if (seen[id]) return;
+            seen[id] = true;
+            list.push({
+                id: id,
+                direction: direction || null,
+                label: direction ? directionDisplayName(direction) : directionRowLabel(id)
+            });
+        }
+        DIRECTION_ROWS.forEach(function (row) { add(row.id, findDirection(data, row.id)); });
+        (data.directions || []).forEach(function (direction) { add(direction.id, direction); });
+        return list;
+    }
+
+    function renderDirectionMatrix(data, periods, selected) {
+        var head = document.getElementById('stats-matrix-head');
+        var body = document.getElementById('stats-directions-body');
+        var foot = document.getElementById('stats-matrix-foot');
+        var sub = document.getElementById('stats-directions-sub');
+        var note = document.getElementById('stats-directions-note');
+        if (!head || !body || !foot) return;
+        var selectedIds = selected.map(function (direction) { return direction.id; });
+
+        var groups = [];
+        for (var i = 0; i < periods.length; i++) {
+            var period = periods[i];
+            var year = String(period.month || '').slice(0, 4);
+            var group = groups[groups.length - 1];
+            if (!group || group.year !== year) {
+                group = { year: year, periods: [] };
+                groups.push(group);
+            }
+            group.periods.push(period);
+        }
+        var yearStarts = periods.map(function (item, index) {
+            return index === 0 || String(periods[index - 1].month).slice(0, 4) !== String(item.month).slice(0, 4);
+        });
+
+        var headHtml = '<tr>'
+            + '<th rowspan="2" class="num stats-matrix-total">' + escapeHtml(tr('Всего', 'Total')) + '</th>';
+        var monthRow = '<tr>';
+        groups.forEach(function (item) {
+            headHtml += '<th colspan="' + item.periods.length + '" class="stats-matrix-year">' + escapeHtml(item.year) + '</th>';
+            item.periods.forEach(function (month) {
+                var index = Number(String(month.month).slice(5, 7)) - 1;
+                var short = MONTHS_SHORT[index] || month.month;
+                monthRow += '<th class="num stats-matrix-month" title="' + escapeHtml(fullMonthLabel(month.month)) + '">'
+                    + escapeHtml(short) + (month.partial ? '*' : '') + '</th>';
+            });
+        });
+        headHtml += '<th rowspan="2" class="stats-matrix-name">' + escapeHtml(tr('Направление', 'Direction')) + '</th>'
+            + '</tr>' + monthRow + '</tr>';
+        head.innerHTML = headHtml;
+
+        var rows = [];
+        var missing = 0;
+        matrixDirections(data).forEach(function (row) {
+            var direction = row.direction;
+            var byMonth = {};
+            if (direction && Array.isArray(direction.periods)) {
+                direction.periods.forEach(function (item) { byMonth[item.month] = item; });
+            }
+            var total = 0;
+            var cells = periods.map(function (month, index) {
+                var item = direction ? byMonth[month.month] : null;
+                var classes = 'num';
+                if (yearStarts[index]) classes += ' is-year-start';
+                if (!item) {
+                    return '<td class="' + classes + ' muted">—</td>';
+                }
+                var net = Number(item.net) || 0;
+                total += net;
+                classes += net > 0 ? ' net-pos' : net < 0 ? ' net-neg' : ' is-zero';
+                return '<td class="' + classes + '" title="'
+                    + escapeHtml(fullMonthLabel(month.month) + ': ' + matrixValue(net) + ' ' + unitKm2()) + '">'
+                    + escapeHtml(matrixValue(net)) + '</td>';
+            }).join('');
+
+            if (!direction) missing += 1;
+            // ponytail: итог меньше 1 км² считаем нулевым — у Херсона −0.57.
+            var inactive = !direction || Math.abs(total) < 1;
+            var rowClasses = ['stats-matrix-row'];
+            if (direction) rowClasses.push('is-clickable');
+            if (inactive) rowClasses.push('is-inactive');
+            if (direction && selectedIds.indexOf(direction.id) !== -1) rowClasses.push('is-selected');
+            rows.push('<tr class="' + rowClasses.join(' ') + '"'
+                + (direction ? ' data-direction="' + escapeHtml(direction.id) + '" tabindex="0"' : '')
+                + '>'
+                + '<td class="num stats-matrix-total ' + (total > 0 ? 'net-pos' : total < 0 ? 'net-neg' : 'is-zero') + '">'
+                + escapeHtml(direction ? matrixValue(total) : '—') + '</td>'
+                + cells
+                + '<td class="stats-matrix-name">' + escapeHtml(row.label) + '</td></tr>');
+        });
+        body.innerHTML = rows.join('');
+
+        var totalNet = summarize(periods).net;
+        foot.innerHTML = '<tr class="is-total">'
+            + '<td class="num stats-matrix-total">' + escapeHtml(matrixValue(totalNet)) + '</td>'
+            + periods.map(function (month) {
+                return '<td class="num">' + escapeHtml(matrixValue(month.net)) + '</td>';
+            }).join('')
+            + '<td class="stats-matrix-name">' + escapeHtml(tr('Итого', 'Total')) + '</td>'
+            + '</tr>';
+
+        if (sub) {
+            sub.textContent = tr('Показано ', 'Showing ') + periodsCaption(periods)
+                + ' · ' + rangeLabel(state.range) + ' · ' + tr('нетто, км²', 'net, km²') + '.';
+        }
+        if (note) {
+            var parts = [tr('Нажмите на направления, чтобы выбрать их для сравнения (можно несколько).',
+                'Click directions to include them in the comparison (multiple allowed).')];
+            if (missing) {
+                parts.push(tr('«—» — направление ещё не размечено в KML границ.',
+                    '"—" — the direction is not mapped in the boundary KML yet.'));
+            }
+            parts.push(tr('Бледные строки — без изменений за период.',
+                'Faded rows — no change over the period.'));
+            note.textContent = parts.join(' ');
+        }
+
+        var wrap = document.querySelector('.stats-matrix-wrap');
+        if (wrap && state.matrixRange !== state.range) {
+            state.matrixRange = state.range;
+            window.requestAnimationFrame(function () { wrap.scrollLeft = wrap.scrollWidth; });
+        }
     }
 
     function renderDirections(data, periods) {
         var section = document.getElementById('directions');
         var body = document.getElementById('stats-directions-body');
-        var select = document.getElementById('stats-direction-select');
         if (!section || !body) return;
         var directions = data.directions || [];
         if (!directions.length || !periods.length) {
@@ -1405,54 +1836,9 @@
             return;
         }
 
-        var selected = ensureSelectedDirection(data);
-        var rows = directions.map(function (direction) {
-            var totals = directionTotals(direction, state.range);
-            var isSelected = selected && direction.id === selected.id;
-            return '<tr class="is-clickable' + (isSelected ? ' is-selected' : '') + '"'
-                + ' data-direction="' + escapeHtml(direction.id) + '" tabindex="0">'
-                + '<td>' + escapeHtml(directionDisplayName(direction)) + '</td>'
-                + '<td class="num gain">' + (totals.gain > 0 ? '+' + formatNumber(totals.gain) : '0') + '</td>'
-                + '<td class="num loss">' + (totals.loss > 0 ? '−' + formatNumber(totals.loss) : '0') + '</td>'
-                + '<td class="num ' + (totals.net > 0 ? 'net-pos' : totals.net < 0 ? 'net-neg' : 'muted') + '">' + signed(totals.net) + '</td>'
-                + '</tr>';
-        });
+        var selected = ensureSelectedDirections(data);
+        renderDirectionMatrix(data, periods, selected);
 
-        if (data.unassigned) {
-            var unassigned = unassignedTotals(data, state.range);
-            rows.push('<tr class="is-unassigned">'
-                + '<td>' + tr('Вне направлений', 'Unassigned') + '</td>'
-                + '<td class="num gain">' + (unassigned.gain > 0 ? '+' + formatNumber(unassigned.gain) : '0') + '</td>'
-                + '<td class="num loss">' + (unassigned.loss > 0 ? '−' + formatNumber(unassigned.loss) : '0') + '</td>'
-                + '<td class="num">' + signed(unassigned.net) + '</td>'
-                + '</tr>');
-        }
-
-        var total = summarize(totalsPeriods(periods, state.range));
-        rows.push('<tr class="is-total">'
-            + '<td>' + tr('Итого', 'Total') + '</td>'
-            + '<td class="num gain">+' + formatNumber(total.gain) + '</td>'
-            + '<td class="num loss">−' + formatNumber(total.loss) + '</td>'
-            + '<td class="num">' + signed(total.net) + '</td>'
-            + '</tr>');
-        body.innerHTML = rows.join('');
-
-        if (select) {
-            select.innerHTML = directions.map(function (direction) {
-                return '<option value="' + escapeHtml(direction.id) + '">' + escapeHtml(directionDisplayName(direction)) + '</option>';
-            }).join('');
-            select.value = selected ? selected.id : '';
-        }
-
-        var sub = document.getElementById('stats-directions-sub');
-        if (sub) {
-            sub.textContent = tr('Показано ', 'Showing ') + periodsCaption(totalsPeriods(periods, state.range))
-                + tr(' за выбранный период.', ' for the selected period.');
-        }
-        var note = document.getElementById('stats-directions-note');
-        if (note) {
-            note.textContent = tr('Нажмите на направление, чтобы открыть его график. Сумма строк и «вне направлений» сходится с итогом выбранного периода.', 'Click a direction to open its chart. Rows and unassigned add up to the selected period total.');
-        }
         section.classList.remove('hidden');
         renderDirectionDetail(data, selected, periods);
     }
@@ -1545,8 +1931,9 @@
         var periods = filterPeriods(data.periods, state.range);
         renderCards(data);
         renderCurrentDirections(data);
-        renderTable(periods);
+        if (document.getElementById('stats-table-body')) renderTable(periods);
         renderMainChart(periods);
+        renderTotalChart(data, periods);
         renderDirections(data, periods);
         renderGroups(data, periods);
         updateRangeLabel(data, periods);
@@ -1558,7 +1945,7 @@
         var params = new URLSearchParams(window.location.search);
         if (state.range === 'all') params.delete('range');
         else params.set('range', state.range);
-        if (state.direction) params.set('direction', state.direction);
+        if (Array.isArray(state.directions) && state.directions.length) params.set('direction', state.directions.join(','));
         else params.delete('direction');
         var query = params.toString();
         var next = window.location.pathname + (query ? '?' + query : '');
@@ -1568,13 +1955,25 @@
     function readUrlState() {
         var params = new URLSearchParams(window.location.search);
         state.range = params.get('range') || 'all';
-        state.direction = params.get('direction') || null;
+        var rawDirection = params.get('direction');
+        state.directions = rawDirection === null ? null : rawDirection.split(',').filter(Boolean);
     }
 
     function selectMonth(month) {
         if (!state.data) return;
         state.range = month;
         renderAll();
+        syncUrl();
+    }
+
+    function toggleDirection(id) {
+        if (!state.data || !findDirection(state.data, id)) return;
+        var list = Array.isArray(state.directions) ? state.directions.slice() : [];
+        var index = list.indexOf(id);
+        if (index >= 0) list.splice(index, 1);
+        else list.push(id);
+        state.directions = list;
+        renderDirections(state.data, filterPeriods(state.data.periods, state.range));
         syncUrl();
     }
 
@@ -1585,16 +1984,16 @@
         syncUrl();
     }
 
-    function savePngDataUrl(dataUrl) {
+    function savePngDataUrl(dataUrl, name) {
         var link = document.createElement('a');
-        link.download = 'territory-months-' + new Date().toISOString().slice(0, 10) + '.png';
+        link.download = (name || 'territory') + '-' + new Date().toISOString().slice(0, 10) + '.png';
         link.href = dataUrl;
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
     }
 
-    function savePngCanvas(source) {
+    function savePngCanvas(source, name) {
         var out = document.createElement('canvas');
         out.width = source.width;
         out.height = source.height;
@@ -1602,31 +2001,53 @@
         ctx.fillStyle = '#fff';
         ctx.fillRect(0, 0, out.width, out.height);
         ctx.drawImage(source, 0, 0);
-        savePngDataUrl(out.toDataURL('image/png'));
+        savePngDataUrl(out.toDataURL('image/png'), name);
     }
 
-    function downloadMainChartPng() {
-        var frame = document.getElementById('months');
+    function pngFilter(node) {
+        if (!node || !node.classList) return true;
+        return !(node.classList.contains('is-inactive')
+            || node.classList.contains('stats-png-btn')
+            || node.classList.contains('stats-icon-btn')
+            || node.classList.contains('stats-panel-actions')
+            || node.classList.contains('stats-granularity')
+            || node.classList.contains('stats-note'));
+    }
+
+    function downloadPanelPng(button) {
+        var selector = button.getAttribute('data-shot');
+        var frame = selector ? document.querySelector(selector) : null;
         if (!frame) return;
+        var name = button.getAttribute('data-file') || 'territory';
+        var wide = !!frame.querySelector('.stats-matrix-wrap');
+        if (wide) frame.classList.add('stats-png-wide');
+        function cleanup() {
+            if (wide) frame.classList.remove('stats-png-wide');
+        }
+        function fallback() {
+            var canvas = frame.querySelector('canvas');
+            if (canvas) savePngCanvas(canvas, name);
+        }
         var lib = window.modernScreenshot;
         if (lib && typeof lib.domToPng === 'function') {
             lib.domToPng(frame, {
                 backgroundColor: '#ffffff',
-                scale: Math.min(2, window.devicePixelRatio || 1),
+                scale: 2,
                 font: false,
-                filter: function (node) {
-                    return node.id !== 'stats-chart-png' && node.id !== 'stats-chart-detail';
-                },
+                filter: pngFilter,
                 onCloneNode: function (node) {
                     if (node.tagName === 'H2') node.style.whiteSpace = 'nowrap';
                 }
-            }).then(savePngDataUrl).catch(function (error) {
+            }).then(function (dataUrl) {
+                savePngDataUrl(dataUrl, name);
+            }).catch(function (error) {
                 console.error('Не удалось сохранить PNG:', error);
-                if (charts.main && charts.main.canvas) savePngCanvas(charts.main.canvas);
-            });
+                fallback();
+            }).finally(cleanup);
             return;
         }
-        if (charts.main && charts.main.canvas) savePngCanvas(charts.main.canvas);
+        fallback();
+        cleanup();
     }
 
     function updateGranularityControls() {
@@ -1671,10 +2092,9 @@
             });
         }
 
-        var pngButton = document.getElementById('stats-chart-png');
-        if (pngButton) {
-            pngButton.addEventListener('click', downloadMainChartPng);
-        }
+        document.querySelectorAll('.stats-png-btn').forEach(function (button) {
+            button.addEventListener('click', function () { downloadPanelPng(button); });
+        });
 
         var detailButton = document.getElementById('stats-chart-detail');
         if (detailButton) {
@@ -1683,13 +2103,6 @@
                 detailButton.classList.toggle('is-active', state.detail);
                 detailButton.setAttribute('aria-pressed', state.detail ? 'true' : 'false');
                 if (state.data) renderMainChart(filterPeriods(state.data.periods, state.range));
-            });
-        }
-
-        var directionSelect = document.getElementById('stats-direction-select');
-        if (directionSelect) {
-            directionSelect.addEventListener('change', function () {
-                selectDirection(directionSelect.value);
             });
         }
 
@@ -1712,14 +2125,14 @@
         if (directionBody) {
             directionBody.addEventListener('click', function (event) {
                 var row = event.target.closest ? event.target.closest('tr[data-direction]') : null;
-                if (row) selectDirection(row.getAttribute('data-direction'));
+                if (row) toggleDirection(row.getAttribute('data-direction'));
             });
             directionBody.addEventListener('keydown', function (event) {
                 if (event.key !== 'Enter' && event.key !== ' ') return;
                 var row = event.target.closest ? event.target.closest('tr[data-direction]') : null;
                 if (!row) return;
                 event.preventDefault();
-                selectDirection(row.getAttribute('data-direction'));
+                toggleDirection(row.getAttribute('data-direction'));
             });
         }
     }

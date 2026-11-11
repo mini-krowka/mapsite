@@ -549,13 +549,107 @@ code {
     vertical-align: 1px;
 }
 
-.stats-table--directions {
-    min-width: 560px;
+.stats-matrix-wrap {
+    overflow-x: auto;
+    max-width: 100%;
+    scrollbar-width: thin;
 }
 
-.stats-table--directions td:first-child {
+.stats-table--matrix {
+    width: max-content;
+    min-width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    font-size: 12px;
+}
+
+.stats-table--matrix th,
+.stats-table--matrix td {
+    padding: 6px 8px;
+    border-bottom: 1px solid var(--gray-200);
+    white-space: nowrap;
+}
+
+.stats-table--matrix thead th {
+    background: var(--gray-50);
+}
+
+.stats-table--matrix th.stats-matrix-name,
+.stats-table--matrix td.stats-matrix-name {
+    position: sticky;
+    right: 0;
+    z-index: 2;
+    width: 260px;
+    min-width: 260px;
+    max-width: 300px;
     white-space: normal;
-    min-width: 250px;
+    text-align: left;
+    background: var(--surface);
+    box-shadow: -1px 0 0 var(--gray-200);
+}
+
+.stats-table--matrix thead th.stats-matrix-name {
+    z-index: 3;
+    background: var(--gray-50);
+}
+
+.stats-table--matrix tbody tr:hover td {
+    background: var(--gray-50);
+}
+
+.stats-table--matrix tbody tr.is-selected td {
+    background: #fff8e1;
+}
+
+.stats-table--matrix td.num,
+.stats-table--matrix th.num {
+    min-width: 54px;
+}
+
+.stats-table--matrix .stats-matrix-name,
+.stats-table--matrix .stats-matrix-total {
+    font-weight: 700;
+}
+
+.stats-table--matrix .stats-matrix-total {
+    border-right: 1px solid var(--gray-300);
+}
+
+.stats-table--matrix .stats-matrix-year {
+    text-align: center;
+    border-left: 1px solid var(--gray-300);
+}
+
+.stats-table--matrix .is-year-start {
+    border-left: 1px solid var(--gray-300);
+}
+
+.stats-table--matrix tbody tr.is-inactive {
+    opacity: 0.55;
+}
+
+.stats-table--matrix tbody tr.is-inactive:hover {
+    opacity: 0.78;
+}
+
+.stats-table--matrix td.net-pos { color: var(--stats-gain); }
+.stats-table--matrix td.net-neg { color: var(--stats-loss); }
+.stats-table--matrix td.is-zero { color: var(--text-muted); }
+
+.stats-table--matrix tfoot td {
+    border-top: 2px solid var(--gray-300);
+    border-bottom: none;
+    background: var(--gray-50);
+    font-weight: 700;
+}
+
+.stats-png-wide {
+    width: max-content;
+    max-width: none;
+}
+
+.stats-png-wide .stats-matrix-wrap {
+    overflow: visible;
 }
 
 .stats-table tbody tr.is-total td {
@@ -727,6 +821,13 @@ code {
     border-top: 1px solid var(--gray-200);
 }
 
+.stats-direction-tools {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
 .stats-direction-head {
     display: flex;
     align-items: flex-start;
@@ -755,6 +856,10 @@ code {
 .stats-chart-wrap--small {
     height: 300px;
     margin-top: 8px;
+}
+
+.stats-chart-wrap--total {
+    height: 360px;
 }
 
 /* ---------- Пустое состояние ---------- */
@@ -875,6 +980,16 @@ code {
 
     .stats-chart-wrap--small {
         height: 260px;
+    }
+
+    .stats-chart-wrap--total {
+        height: 300px;
+    }
+
+    .stats-table--matrix th.stats-matrix-name,
+    .stats-table--matrix td.stats-matrix-name {
+        width: 190px;
+        min-width: 190px;
     }
 
     .stats-legend {

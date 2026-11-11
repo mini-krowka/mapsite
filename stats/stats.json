@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-09T20:40:45.808Z",
-  "generator": "post_helper",
+  "generatedAt": "2026-11-11T04:06:43.429Z",
+  "generator": "tools/build-stats.mjs",
   "source": {
     "dataset": "ControlZones",
     "plusSide": "RU",
@@ -26,10 +26,10 @@
       "version": "1",
       "note": "Границы направлений: области и секторы; компонент относится к направлению по центроиду.",
       "method": "centroid",
-      "count": 11
+      "count": 12
     }
   },
-  "snapshotCount": 39,
+  "snapshotCount": 172,
   "firstSnapshot": "2023-10-06",
   "lastSnapshot": "2026-11-09",
   "periods": [
@@ -142,6 +142,13 @@
           "gain": 0.17,
           "loss": 3.22,
           "net": -3.05
+        },
+        {
+          "id": "kursk",
+          "name": "Курская область",
+          "gain": 0,
+          "loss": 0,
+          "net": 0
         }
       ],
       "unassigned": {
@@ -259,6 +266,13 @@
           "gain": 3.03,
           "loss": 0.78,
           "net": 2.25
+        },
+        {
+          "id": "kursk",
+          "name": "Курская область",
+          "gain": 0,
+          "loss": 0,
+          "net": 0
         }
       ],
       "unassigned": {
@@ -376,6 +390,13 @@
           "gain": 0.04,
           "loss": 0.04,
           "net": 0
+        },
+        {
+          "id": "kursk",
+          "name": "Курская область",
+          "gain": 0,
+          "loss": 0,
+          "net": 0
         }
       ],
       "unassigned": {
@@ -490,6 +511,13 @@
         {
           "id": "herson",
           "name": "Херсонское",
+          "gain": 0,
+          "loss": 0,
+          "net": 0
+        },
+        {
+          "id": "kursk",
+          "name": "Курская область",
           "gain": 0,
           "loss": 0,
           "net": 0
@@ -610,6 +638,13 @@
           "gain": 0.07,
           "loss": 0.11,
           "net": -0.04
+        },
+        {
+          "id": "kursk",
+          "name": "Курская область",
+          "gain": 0,
+          "loss": 0,
+          "net": 0
         }
       ],
       "unassigned": {
@@ -724,6 +759,13 @@
         {
           "id": "herson",
           "name": "Херсонское",
+          "gain": 0,
+          "loss": 0,
+          "net": 0
+        },
+        {
+          "id": "kursk",
+          "name": "Курская область",
           "gain": 0,
           "loss": 0,
           "net": 0
@@ -844,6 +886,13 @@
           "gain": 0.02,
           "loss": 0.06,
           "net": -0.04
+        },
+        {
+          "id": "kursk",
+          "name": "Курская область",
+          "gain": 0,
+          "loss": 0,
+          "net": 0
         }
       ],
       "unassigned": {
@@ -961,6 +1010,13 @@
           "gain": 0.01,
           "loss": 0.02,
           "net": -0.01
+        },
+        {
+          "id": "kursk",
+          "name": "Курская область",
+          "gain": 0,
+          "loss": 0,
+          "net": 0
         }
       ],
       "unassigned": {
@@ -1075,6 +1131,13 @@
         {
           "id": "herson",
           "name": "Херсонское",
+          "gain": 0,
+          "loss": 0,
+          "net": 0
+        },
+        {
+          "id": "kursk",
+          "name": "Курская область",
           "gain": 0,
           "loss": 0,
           "net": 0
@@ -1195,6 +1258,13 @@
           "gain": 0.02,
           "loss": 0.08,
           "net": -0.06
+        },
+        {
+          "id": "kursk",
+          "name": "Курская область",
+          "gain": 0,
+          "loss": 0,
+          "net": 0
         }
       ],
       "unassigned": {
@@ -1240,8 +1310,8 @@
           "id": "sumy",
           "name": "Сумское",
           "gain": 0,
-          "loss": 953.87,
-          "net": -953.87
+          "loss": 0,
+          "net": 0
         },
         {
           "id": "kharkiv",
@@ -1312,6 +1382,13 @@
           "gain": 0,
           "loss": 0,
           "net": 0
+        },
+        {
+          "id": "kursk",
+          "name": "Курская область",
+          "gain": 0,
+          "loss": 953.87,
+          "net": -953.87
         }
       ],
       "unassigned": {
@@ -1356,9 +1433,9 @@
         {
           "id": "sumy",
           "name": "Сумское",
-          "gain": 228.15,
-          "loss": 98.68,
-          "net": 129.47
+          "gain": 0,
+          "loss": 0,
+          "net": 0
         },
         {
           "id": "kharkiv",
@@ -1429,6 +1506,13 @@
           "gain": 0,
           "loss": 0,
           "net": 0
+        },
+        {
+          "id": "kursk",
+          "name": "Курская область",
+          "gain": 228.15,
+          "loss": 98.68,
+          "net": 129.47
         }
       ],
       "unassigned": {
@@ -1473,9 +1557,9 @@
         {
           "id": "sumy",
           "name": "Сумское",
-          "gain": 224.38,
-          "loss": 31.2,
-          "net": 193.18
+          "gain": 0,
+          "loss": 0,
+          "net": 0
         },
         {
           "id": "kharkiv",
@@ -1546,6 +1630,13 @@
           "gain": 0.06,
           "loss": 0.03,
           "net": 0.03
+        },
+        {
+          "id": "kursk",
+          "name": "Курская область",
+          "gain": 224.38,
+          "loss": 31.2,
+          "net": 193.18
         }
       ],
       "unassigned": {
@@ -1590,9 +1681,9 @@
         {
           "id": "sumy",
           "name": "Сумское",
-          "gain": 82.25,
-          "loss": 10.37,
-          "net": 71.88
+          "gain": 0,
+          "loss": 0,
+          "net": 0
         },
         {
           "id": "kharkiv",
@@ -1663,6 +1754,13 @@
           "gain": 0,
           "loss": 0,
           "net": 0
+        },
+        {
+          "id": "kursk",
+          "name": "Курская область",
+          "gain": 82.25,
+          "loss": 10.37,
+          "net": 71.88
         }
       ],
       "unassigned": {
@@ -1707,9 +1805,9 @@
         {
           "id": "sumy",
           "name": "Сумское",
-          "gain": 29.76,
-          "loss": 14.12,
-          "net": 15.64
+          "gain": 0,
+          "loss": 0,
+          "net": 0
         },
         {
           "id": "kharkiv",
@@ -1780,6 +1878,13 @@
           "gain": 0,
           "loss": 0,
           "net": 0
+        },
+        {
+          "id": "kursk",
+          "name": "Курская область",
+          "gain": 29.76,
+          "loss": 14.12,
+          "net": 15.64
         }
       ],
       "unassigned": {
@@ -1824,9 +1929,9 @@
         {
           "id": "sumy",
           "name": "Сумское",
-          "gain": 49.96,
-          "loss": 18.65,
-          "net": 31.31
+          "gain": 0,
+          "loss": 0,
+          "net": 0
         },
         {
           "id": "kharkiv",
@@ -1897,6 +2002,13 @@
           "gain": 0,
           "loss": 0,
           "net": 0
+        },
+        {
+          "id": "kursk",
+          "name": "Курская область",
+          "gain": 49.96,
+          "loss": 18.65,
+          "net": 31.31
         }
       ],
       "unassigned": {
@@ -1941,9 +2053,9 @@
         {
           "id": "sumy",
           "name": "Сумское",
-          "gain": 20.69,
-          "loss": 12.25,
-          "net": 8.44
+          "gain": 0,
+          "loss": 0,
+          "net": 0
         },
         {
           "id": "kharkiv",
@@ -2014,6 +2126,13 @@
           "gain": 0.02,
           "loss": 0,
           "net": 0.02
+        },
+        {
+          "id": "kursk",
+          "name": "Курская область",
+          "gain": 20.69,
+          "loss": 12.25,
+          "net": 8.44
         }
       ],
       "unassigned": {
@@ -2058,9 +2177,9 @@
         {
           "id": "sumy",
           "name": "Сумское",
-          "gain": 454.66,
-          "loss": 0.43,
-          "net": 454.23
+          "gain": 0,
+          "loss": 0,
+          "net": 0
         },
         {
           "id": "kharkiv",
@@ -2131,6 +2250,13 @@
           "gain": 0,
           "loss": 0,
           "net": 0
+        },
+        {
+          "id": "kursk",
+          "name": "Курская область",
+          "gain": 454.66,
+          "loss": 0.43,
+          "net": 454.23
         }
       ],
       "unassigned": {
@@ -2175,9 +2301,9 @@
         {
           "id": "sumy",
           "name": "Сумское",
-          "gain": 87.46,
-          "loss": 1.32,
-          "net": 86.14
+          "gain": 16.67,
+          "loss": 0,
+          "net": 16.67
         },
         {
           "id": "kharkiv",
@@ -2248,6 +2374,13 @@
           "gain": 0,
           "loss": 0,
           "net": 0
+        },
+        {
+          "id": "kursk",
+          "name": "Курская область",
+          "gain": 70.79,
+          "loss": 1.32,
+          "net": 69.47
         }
       ],
       "unassigned": {
@@ -2292,9 +2425,9 @@
         {
           "id": "sumy",
           "name": "Сумское",
-          "gain": 51.6,
-          "loss": 0.62,
-          "net": 50.98
+          "gain": 39.11,
+          "loss": 0.15,
+          "net": 38.96
         },
         {
           "id": "kharkiv",
@@ -2365,6 +2498,13 @@
           "gain": 0,
           "loss": 0,
           "net": 0
+        },
+        {
+          "id": "kursk",
+          "name": "Курская область",
+          "gain": 12.49,
+          "loss": 0.47,
+          "net": 12.02
         }
       ],
       "unassigned": {
@@ -2409,9 +2549,9 @@
         {
           "id": "sumy",
           "name": "Сумское",
-          "gain": 94.64,
-          "loss": 0.78,
-          "net": 93.86
+          "gain": 86.31,
+          "loss": 0.21,
+          "net": 86.1
         },
         {
           "id": "kharkiv",
@@ -2482,6 +2622,13 @@
           "gain": 0,
           "loss": 0,
           "net": 0
+        },
+        {
+          "id": "kursk",
+          "name": "Курская область",
+          "gain": 8.33,
+          "loss": 0.57,
+          "net": 7.76
         }
       ],
       "unassigned": {
@@ -2596,6 +2743,13 @@
         {
           "id": "herson",
           "name": "Херсонское",
+          "gain": 0,
+          "loss": 0,
+          "net": 0
+        },
+        {
+          "id": "kursk",
+          "name": "Курская область",
           "gain": 0,
           "loss": 0,
           "net": 0
@@ -2716,6 +2870,13 @@
           "gain": 0.33,
           "loss": 0,
           "net": 0.33
+        },
+        {
+          "id": "kursk",
+          "name": "Курская область",
+          "gain": 0,
+          "loss": 0,
+          "net": 0
         }
       ],
       "unassigned": {
@@ -2830,6 +2991,13 @@
         {
           "id": "herson",
           "name": "Херсонское",
+          "gain": 0,
+          "loss": 0,
+          "net": 0
+        },
+        {
+          "id": "kursk",
+          "name": "Курская область",
           "gain": 0,
           "loss": 0,
           "net": 0
@@ -2950,6 +3118,13 @@
           "gain": 0,
           "loss": 0,
           "net": 0
+        },
+        {
+          "id": "kursk",
+          "name": "Курская область",
+          "gain": 0,
+          "loss": 0,
+          "net": 0
         }
       ],
       "unassigned": {
@@ -3064,6 +3239,13 @@
         {
           "id": "herson",
           "name": "Херсонское",
+          "gain": 0,
+          "loss": 0,
+          "net": 0
+        },
+        {
+          "id": "kursk",
+          "name": "Курская область",
           "gain": 0,
           "loss": 0,
           "net": 0
@@ -3184,6 +3366,13 @@
           "gain": 0,
           "loss": 0,
           "net": 0
+        },
+        {
+          "id": "kursk",
+          "name": "Курская область",
+          "gain": 0,
+          "loss": 0,
+          "net": 0
         }
       ],
       "unassigned": {
@@ -3298,6 +3487,13 @@
         {
           "id": "herson",
           "name": "Херсонское",
+          "gain": 0,
+          "loss": 0,
+          "net": 0
+        },
+        {
+          "id": "kursk",
+          "name": "Курская область",
           "gain": 0,
           "loss": 0,
           "net": 0
@@ -3418,6 +3614,13 @@
           "gain": 0,
           "loss": 0,
           "net": 0
+        },
+        {
+          "id": "kursk",
+          "name": "Курская область",
+          "gain": 0,
+          "loss": 0,
+          "net": 0
         }
       ],
       "unassigned": {
@@ -3532,6 +3735,13 @@
         {
           "id": "herson",
           "name": "Херсонское",
+          "gain": 0,
+          "loss": 0,
+          "net": 0
+        },
+        {
+          "id": "kursk",
+          "name": "Курская область",
           "gain": 0,
           "loss": 0,
           "net": 0
@@ -3652,6 +3862,13 @@
           "gain": 0,
           "loss": 0,
           "net": 0
+        },
+        {
+          "id": "kursk",
+          "name": "Курская область",
+          "gain": 0,
+          "loss": 0,
+          "net": 0
         }
       ],
       "unassigned": {
@@ -3696,9 +3913,9 @@
         {
           "id": "sumy",
           "name": "Сумское",
-          "gain": 54.04,
-          "loss": 1.31,
-          "net": 52.73
+          "gain": 40.51,
+          "loss": 0.83,
+          "net": 39.68
         },
         {
           "id": "kharkiv",
@@ -3769,6 +3986,13 @@
           "gain": 0,
           "loss": 0,
           "net": 0
+        },
+        {
+          "id": "kursk",
+          "name": "Курская область",
+          "gain": 13.53,
+          "loss": 0.48,
+          "net": 13.05
         }
       ],
       "unassigned": {
@@ -3883,6 +4107,13 @@
         {
           "id": "herson",
           "name": "Херсонское",
+          "gain": 0,
+          "loss": 0,
+          "net": 0
+        },
+        {
+          "id": "kursk",
+          "name": "Курская область",
           "gain": 0,
           "loss": 0,
           "net": 0
@@ -4003,6 +4234,13 @@
           "gain": 0,
           "loss": 0,
           "net": 0
+        },
+        {
+          "id": "kursk",
+          "name": "Курская область",
+          "gain": 0,
+          "loss": 0,
+          "net": 0
         }
       ],
       "unassigned": {
@@ -4117,6 +4355,13 @@
         {
           "id": "herson",
           "name": "Херсонское",
+          "gain": 0,
+          "loss": 0,
+          "net": 0
+        },
+        {
+          "id": "kursk",
+          "name": "Курская область",
           "gain": 0,
           "loss": 0,
           "net": 0
@@ -4237,6 +4482,13 @@
           "gain": 0,
           "loss": 0,
           "net": 0
+        },
+        {
+          "id": "kursk",
+          "name": "Курская область",
+          "gain": 0,
+          "loss": 0,
+          "net": 0
         }
       ],
       "unassigned": {
@@ -4281,9 +4533,9 @@
         {
           "id": "sumy",
           "name": "Сумское",
-          "gain": 7.74,
-          "loss": 0.4,
-          "net": 7.34
+          "gain": 5.91,
+          "loss": 0.37,
+          "net": 5.54
         },
         {
           "id": "kharkiv",
@@ -4354,6 +4606,13 @@
           "gain": 0,
           "loss": 0,
           "net": 0
+        },
+        {
+          "id": "kursk",
+          "name": "Курская область",
+          "gain": 1.83,
+          "loss": 0.03,
+          "net": 1.8
         }
       ],
       "unassigned": {
@@ -4468,6 +4727,13 @@
         {
           "id": "herson",
           "name": "Херсонское",
+          "gain": 0,
+          "loss": 0,
+          "net": 0
+        },
+        {
+          "id": "kursk",
+          "name": "Курская область",
           "gain": 0,
           "loss": 0,
           "net": 0
@@ -4624,9 +4890,9 @@
           "days": 31,
           "partial": false,
           "gain": 0,
-          "loss": 953.87,
-          "net": -953.87,
-          "rate": -30.77
+          "loss": 0,
+          "net": 0,
+          "rate": 0
         },
         {
           "month": "2024-09",
@@ -4635,10 +4901,10 @@
           "to": "2024-10-01",
           "days": 30,
           "partial": false,
-          "gain": 228.15,
-          "loss": 98.68,
-          "net": 129.47,
-          "rate": 4.32
+          "gain": 0,
+          "loss": 0,
+          "net": 0,
+          "rate": 0
         },
         {
           "month": "2024-10",
@@ -4647,10 +4913,10 @@
           "to": "2024-11-01",
           "days": 31,
           "partial": false,
-          "gain": 224.38,
-          "loss": 31.2,
-          "net": 193.18,
-          "rate": 6.23
+          "gain": 0,
+          "loss": 0,
+          "net": 0,
+          "rate": 0
         },
         {
           "month": "2024-11",
@@ -4659,10 +4925,10 @@
           "to": "2024-12-01",
           "days": 30,
           "partial": false,
-          "gain": 82.25,
-          "loss": 10.37,
-          "net": 71.88,
-          "rate": 2.4
+          "gain": 0,
+          "loss": 0,
+          "net": 0,
+          "rate": 0
         },
         {
           "month": "2024-12",
@@ -4671,10 +4937,10 @@
           "to": "2025-01-01",
           "days": 31,
           "partial": false,
-          "gain": 29.76,
-          "loss": 14.12,
-          "net": 15.64,
-          "rate": 0.5
+          "gain": 0,
+          "loss": 0,
+          "net": 0,
+          "rate": 0
         },
         {
           "month": "2025-01",
@@ -4683,10 +4949,10 @@
           "to": "2025-02-01",
           "days": 31,
           "partial": false,
-          "gain": 49.96,
-          "loss": 18.65,
-          "net": 31.31,
-          "rate": 1.01
+          "gain": 0,
+          "loss": 0,
+          "net": 0,
+          "rate": 0
         },
         {
           "month": "2025-02",
@@ -4695,10 +4961,10 @@
           "to": "2025-03-01",
           "days": 28,
           "partial": false,
-          "gain": 20.69,
-          "loss": 12.25,
-          "net": 8.44,
-          "rate": 0.3
+          "gain": 0,
+          "loss": 0,
+          "net": 0,
+          "rate": 0
         },
         {
           "month": "2025-03",
@@ -4707,10 +4973,10 @@
           "to": "2025-04-01",
           "days": 31,
           "partial": false,
-          "gain": 454.66,
-          "loss": 0.43,
-          "net": 454.23,
-          "rate": 14.65
+          "gain": 0,
+          "loss": 0,
+          "net": 0,
+          "rate": 0
         },
         {
           "month": "2025-04",
@@ -4719,10 +4985,10 @@
           "to": "2025-05-01",
           "days": 30,
           "partial": false,
-          "gain": 87.46,
-          "loss": 1.32,
-          "net": 86.14,
-          "rate": 2.87
+          "gain": 16.67,
+          "loss": 0,
+          "net": 16.67,
+          "rate": 0.56
         },
         {
           "month": "2025-05",
@@ -4731,10 +4997,10 @@
           "to": "2025-06-01",
           "days": 31,
           "partial": false,
-          "gain": 51.6,
-          "loss": 0.62,
-          "net": 50.98,
-          "rate": 1.64
+          "gain": 39.11,
+          "loss": 0.15,
+          "net": 38.96,
+          "rate": 1.26
         },
         {
           "month": "2025-06",
@@ -4743,10 +5009,10 @@
           "to": "2025-07-01",
           "days": 30,
           "partial": false,
-          "gain": 94.64,
-          "loss": 0.78,
-          "net": 93.86,
-          "rate": 3.13
+          "gain": 86.31,
+          "loss": 0.21,
+          "net": 86.1,
+          "rate": 2.87
         },
         {
           "month": "2025-07",
@@ -4875,10 +5141,10 @@
           "to": "2026-06-01",
           "days": 31,
           "partial": false,
-          "gain": 54.04,
-          "loss": 1.31,
-          "net": 52.73,
-          "rate": 1.7
+          "gain": 40.51,
+          "loss": 0.83,
+          "net": 39.68,
+          "rate": 1.28
         },
         {
           "month": "2026-06",
@@ -4935,10 +5201,10 @@
           "to": "2026-11-01",
           "days": 31,
           "partial": false,
-          "gain": 7.74,
-          "loss": 0.4,
-          "net": 7.34,
-          "rate": 0.24
+          "gain": 5.91,
+          "loss": 0.37,
+          "net": 5.54,
+          "rate": 0.18
         },
         {
           "month": "2026-11",
@@ -4954,14 +5220,14 @@
         }
       ],
       "totals": {
-        "gain": 1598.63,
-        "loss": 1185.67,
-        "net": 412.96
+        "gain": 401.81,
+        "loss": 43.23,
+        "net": 358.58
       },
       "fullTotals": {
-        "gain": 1598.63,
-        "loss": 1185.67,
-        "net": 412.96
+        "gain": 401.81,
+        "loss": 43.23,
+        "net": 358.58
       }
     },
     {
@@ -9692,6 +9958,479 @@
         "gain": 3.77,
         "loss": 4.34,
         "net": -0.57
+      }
+    },
+    {
+      "id": "kursk",
+      "name": "Курская область",
+      "group": "Север",
+      "periods": [
+        {
+          "month": "2023-10",
+          "label": "Октябрь 2023",
+          "from": "2023-10-06",
+          "to": "2023-11-01",
+          "days": 26,
+          "partial": false,
+          "gain": 0,
+          "loss": 0,
+          "net": 0,
+          "rate": 0
+        },
+        {
+          "month": "2023-11",
+          "label": "Ноябрь 2023",
+          "from": "2023-11-01",
+          "to": "2023-12-01",
+          "days": 30,
+          "partial": false,
+          "gain": 0,
+          "loss": 0,
+          "net": 0,
+          "rate": 0
+        },
+        {
+          "month": "2023-12",
+          "label": "Декабрь 2023",
+          "from": "2023-12-01",
+          "to": "2024-01-01",
+          "days": 31,
+          "partial": false,
+          "gain": 0,
+          "loss": 0,
+          "net": 0,
+          "rate": 0
+        },
+        {
+          "month": "2024-01",
+          "label": "Январь 2024",
+          "from": "2024-01-01",
+          "to": "2024-02-01",
+          "days": 31,
+          "partial": false,
+          "gain": 0,
+          "loss": 0,
+          "net": 0,
+          "rate": 0
+        },
+        {
+          "month": "2024-02",
+          "label": "Февраль 2024",
+          "from": "2024-02-01",
+          "to": "2024-03-01",
+          "days": 29,
+          "partial": false,
+          "gain": 0,
+          "loss": 0,
+          "net": 0,
+          "rate": 0
+        },
+        {
+          "month": "2024-03",
+          "label": "Март 2024",
+          "from": "2024-03-01",
+          "to": "2024-04-01",
+          "days": 31,
+          "partial": false,
+          "gain": 0,
+          "loss": 0,
+          "net": 0,
+          "rate": 0
+        },
+        {
+          "month": "2024-04",
+          "label": "Апрель 2024",
+          "from": "2024-04-01",
+          "to": "2024-05-01",
+          "days": 30,
+          "partial": false,
+          "gain": 0,
+          "loss": 0,
+          "net": 0,
+          "rate": 0
+        },
+        {
+          "month": "2024-05",
+          "label": "Май 2024",
+          "from": "2024-05-01",
+          "to": "2024-06-01",
+          "days": 31,
+          "partial": false,
+          "gain": 0,
+          "loss": 0,
+          "net": 0,
+          "rate": 0
+        },
+        {
+          "month": "2024-06",
+          "label": "Июнь 2024",
+          "from": "2024-06-01",
+          "to": "2024-07-01",
+          "days": 30,
+          "partial": false,
+          "gain": 0,
+          "loss": 0,
+          "net": 0,
+          "rate": 0
+        },
+        {
+          "month": "2024-07",
+          "label": "Июль 2024",
+          "from": "2024-07-01",
+          "to": "2024-08-01",
+          "days": 31,
+          "partial": false,
+          "gain": 0,
+          "loss": 0,
+          "net": 0,
+          "rate": 0
+        },
+        {
+          "month": "2024-08",
+          "label": "Август 2024",
+          "from": "2024-08-01",
+          "to": "2024-09-01",
+          "days": 31,
+          "partial": false,
+          "gain": 0,
+          "loss": 953.87,
+          "net": -953.87,
+          "rate": -30.77
+        },
+        {
+          "month": "2024-09",
+          "label": "Сентябрь 2024",
+          "from": "2024-09-01",
+          "to": "2024-10-01",
+          "days": 30,
+          "partial": false,
+          "gain": 228.15,
+          "loss": 98.68,
+          "net": 129.47,
+          "rate": 4.32
+        },
+        {
+          "month": "2024-10",
+          "label": "Октябрь 2024",
+          "from": "2024-10-01",
+          "to": "2024-11-01",
+          "days": 31,
+          "partial": false,
+          "gain": 224.38,
+          "loss": 31.2,
+          "net": 193.18,
+          "rate": 6.23
+        },
+        {
+          "month": "2024-11",
+          "label": "Ноябрь 2024",
+          "from": "2024-11-01",
+          "to": "2024-12-01",
+          "days": 30,
+          "partial": false,
+          "gain": 82.25,
+          "loss": 10.37,
+          "net": 71.88,
+          "rate": 2.4
+        },
+        {
+          "month": "2024-12",
+          "label": "Декабрь 2024",
+          "from": "2024-12-01",
+          "to": "2025-01-01",
+          "days": 31,
+          "partial": false,
+          "gain": 29.76,
+          "loss": 14.12,
+          "net": 15.64,
+          "rate": 0.5
+        },
+        {
+          "month": "2025-01",
+          "label": "Январь 2025",
+          "from": "2025-01-01",
+          "to": "2025-02-01",
+          "days": 31,
+          "partial": false,
+          "gain": 49.96,
+          "loss": 18.65,
+          "net": 31.31,
+          "rate": 1.01
+        },
+        {
+          "month": "2025-02",
+          "label": "Февраль 2025",
+          "from": "2025-02-01",
+          "to": "2025-03-01",
+          "days": 28,
+          "partial": false,
+          "gain": 20.69,
+          "loss": 12.25,
+          "net": 8.44,
+          "rate": 0.3
+        },
+        {
+          "month": "2025-03",
+          "label": "Март 2025",
+          "from": "2025-03-01",
+          "to": "2025-04-01",
+          "days": 31,
+          "partial": false,
+          "gain": 454.66,
+          "loss": 0.43,
+          "net": 454.23,
+          "rate": 14.65
+        },
+        {
+          "month": "2025-04",
+          "label": "Апрель 2025",
+          "from": "2025-04-01",
+          "to": "2025-05-01",
+          "days": 30,
+          "partial": false,
+          "gain": 70.79,
+          "loss": 1.32,
+          "net": 69.47,
+          "rate": 2.32
+        },
+        {
+          "month": "2025-05",
+          "label": "Май 2025",
+          "from": "2025-05-01",
+          "to": "2025-06-01",
+          "days": 31,
+          "partial": false,
+          "gain": 12.49,
+          "loss": 0.47,
+          "net": 12.02,
+          "rate": 0.39
+        },
+        {
+          "month": "2025-06",
+          "label": "Июнь 2025",
+          "from": "2025-06-01",
+          "to": "2025-07-01",
+          "days": 30,
+          "partial": false,
+          "gain": 8.33,
+          "loss": 0.57,
+          "net": 7.76,
+          "rate": 0.26
+        },
+        {
+          "month": "2025-07",
+          "label": "Июль 2025",
+          "from": "2025-07-01",
+          "to": "2025-08-01",
+          "days": 31,
+          "partial": false,
+          "gain": 0,
+          "loss": 0,
+          "net": 0,
+          "rate": 0
+        },
+        {
+          "month": "2025-08",
+          "label": "Август 2025",
+          "from": "2025-08-01",
+          "to": "2025-09-01",
+          "days": 31,
+          "partial": false,
+          "gain": 0,
+          "loss": 0,
+          "net": 0,
+          "rate": 0
+        },
+        {
+          "month": "2025-09",
+          "label": "Сентябрь 2025",
+          "from": "2025-09-01",
+          "to": "2025-10-01",
+          "days": 30,
+          "partial": false,
+          "gain": 0,
+          "loss": 0,
+          "net": 0,
+          "rate": 0
+        },
+        {
+          "month": "2025-10",
+          "label": "Октябрь 2025",
+          "from": "2025-10-01",
+          "to": "2025-11-01",
+          "days": 31,
+          "partial": false,
+          "gain": 0,
+          "loss": 0,
+          "net": 0,
+          "rate": 0
+        },
+        {
+          "month": "2025-11",
+          "label": "Ноябрь 2025",
+          "from": "2025-11-01",
+          "to": "2025-12-01",
+          "days": 30,
+          "partial": false,
+          "gain": 0,
+          "loss": 0,
+          "net": 0,
+          "rate": 0
+        },
+        {
+          "month": "2025-12",
+          "label": "Декабрь 2025",
+          "from": "2025-12-01",
+          "to": "2026-01-01",
+          "days": 31,
+          "partial": false,
+          "gain": 0,
+          "loss": 0,
+          "net": 0,
+          "rate": 0
+        },
+        {
+          "month": "2026-01",
+          "label": "Январь 2026",
+          "from": "2026-01-01",
+          "to": "2026-02-01",
+          "days": 31,
+          "partial": false,
+          "gain": 0,
+          "loss": 0,
+          "net": 0,
+          "rate": 0
+        },
+        {
+          "month": "2026-02",
+          "label": "Февраль 2026",
+          "from": "2026-02-01",
+          "to": "2026-03-01",
+          "days": 28,
+          "partial": false,
+          "gain": 0,
+          "loss": 0,
+          "net": 0,
+          "rate": 0
+        },
+        {
+          "month": "2026-03",
+          "label": "Март 2026",
+          "from": "2026-03-01",
+          "to": "2026-04-01",
+          "days": 31,
+          "partial": false,
+          "gain": 0,
+          "loss": 0,
+          "net": 0,
+          "rate": 0
+        },
+        {
+          "month": "2026-04",
+          "label": "Апрель 2026",
+          "from": "2026-04-01",
+          "to": "2026-05-01",
+          "days": 30,
+          "partial": false,
+          "gain": 0,
+          "loss": 0,
+          "net": 0,
+          "rate": 0
+        },
+        {
+          "month": "2026-05",
+          "label": "Май 2026",
+          "from": "2026-05-01",
+          "to": "2026-06-01",
+          "days": 31,
+          "partial": false,
+          "gain": 13.53,
+          "loss": 0.48,
+          "net": 13.05,
+          "rate": 0.42
+        },
+        {
+          "month": "2026-06",
+          "label": "Июнь 2026",
+          "from": "2026-06-01",
+          "to": "2026-07-01",
+          "days": 30,
+          "partial": false,
+          "gain": 0,
+          "loss": 0,
+          "net": 0,
+          "rate": 0
+        },
+        {
+          "month": "2026-07",
+          "label": "Июль 2026",
+          "from": "2026-07-01",
+          "to": "2026-08-01",
+          "days": 31,
+          "partial": false,
+          "gain": 0,
+          "loss": 0,
+          "net": 0,
+          "rate": 0
+        },
+        {
+          "month": "2026-08",
+          "label": "Август 2026",
+          "from": "2026-08-01",
+          "to": "2026-09-01",
+          "days": 31,
+          "partial": false,
+          "gain": 0,
+          "loss": 0,
+          "net": 0,
+          "rate": 0
+        },
+        {
+          "month": "2026-09",
+          "label": "Сентябрь 2026",
+          "from": "2026-09-01",
+          "to": "2026-10-01",
+          "days": 30,
+          "partial": false,
+          "gain": 0,
+          "loss": 0,
+          "net": 0,
+          "rate": 0
+        },
+        {
+          "month": "2026-10",
+          "label": "Октябрь 2026",
+          "from": "2026-10-01",
+          "to": "2026-11-01",
+          "days": 31,
+          "partial": false,
+          "gain": 1.83,
+          "loss": 0.03,
+          "net": 1.8,
+          "rate": 0.06
+        },
+        {
+          "month": "2026-11",
+          "label": "Ноябрь 2026",
+          "from": "2026-11-01",
+          "to": "2026-11-09",
+          "days": 8,
+          "partial": true,
+          "gain": 0,
+          "loss": 0,
+          "net": 0,
+          "rate": 0
+        }
+      ],
+      "totals": {
+        "gain": 1196.82,
+        "loss": 1142.44,
+        "net": 54.38
+      },
+      "fullTotals": {
+        "gain": 1196.82,
+        "loss": 1142.44,
+        "net": 54.38
       }
     }
   ],
