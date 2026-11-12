@@ -125,10 +125,10 @@ test('реальные срезы 01.10.2024 → 01.11.2024', () => {
     assert.equal(all.micro.loss, 0);
 });
 
-test('KML направлений: 12 полигонов с id', () => {
+test('KML направлений: 13 полигонов с id', () => {
     const text = fs.readFileSync(path.join(ROOT, 'kml/PermanentObjects/Directions.kml'), 'utf8');
     const directions = StatsEngine.parseKmlPolygons(text);
-    assert.equal(directions.length, 12);
+    assert.equal(directions.length, 13);
     assert.equal(directions[0].id, 'sumy');
     assert.equal(directions[0].name, 'Сумское');
     assert.equal(directions[0].group, 'Север');
@@ -142,6 +142,7 @@ test('KML направлений: 12 полигонов с id', () => {
     assert.equal(kursk.group, 'Север');
     assert.ok(kursk.polygon.length > 1000);
     assert.ok(!directions.some(direction => direction.id === 'krasny_liman'));
+    assert.ok(directions.some(direction => direction.id === 'krasnolimansk'));
     assert.ok(directions.every(direction => direction.polygon.length >= 5));
     assert.ok(directions.find(direction => direction.id === 'dnipropetrovsk').polygon.length > 1000);
     assert.ok(!fs.existsSync(path.join(ROOT, 'kml/PermanentObjects/Directions_fragments.kml')));
@@ -155,6 +156,24 @@ test('KML направлений: Сумское и Курская област�
     const overlap = clip.intersection([sumy.polygon], [kursk.polygon]);
     const area = overlap.reduce((sum, polygon) => sum + StatsEngine.multiPolygonAreaKm2([polygon]), 0);
     assert.ok(area < 0.01, 'пересечение ' + area.toFixed(3) + ' км²');
+});
+
+test('KML направлений: Славянское разделено на Славянское и Краснолиманское', () => {
+    const text = fs.readFileSync(path.join(ROOT, 'kml/PermanentObjects/Directions.kml'), 'utf8');
+    const directions = StatsEngine.parseKmlPolygons(text);
+    const slavyansk = directions.find(direction => direction.id === 'slavyansk');
+    const krasnolimansk = directions.find(direction => direction.id === 'krasnolimansk');
+    assert.equal(slavyansk.name, 'Славянское');
+    assert.equal(slavyansk.group, 'Запад');
+    assert.equal(krasnolimansk.name, 'Краснолиманское');
+    assert.equal(krasnolimansk.group, 'Запад');
+    assert.ok(StatsEngine.pointInRing([37.6056, 48.8531], slavyansk.polygon), 'Славянск должен быть в Славянском');
+    assert.ok(StatsEngine.pointInRing([37.8028, 48.9791], krasnolimansk.polygon), 'Лиман должен быть в Краснолиманском');
+    const overlap = clip.intersection([slavyansk.polygon], [krasnolimansk.polygon]);
+    const area = overlap.reduce((sum, polygon) => sum + StatsEngine.multiPolygonAreaKm2([polygon]), 0);
+    assert.ok(area < 0.01, 'пересечение ' + area.toFixed(3) + ' км²');
+    const sum = StatsEngine.ringAreaKm2(slavyansk.polygon) + StatsEngine.ringAreaKm2(krasnolimansk.polygon);
+    assert.ok(Math.abs(sum - 12365.08) < 0.1, 'суммарная площадь ' + sum.toFixed(2) + ' км²');
 });
 
 test('LineString не считается полигоном направления', () => {
