@@ -722,7 +722,7 @@ if (new URLSearchParams(window.location.search).has('directions') && typeof omni
     };
     directionHint.addTo(map);
 
-    const directionsLayer = omnivore.kml('kml/PermanentObjects/Directions.kml?v=20261111c');
+    const directionsLayer = omnivore.kml('kml/PermanentObjects/Directions.kml?v=20261112a');
     let directionsStats = null;
     let directionsReady = false;
 
