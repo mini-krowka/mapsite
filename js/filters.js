@@ -1154,8 +1154,9 @@ async function loadUnitsUaWithDateFilter(targetDateStr, allowedProfileIds = null
 }
 
 // Показывает детали для выбранного подразделения
-async function showUnitDetailsForProfileId(profileId) {
-    if (window.unitsUaDetailMode && window.unitsUaDetailProfileId === profileId) {
+// force = true — перерисовать без сброса режима (например, при смене даты в календаре)
+async function showUnitDetailsForProfileId(profileId, force = false) {
+    if (!force && window.unitsUaDetailMode && window.unitsUaDetailProfileId === profileId) {
         resetUnitDetails();
         return;
     }
@@ -1219,11 +1220,15 @@ async function showUnitDetailsForProfileId(profileId) {
         const dataLines = lines.slice(1);
         const detailRows = [];
         let currentMarkerRow = null;
+        // Точки позже даты календаря не показываем
+        const targetDate = parseCustomDate(window.selectedDate || getCurrentDateFormatted());
         for (const line of dataLines) {
             const data = parseUnitsCsvRow(line);
             if (!data) continue;
             if (isNaN(data.lat) || isNaN(data.lng)) continue;
             if (data.profileId !== profileId) continue;
+            const rowDate = parseCsvDate(data.date);
+            if (!rowDate || rowDate > targetDate) continue;
 
             // Запись, которая уже отображена актуальным маркером
             if (currentMarker) {
@@ -1374,8 +1379,9 @@ function resetUnitDetails() {
 }
 
 // Показывает дочерние подразделения головного подразделения (режим "Состав")
-async function showUnitCompositionForProfileId(parentId) {
-    if (window.unitsUaCompositionMode && window.unitsUaCompositionParentId === parentId) {
+// force = true — перерисовать без сброса режима (например, при смене даты в календаре)
+async function showUnitCompositionForProfileId(parentId, force = false) {
+    if (!force && window.unitsUaCompositionMode && window.unitsUaCompositionParentId === parentId) {
         resetUnitComposition();
         return;
     }
@@ -1559,6 +1565,10 @@ function escapeHtml(str) {
 // Перезагрузка слоя с учётом текущей selectedDate
 function reloadUnitsUaLayer() {
     if (window.isUnitsUaVisible) {
+        // Запоминаем активный режим, чтобы восстановить его после смены даты
+        const activeDetailProfileId = window.unitsUaDetailMode ? window.unitsUaDetailProfileId : null;
+        const activeCompositionParentId = window.unitsUaCompositionMode ? window.unitsUaCompositionParentId : null;
+
         resetUnitDetails();
         resetUnitComposition();
         const currentDate = window.selectedDate || getCurrentDateFormatted();
@@ -1581,6 +1591,18 @@ function reloadUnitsUaLayer() {
             if (filterSet !== null && window.unitsUaMarkers && window.unitsUaMarkers.length > 0) {
                 const searchBounds = L.latLngBounds(window.unitsUaMarkers.map(function(m) { return m.getLatLng(); }));
                 map.fitBounds(searchBounds, { padding: [20, 20], maxZoom: 12 });
+            }
+
+            // Возвращаем режим, если у подразделения есть гео на новую дату
+            const hasMarker = function(profileId) {
+                return window.unitsUaMarkers.some(function(m) {
+                    return m && m.options && m.options._profileId === profileId;
+                });
+            };
+            if (activeDetailProfileId && hasMarker(activeDetailProfileId)) {
+                showUnitDetailsForProfileId(activeDetailProfileId, true);
+            } else if (activeCompositionParentId && hasMarker(activeCompositionParentId)) {
+                showUnitCompositionForProfileId(activeCompositionParentId, true);
             }
         });
     }
