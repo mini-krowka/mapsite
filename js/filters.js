@@ -1391,6 +1391,9 @@ async function showUnitCompositionForProfileId(parentId) {
     window.unitsUaCompositionMode = true;
     window.unitsUaCompositionParentId = parentId;
 
+    // Гео привязываем к дате из календаря карты
+    const targetDate = parseCustomDate(window.selectedDate || getCurrentDateFormatted());
+
     // Сохраняем текущие маркеры ПВД для восстановления
     window.unitsUaSavedMarkers = [...window.unitsUaMarkers];
 
@@ -1417,7 +1420,7 @@ async function showUnitCompositionForProfileId(parentId) {
             return c.parentId === parentId;
         });
 
-        // Запасные координаты: ПВД из UnitsUA.csv, самая поздняя дата на каждый ID
+        // Запасные координаты: ПВД из UnitsUA.csv, самая поздняя дата на каждый ID не позже даты календаря
         let pvdByProfile = {};
         if (window.unitsUaCsvPath) {
             try {
@@ -1430,6 +1433,8 @@ async function showUnitCompositionForProfileId(parentId) {
                         if (!data) continue;
                         if (isNaN(data.lat) || isNaN(data.lng)) continue;
                         if (data.characteristic !== 'ПВД') continue;
+                        const rowDate = parseCsvDate(data.date);
+                        if (!rowDate || rowDate > targetDate) continue;
                         const prev = pvdByProfile[data.profileId];
                         if (!prev || parseCsvDate(data.date) > parseCsvDate(prev.date)) {
                             pvdByProfile[data.profileId] = data;
@@ -1446,9 +1451,12 @@ async function showUnitCompositionForProfileId(parentId) {
             let lng = null;
             let date = '';
 
-            // 1) Координаты из Sub_Division_UA.csv по самой поздней дате
+            // 1) Координаты из Sub_Division_UA.csv по самой поздней дате не позже даты календаря
             const subRows = window.unitsUaSubDivisions.filter(function(c) {
                 return c.id === child.id && c.coords;
+            }).filter(function(c) {
+                const cDate = parseCsvDate(c.date);
+                return cDate && cDate <= targetDate;
             });
             if (subRows.length > 0) {
                 const latest = subRows.reduce(function(a, b) {
